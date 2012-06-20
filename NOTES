@@ -1,0 +1,4 @@
+cp /home/dthomas/workspace/diagnosiscapturerwanda/omod/src/main/webapp/*.jsp  /home/dthomas/OpenmrsStandalone/openmrs-standalone-1.8.3/tomcat/webapps/openmrs19/WEB-INF/view/module/diagnosiscapturerwanda
+cp /home/dthomas/workspace/diagnosiscapturerwanda/omod/src/main/webapp/resources/*.jsp  /home/dthomas/OpenmrsStandalone/openmrs-standalone-1.8.3/tomcat/webapps/openmrs19/WEB-INF/view/module/diagnosiscapturerwanda/resources
+
+
