@@ -17,16 +17,19 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
 
+import javax.servlet.http.HttpSession;
+
 import org.openmrs.Concept;
 import org.openmrs.EncounterType;
+import org.openmrs.Location;
 import org.openmrs.OpenmrsObject;
 import org.openmrs.Order;
 import org.openmrs.OrderType;
 import org.openmrs.api.context.Context;
+import org.openmrs.module.diagnosiscapturerwanda.MetadataDictionary;
 import org.openmrs.module.diagnosiscapturerwanda.jsonconverter.DiagnosisCustomListConverter;
 import org.openmrs.module.diagnosiscapturerwanda.jsonconverter.DiagnosisCustomOpenmrsObjectConverter;
 import org.openmrs.ui.framework.BasicUiUtils;
-import org.openmrs.ui.framework.SimpleObject;
 
 
 /**
@@ -146,6 +149,10 @@ public class DiagnosisUtil {
 		else 
 			throw new RuntimeException("Unable to load EncounterType " + gpString + " from global property simplelabentry.labOrderType");	
 	}
+	
+    public static Location getLocationLoggedIn(HttpSession session) {
+        return (Location) session.getAttribute(MetadataDictionary.SESSION_ATTRIBUTE_WORKSTATION_LOCATION);
+    }
 	
 	
 }

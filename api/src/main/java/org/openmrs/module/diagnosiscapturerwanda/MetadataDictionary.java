@@ -78,6 +78,8 @@ public final class MetadataDictionary {
 	public static Concept CONCEPT_TREATMENT_OTHER;
 	public static Concept CONCEPT_REFERRED_TO;
 	
+	public final static String SESSION_ATTRIBUTE_WORKSTATION_LOCATION = "PROVIDER_WORKSTATION_LOCATION";
+	
 	public static MetadataDictionary getInstance(){
 		return MetadataDictionaryHolder.metadata;
 	}
