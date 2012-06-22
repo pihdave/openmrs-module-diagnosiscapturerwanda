@@ -78,7 +78,12 @@ public final class MetadataDictionary {
 	public static Concept CONCEPT_TREATMENT_OTHER;
 	public static Concept CONCEPT_REFERRED_TO;
 	
-	public final static String SESSION_ATTRIBUTE_WORKSTATION_LOCATION = "PROVIDER_WORKSTATION_LOCATION";
+	/*
+	 * note, this is these are the same strings that i'm using for rwandaprimarycare, so you can switch between the two apps:
+	 */
+	public final static String SESSION_ATTRIBUTE_PRIMARY_CARE_WORKSTATION_LOCATION = "primaryCareWorkstationLocation";
+	public final static String SESSION_ATTRIBUTE_DIAGNOSIS_WORKSTATION_LOCATION = "diagnosisWorkstationLocation";
+	public static final String VOLATILE_USER_DATA_LOGIN_LOCATION = "userLocation";
 	
 	public static MetadataDictionary getInstance(){
 		return MetadataDictionaryHolder.metadata;

@@ -151,7 +151,7 @@ public class DiagnosisUtil {
 	}
 	
     public static Location getLocationLoggedIn(HttpSession session) {
-        return (Location) session.getAttribute(MetadataDictionary.SESSION_ATTRIBUTE_WORKSTATION_LOCATION);
+        return (Location) session.getAttribute(MetadataDictionary.SESSION_ATTRIBUTE_DIAGNOSIS_WORKSTATION_LOCATION);
     }
 	
 	
