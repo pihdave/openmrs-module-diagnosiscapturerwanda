@@ -4,9 +4,10 @@
 <%@ include file="/WEB-INF/template/header.jsp"%>
 <%@ include file="resources/localHeader.jsp" %>
     
-TREATMENT  
-<br/>
-${test} 
+<div class="box">
+TREATMENT
+</div>
+
     
     
     

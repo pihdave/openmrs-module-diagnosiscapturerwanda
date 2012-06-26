@@ -50,6 +50,12 @@ CONCEPT_VITALS_BMI=3ce14da8-26fe-102b-80cb-0017a47871b2
 CONCEPT_OTHER_SIGNS_OR_SYMPTOMS=3ce2b170-26fe-102b-80cb-0017a47871b2
 CONCEPT_TREATMENT_OTHER=3ce88a32-26fe-102b-80cb-0017a47871b2
 CONCEPT_REFERRED_TO=3cd9fe5e-26fe-102b-80cb-0017a47871b2
+CONCEPT_SERVICE_REQUESTED=2cda28df-2fe7-42e0-bb2f-376c9f803537
+ENCOUNTER_TYPE_REGISTRATION=d7a2827a-40eb-461a-8636-1f9d3991ad57
+ENCOUNTER_TYPE_VITALS=7d2b9911-7b1b-4313-adb7-16294d3463a8
+ENCOUNTER_TYPE_DIAGNOSIS=688a608d-3023-4347-971b-e7dde3b638a1
+ENCOUNTER_TYPE_LABS=082e1261-cbd6-48a1-9300-51f0ab9ef489
+IDENTIFIER_TYPE_REGISTRATION=984cce9a-3d87-4347-81ea-3ea5d4eb42f4
 		</defaultValue>
 		<description>
 			the mappings of constant names to uuids.  used to load all diagnosis capture metadata.
@@ -79,6 +85,19 @@ CONCEPT_REFERRED_TO=3cd9fe5e-26fe-102b-80cb-0017a47871b2
 			id or uuid, the lab order type
 		</description>
 	</globalProperty>
+	
+	<globalProperty>
+	    <property>diagnosiscapturerwanda.registrationSystemUrl</property>
+	    <defaultValue>module/rwandaprimarycare/homepage.form</defaultValue>
+		<description>This should be the url pointing to your registration system.  Start with module name, for example: module/rwandaprimarycare/homepage.form</description>	
+	</globalProperty>
+
+
+	<advice>
+		<point>org.openmrs.api.EncounterService</point>
+		<class>org.openmrs.module.diagnosiscapturerwanda.queue.advice.QueueEncounterInterceptor</class>
+	</advice>
+
 
 	<!-- Internationalization -->
 	<!-- All message codes should start with diagnosiscapturerwanda. -->

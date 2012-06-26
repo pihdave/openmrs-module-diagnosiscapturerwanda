@@ -4,6 +4,9 @@
 <%@ include file="/WEB-INF/template/header.jsp"%>
     
 <openmrs:require privilege="View Patients" otherwise="/login.htm" redirect="/index.htm" />    
+<openmrs:htmlInclude file="/dwr/interface/DWRPatientService.js"/>
+<openmrs:htmlInclude file="/scripts/jquery/dataTables/css/dataTables_jui.css"/>
+<openmrs:htmlInclude file="/scripts/jquery/dataTables/js/jquery.dataTables.min.js"/>
     
 <!-- header -->    
 <div class="box">
@@ -48,9 +51,85 @@
 
 <br/>
 <!--  here's the list of today's patients -->
-<div class="box">
-	Here's where seen patients are going to go:
+<div>
+	<span><spring:message code='diagnosiscapturerwanda.nextPatientInQueue'/></span>
 </div>
+<div class="box" id="queueDiv">
+</div>
+	 <script type="text/javascript">
+	 $j(document).ready(function() {
+		 loadPatientQueue();
+	 });
+	 
+	 var poll;
+	 
+	 function runPoll() {
+		 poll = setTimeout(function(){loadPatientQueue(); runPoll();}, 60000);
+	 }
+	 
+	 function loadPatientQueue(){
+		 clearTimeout(poll);
+		 $j.getJSON('getJSONQueue.list', function(json) {
+			 var ret = "<table class='thinBorder'>";
+			 if (json == null || json.length == 0) {
+				 ret = "<tr><td>&nbsp;<span> <spring:message code='diagnosiscapturerwanda.noQueueItemsToDisplay'/> </span>&nbsp;</td></tr>";
+			 } else {
+				 
+				 //build table headers:
+			     ret += "<tr style='background-color: whitesmoke;'>"		 
+				 $j.each(json, function(item) {
+				 	 ret += "<th>&nbsp;<span>";
+					 ret += json[item]["serviceName"];
+					 ret += "</span>&nbsp;</th>";
+			     });
+			     ret += "</tr>";
+			    // this row is 'serving number XXX'
+			    ret+="<tr>";
+			    $j.each(json, function(item) {
+			    	ret += "<td> &nbsp; <spring:message code='diagnosiscapturerwanda.nowServingNumber'/> &nbsp;&nbsp; <span style='font-size:120%'><b>" + json[item]['queueNumber'] + "</b></span> &nbsp;</td>";
+			    });	
+			    ret+="<tr>";
+			    
+			    //number of people waiting for this service
+			    ret+="<tr>";
+			    $j.each(json, function(item) {
+			    	ret += "<td> &nbsp; <spring:message code='diagnosiscapturerwanda.numberOfPeopleWaitingForThisService'/> " + json[item]['serviceCount'] + " &nbsp;</td>";
+			    });	
+			    ret+="<tr>";
+			    
+			 	//build table rows:
+			     ret += "<tr>"		 
+				 $j.each(json, function(item) {
+				 	 ret += "<td> &nbsp;<button onClick='processQueueSelection(" + json[item]["patientId"] + ", \"" + json[item]["encounterUuid"] + "\", \"process\" )'>";
+					 ret += json[item]["patientIdentifier"] + " " + json[item]["familyName"] + " " + json[item]["givenName"]+ " (" + json[item]["gender"] + ")";
+					 ret += "</button> &nbsp;&nbsp; <button onClick='processQueueSelection(" + json[item]["patientId"] + ", \"" + json[item]["encounterUuid"] + "\", \"skip\" )'><spring:message code='diagnosiscapturerwanda.skip'/></button></td>";
+			     });
+			     ret += "</tr>";	
+			 }	
+			 ret+="</table>";
+			 $j("#queueDiv").html(ret);
+			 runPoll();
+		 });
+	 }
+	 
+	 function processQueueSelection(patientId, encounterUuid, action){ 
+		 if (action == "skip"){
+			 var conf = confirm("<spring:message code='diagnosiscapturerwanda.areYouSureYouWantToSkipThisPatient'/>");
+			 if (!conf)
+				 return;
+		 }	
+		 $j.getJSON('processQueueItem.list?patientId=' + patientId + '&encounterUuid=' + encounterUuid + '&action=' + action, function(json){
+			 if (json.result == "SUCCESS" && action == "skip"){
+				 loadPatientQueue();
+			 } else if (json.result == "SUCCESS" && action == "process"){
+				 document.location = "${pageContext.request.contextPath}/module/diagnosiscapturerwanda/diagnosisPatientDashboard.list?patientId=" + patientId + "&encounterUuid=" + encounterUuid;
+			 } else {
+				 alert("Sorry!  Processing Queue failed because: " + json.reason);
+			 }
+		 });
+	 }
+	 
+	 </script>
 
 <% } %>    
 <%@ include file="/WEB-INF/template/footer.jsp"%>  

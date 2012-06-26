@@ -21,4 +21,24 @@
 
 	<bean class="org.openmrs.module.diagnosiscapturerwanda.DiagnosisCaptureRwandaContextAware" />
 	
+	<bean parent="serviceContext">
+		<property name="moduleService">
+			<list>
+				<value>org.openmrs.module.diagnosiscapturerwanda.queue.DiagnosisCaptureQueueService</value>
+				<bean class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+					<property name="transactionManager"><ref bean="transactionManager"/></property>
+					<property name="target">
+						<bean class="org.openmrs.module.diagnosiscapturerwanda.queue.InMemoryDiagnosisCaptureQueueServiceImpl"/> <!-- feel free to swap this out for non-in-memory solution... -->
+					</property>	
+					<property name="preInterceptors">
+						<ref bean="serviceInterceptors"/>  <!--  handles common metadata fields -->
+					</property>
+					<property name="transactionAttributeSource">
+						<bean class="org.springframework.transaction.annotation.AnnotationTransactionAttributeSource"/>
+					</property>
+				</bean>
+			</list>
+		</property>
+	</bean>
+	
 </beans>

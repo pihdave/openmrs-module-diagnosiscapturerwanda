@@ -33,11 +33,12 @@ public class DiagnosisCustomListConverter implements Converter<List<?>, List<Sim
 		List<SimpleObject> ret = new ArrayList<SimpleObject>();
 		DiagnosisCustomOpenmrsObjectConverter conv = new DiagnosisCustomOpenmrsObjectConverter();
 		for (Object o : list){
-			if (o instanceof OpenmrsObject == false){
-				throw new RuntimeException("DiagnosisCustomListConverter can only handle lists of OpenmrsObjects.");
-			} else {
+			if (o instanceof OpenmrsObject)
 				ret.add(conv.convert((OpenmrsObject) o));
-			}
+			else if (o instanceof SimpleObject)
+				ret.add((SimpleObject) o);
+			else
+				throw new RuntimeException("DiagnosisCustomListConverter can only convert lists of SimpleObjects or OpenmrsObjects.");
 		}
 		return ret;
 	}

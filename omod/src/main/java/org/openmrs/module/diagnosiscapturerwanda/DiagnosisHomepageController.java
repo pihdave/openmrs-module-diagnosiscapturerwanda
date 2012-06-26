@@ -13,6 +13,8 @@
  */
 package org.openmrs.module.diagnosiscapturerwanda;
 
+import java.util.Map;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
@@ -21,11 +23,16 @@ import org.apache.commons.logging.LogFactory;
 import org.openmrs.Location;
 import org.openmrs.User;
 import org.openmrs.api.context.Context;
+import org.openmrs.module.diagnosiscapturerwanda.queue.DiagnosisCaptureQueueService;
+import org.openmrs.module.diagnosiscapturerwanda.queue.QueueObj;
+import org.openmrs.module.diagnosiscapturerwanda.queue.jsonconverter.QueueSimpleObjectConverter;
+import org.openmrs.module.diagnosiscapturerwanda.util.DiagnosisUtil;
 import org.openmrs.util.OpenmrsConstants;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
 public class DiagnosisHomepageController {
@@ -79,5 +86,52 @@ public class DiagnosisHomepageController {
                  Context.getUserService().saveUser(user, null);
              }
          }    
+    }
+    
+    /**
+     * this loads the patientQueue, called by ajax
+     * @param session
+     * @param model
+     * @return
+     */
+    @RequestMapping(value="/module/diagnosiscapturerwanda/getJSONQueue",method=RequestMethod.GET)
+    public String getJSONQueue(HttpSession session, ModelMap model){
+    	Map<Integer, QueueObj> map = Context.getService(DiagnosisCaptureQueueService.class).getServiceQueueMap();
+    	model.put("json", DiagnosisUtil.convertToJSON((new QueueSimpleObjectConverter()).convert(map)));
+    	return "/module/diagnosiscapturerwanda/jsonAjaxResponse";
+    }	
+    
+    /**
+     * this removes someone from the patient queue, called by ajax
+     * @param patientId
+     * @param encUuid
+     * @param action
+     * @param session
+     * @param model
+     * @return
+     */
+    @RequestMapping(value="/module/diagnosiscapturerwanda/processQueueItem",method=RequestMethod.GET)
+    public String processQueueSelection( @RequestParam("patientId") int patientId,  
+    			@RequestParam("encounterUuid") String encUuid,  
+    			@RequestParam("action") String action,
+    			HttpSession session, 
+    			ModelMap model){
+    	String json = "{\"result\": \"FAILED\",\"reason\":\" action can only be process, select or remove\"}";
+    	try {
+	    	if (action.equals("process")) {
+	    		Context.getService(DiagnosisCaptureQueueService.class).selectQueueObjectByEncounterUuid(encUuid);
+	    		json = "{\"result\": \"SUCCESS\"}";
+	    	} else if (action.equals("skip")) {
+	    		Context.getService(DiagnosisCaptureQueueService.class).skipQueueObjectByEncounterUuid(encUuid);
+	    		json = "{\"result\": \"SUCCESS\"}";
+	    	} else if (action.equals("remove")) {
+	    		Context.getService(DiagnosisCaptureQueueService.class).removeFromQueue(encUuid);
+	    		json = "{\"result\": \"SUCCESS\"}";
+	    	}
+    	} catch (Exception ex){
+    		json = "{\"result\": \"FAILED\",\"reason\":\"" + ex.getLocalizedMessage() + "\"}";
+    	}
+    	model.put("json", json);
+    	return "/module/diagnosiscapturerwanda/jsonAjaxResponse";
     }
 }

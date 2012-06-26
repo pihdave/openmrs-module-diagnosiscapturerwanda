@@ -41,7 +41,6 @@
 				    if(inputs[0])
 				    	inputs[0].focus();
 
-
 				});
 				
 				//this will only return a patient to the user if the patient's identifier is equal to the search string.  In which case, there's a redirect to the patient dashboard.
@@ -76,15 +75,10 @@
 				</div>
 			</div>
 			
-            
-
 			<c:if test="${empty model.hideAddNewPatient}">
 				<openmrs:hasPrivilege privilege="Add Patients">
 					<br/> &nbsp; <spring:message code="general.or"/><br/><br/>
 					<openmrs:portlet id="addPersonForm" url="addPersonForm" parameters="personType=patient|postURL=admin/person/addPerson.htm|viewType=${model.viewType}" />
 				</openmrs:hasPrivilege>
 			</c:if>
-			
-			
-
 </c:if>

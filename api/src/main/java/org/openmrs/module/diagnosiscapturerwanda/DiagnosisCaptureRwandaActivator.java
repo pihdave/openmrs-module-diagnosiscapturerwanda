@@ -17,8 +17,10 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.api.APIException;
 import org.openmrs.api.ConceptService;
+import org.openmrs.api.EncounterService;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.ModuleActivator;
+import org.openmrs.util.PrivilegeConstants;
 import org.springframework.context.ApplicationContext;
 
 /**
@@ -78,14 +80,17 @@ public class DiagnosisCaptureRwandaActivator implements ModuleActivator, Runnabl
 
 	        ApplicationContext ac = null;
 	        ConceptService cs = null;
+	        EncounterService es = null;
 	        try {
-	            while (ac == null || cs == null) {
+	            while (ac == null || cs == null || es == null) {
 	                Thread.sleep(5000);
 	                if (DiagnosisCaptureRwandaContextAware.getApplicationContext() != null){
 	                    try{
 	                        log.info("DiagnosisCaptureRwanda still waiting for app context and services to load...");
 	                        ac = DiagnosisCaptureRwandaContextAware.getApplicationContext();
 	                        cs = Context.getConceptService();
+	                        es = Context.getEncounterService();
+	                        
 	                    } catch (APIException apiEx){
 	                    	log.error(apiEx);
 	                    }
@@ -104,6 +109,8 @@ public class DiagnosisCaptureRwandaActivator implements ModuleActivator, Runnabl
 	            Context.addProxyPrivilege("View Global Properties");
 	            Context.addProxyPrivilege("Manage Global Properties");
 	            Context.addProxyPrivilege("SQL Level Access");
+	            Context.addProxyPrivilege(PrivilegeConstants.VIEW_ENCOUNTER_TYPES);
+	            Context.addProxyPrivilege(PrivilegeConstants.VIEW_IDENTIFIER_TYPES);
 	            MetadataDictionary.getInstance();
 	        } catch (Exception ex) {
 	            log.error(ex);
@@ -117,6 +124,8 @@ public class DiagnosisCaptureRwandaActivator implements ModuleActivator, Runnabl
 	            Context.removeProxyPrivilege("Manage Concepts");
 	            Context.removeProxyPrivilege("View Global Properties");
 	            Context.removeProxyPrivilege("Manage Global Properties");
+	            Context.removeProxyPrivilege(PrivilegeConstants.VIEW_ENCOUNTER_TYPES);
+	            Context.removeProxyPrivilege(PrivilegeConstants.VIEW_IDENTIFIER_TYPES);
 	            Context.closeSession();
 	            
 	            log.info("Finished loading DiagnosisCaptureRwanda metadata.");

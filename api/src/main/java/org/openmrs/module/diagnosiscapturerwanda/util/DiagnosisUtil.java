@@ -14,7 +14,9 @@
 package org.openmrs.module.diagnosiscapturerwanda.util;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.StringTokenizer;
 
 import javax.servlet.http.HttpSession;
@@ -25,6 +27,7 @@ import org.openmrs.Location;
 import org.openmrs.OpenmrsObject;
 import org.openmrs.Order;
 import org.openmrs.OrderType;
+import org.openmrs.Patient;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.diagnosiscapturerwanda.MetadataDictionary;
 import org.openmrs.module.diagnosiscapturerwanda.jsonconverter.DiagnosisCustomListConverter;
@@ -53,11 +56,10 @@ public class DiagnosisUtil {
 		} else if (o instanceof OpenmrsObject) {
 			DiagnosisCustomOpenmrsObjectConverter conv = new DiagnosisCustomOpenmrsObjectConverter();
 			toConvert = conv.convert((OpenmrsObject) o);
-		}
-		if (toConvert != null)
-			return bu.toJson(toConvert);
-		else
-			throw new RuntimeException("DiagnosisUtil.convertToJSON couldn't convert object " + o.toString());
+		} else { //what the hell, try to convert even if we don't know what it is:
+			toConvert = o;
+		}	
+		return bu.toJson(toConvert);
 	}
 	
 	/*
@@ -153,6 +155,5 @@ public class DiagnosisUtil {
     public static Location getLocationLoggedIn(HttpSession session) {
         return (Location) session.getAttribute(MetadataDictionary.SESSION_ATTRIBUTE_DIAGNOSIS_WORKSTATION_LOCATION);
     }
-	
 	
 }

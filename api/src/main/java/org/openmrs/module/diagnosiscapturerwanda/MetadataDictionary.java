@@ -24,7 +24,10 @@ import java.util.Properties;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.hibernate.type.IdentifierType;
 import org.openmrs.Concept;
+import org.openmrs.EncounterType;
+import org.openmrs.PatientIdentifierType;
 import org.openmrs.api.context.Context;
 
 /**
@@ -48,36 +51,35 @@ public final class MetadataDictionary {
 	}
 	
 	public static Concept CONCEPT_PRIMARY_CARE_DIAGNOSIS;  // the master list of diagnoses
-	
 	public static Concept CONCEPT_ICPC_DIAGNOSIS_GROUPING_CATEGORIES;   //icpc-like categories
 	public static Concept CONCEPT_ICPC_SYMPTOM_INFECTION_INJURY_DIAGNOSIS;  //icpc-like categories
-	
 	public static Concept CONCEPT_PRIMARY_CARE_PRIMARY_DIAGNOSIS_CONSTRUCT;
 	public static Concept CONCEPT_PRIMARY_CARE_SECONDARY_DIAGNOSIS_CONSTRUCT;
-	
 	public static Concept CONCEPT_DIAGNOSIS_ORDER; //used in secondary diagnosis only.
 	public static Concept CONCEPT_DIAGNOSIS_ORDER_PRIMARY;
 	public static Concept CONCEPT_DIAGNOSIS_ORDER_SECONDARY;
 	public static Concept CONCEPT_DIAGNOSIS_ORDER_TERTIARY;
-		
 	public static Concept CONCEPT_DIAGNOSIS_CONFIRMED_SUSPECTED;
 	public static Concept CONCEPT_SUSPTECTED;
 	public static Concept CONCEPT_CONFIRMED;
-		
 	public static Concept CONCEPT_DIAGNOSIS_NON_CODED; //text
-	
 	public static Concept CONCEPT_VITALS_TEMPERATURE;
 	public static Concept CONCEPT_VITALS_HEIGHT;
 	public static Concept CONCEPT_VITALS_WEIGHT;
 	public static Concept CONCEPT_VITALS_SYSTOLIC_BLOOD_PRESSURE;
 	public static Concept CONCEPT_VITALS_DIATOLIC_BLOOD_PRESSURE;
 	public static Concept CONCEPT_VITALS_BMI;
-	
 	public static Concept CONCEPT_OTHER_SIGNS_OR_SYMPTOMS;
-	
 	public static Concept CONCEPT_TREATMENT_OTHER;
 	public static Concept CONCEPT_REFERRED_TO;
+	public static Concept CONCEPT_SERVICE_REQUESTED;
 	
+	public static EncounterType ENCOUNTER_TYPE_REGISTRATION;
+	public static EncounterType ENCOUNTER_TYPE_VITALS;
+	public static EncounterType ENCOUNTER_TYPE_DIAGNOSIS;
+	public static EncounterType ENCOUNTER_TYPE_LABS;
+	
+	public static PatientIdentifierType IDENTIFIER_TYPE_REGISTRATION;
 	/*
 	 * note, this is these are the same strings that i'm using for rwandaprimarycare, so you can switch between the two apps:
 	 */
@@ -104,12 +106,16 @@ public final class MetadataDictionary {
 		     }
 		     if (props.size() > 0){
 		    	 for (Map.Entry<Object, Object> entry : props.entrySet()) {
-		    		 if (((String) entry.getKey()).contains("CONCEPT"))
+		    		 if (((String) entry.getKey()).contains("CONCEPT_"))
 		    			 setupConcept((String) entry.getKey(), (String) entry.getValue(), unfoundItems);
-		    		 //TODO:  other object types other than concept?
+		    		 else if (((String) entry.getKey()).contains("ENCOUNTER_TYPE"))
+		    			 setupEncounterType((String) entry.getKey(), (String) entry.getValue(), unfoundItems);
+		    		 else if (((String) entry.getKey()).contains("IDENTIFIER_TYPE"))
+		    			 setupIdentifierType((String) entry.getKey(), (String) entry.getValue(), unfoundItems);
+		    		 
 		    	 }
 		         for (String str: unfoundItems)
-		         	log.error("diagnosisCaptureRwanda module could not load the folowing item: " + str + ".  Check the gp diagnosisCaptureRwanda.constants.");
+		         	log.error("ERROR: diagnosisCaptureRwanda module could not load the folowing item: " + str + ".  Check the gp diagnosisCaptureRwanda.constants.");
 		     }
 		 } else
 			 throw new RuntimeException("The global property diagnosisCaptureRwanda.constants was not found.");
@@ -146,9 +152,58 @@ public final class MetadataDictionary {
 	           
     	} catch (Exception ex){
     		unfoundItems.add(key);
-    		//log.warn("RwandaFlowsheetModule unable to load metadata for key " + key + ". Please check your mappings in the global property rwandahivflowsheet.constants.");
     	}
     }
+	
+	private void setupEncounterType(String key, String value, List<String> unfoundItems){
+		try {
+    		String input = value.trim();
+	        if (input != null && !"".equals(input)){
+	            EncounterType et = Context.getEncounterService().getEncounterTypeByUuid(input);
+	        	if (et == null){
+	        		try {
+	        			et = Context.getEncounterService().getEncounterType(Integer.valueOf(input));
+	        		} catch (Exception ex){
+	        			//pass, string was not numeric
+	        		}
+	        	}
+	            if (et != null){
+	            	setField(key, et);
+	            	return;
+	            } else
+	            	unfoundItems.add(key);
+	        } else
+	        	unfoundItems.add(key);
+	           
+    	} catch (Exception ex){
+    		unfoundItems.add(key);
+    	}
+	}
+	
+	private void setupIdentifierType(String key, String value, List<String> unfoundItems){
+		try {
+    		String input = value.trim();
+	        if (input != null && !"".equals(input)){
+	            PatientIdentifierType pit = Context.getPatientService().getPatientIdentifierTypeByUuid(input);
+	        	if (pit == null){
+	        		try {
+	        			pit = Context.getPatientService().getPatientIdentifierType(Integer.valueOf(input));
+	        		} catch (Exception ex){
+	        			//pass, string was not numeric
+	        		}
+	        	}
+	            if (pit != null){
+	            	setField(key, pit);
+	            	return;
+	            } else
+	            	unfoundItems.add(key);
+	        } else
+	        	unfoundItems.add(key);
+	           
+    	} catch (Exception ex){
+    		unfoundItems.add(key);
+    	}
+	}
 	
 	/**
 	 * This method uses reflection to set fields in this class for all property keys found in the global property with the same name.
@@ -173,6 +228,5 @@ public final class MetadataDictionary {
 				ex.printStackTrace();
 			}
 		} 
-		
 	}
 }
