@@ -100,6 +100,7 @@
 				<artifactId>uiframework-api</artifactId>
 				<version>1.5</version>
 				<type>jar</type>
+                <scope>provided</scope>
 			</dependency>
 						
 			<!-- End OpenMRS core -->
