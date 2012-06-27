@@ -1,3 +1,16 @@
+/**
+ * The contents of this file are subject to the OpenMRS Public License
+ * Version 1.0 (the "License"); you may not use this file except in
+ * compliance with the License. You may obtain a copy of the License at
+ * http://license.openmrs.org
+ *
+ * Software distributed under the License is distributed on an "AS IS"
+ * basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
+ * License for the specific language governing rights and limitations
+ * under the License.
+ *
+ * Copyright (C) OpenMRS, LLC.  All Rights Reserved.
+ */
 package org.openmrs.module.diagnosiscapturerwanda.queue;
 
 import java.util.ArrayList;
@@ -31,7 +44,7 @@ public class InMemoryDiagnosisCaptureQueueServiceImpl implements DiagnosisCaptur
 	@Override
 	public synchronized void addToQueue(QueueObj obj){
 		cleanupOldQueueItems();
-		if (!queue.contains(obj)){
+		if (!queue.contains(obj)){ //queueObj.equals compares registration encounterUuids
 			obj.setQueueNumber(getNextQueueNumber());
 			queue.add(obj); //appends to end of list
 		} else {
@@ -43,7 +56,7 @@ public class InMemoryDiagnosisCaptureQueueServiceImpl implements DiagnosisCaptur
 	 * make sure the service requested hasn't been edited...
 	 * @param obj
 	 */
-	private static void validateServiceRequested(QueueObj newObj){
+	private void validateServiceRequested(QueueObj newObj){
 		int pos = -1;
 		boolean found = false;
 		for (QueueObj o : queue){
@@ -56,6 +69,8 @@ public class InMemoryDiagnosisCaptureQueueServiceImpl implements DiagnosisCaptur
 		if (pos >= 0 && found){
 			QueueObj o = queue.remove(pos);
 			o.setActionProcessed();
+			if (o.getQueueNumber() == null)
+				o.setQueueNumber(getNextQueueNumber());
 			queue.add(pos, newObj);
 		}
 	}

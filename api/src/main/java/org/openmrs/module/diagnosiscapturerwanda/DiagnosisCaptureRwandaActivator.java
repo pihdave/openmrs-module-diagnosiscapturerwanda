@@ -42,8 +42,6 @@ public class DiagnosisCaptureRwandaActivator implements ModuleActivator, Runnabl
 	 */
 	public void contextRefreshed() {
 		log.info("diagnosiscapturerwanda Module refreshed");
-		Thread contextChecker = new Thread(this);
-        contextChecker.start();
 	}
 	
 	/**
@@ -58,6 +56,8 @@ public class DiagnosisCaptureRwandaActivator implements ModuleActivator, Runnabl
 	 */
 	public void started() {
 		log.info("diagnosiscapturerwanda Module started");
+		Thread contextChecker = new Thread(this);
+        contextChecker.start();
 	}
 	
 	/**

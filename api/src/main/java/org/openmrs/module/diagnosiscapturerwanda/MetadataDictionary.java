@@ -143,6 +143,8 @@ public final class MetadataDictionary {
 	            	//we need to hydrate the collections:
 	            	c.getConceptMappings();
 	            	c.getNames();
+	            	c.getConceptSets();
+	            	c.getAnswers();
 	            	setField(key, c);
 	            	return;
 	            } else
