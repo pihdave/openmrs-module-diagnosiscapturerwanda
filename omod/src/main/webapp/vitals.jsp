@@ -56,7 +56,7 @@
 		    <tr id="buttonsAtBottom">
 		        <td colspan="2">
 		        	<input name="action" type="submit" value='<spring:message code="diagnosiscapturerwanda.submit"/>'/>
-		        	<input type="button" value='<spring:message code="general.cancel"/>' onclick="javascript:history.go(-1);"/>
+		        	<input type="button" value='<spring:message code="general.cancel"/>' onclick="document.location.href='diagnosisPatientDashboard.form?patientId=${vitalsCommand.visit.patient.patientId}';"/>
 		        </td>
 		    </tr>
 	    </table>

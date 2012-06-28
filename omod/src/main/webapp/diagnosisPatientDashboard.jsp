@@ -11,7 +11,7 @@ PATIENT DASHBOARD!
 <div>
 this page accepts parameters visitId, encounterId of any visit encounter, encounterUuid of any visit encounter
 visit = ${visit}<br/>
-vitalsEncounterType = ${vitalsEncounterType}<br/>
+<a href="./vitals.form?visitId=${visit.visitId}">vitalsEncounterType = ${vitalsEncounterType}</a><br/>
 findingsEncounterType = ${findingsEncounterType}<br/>
 labEncounterType = ${labEncounterType}<br/>
 vitalsEncounterType = ${vitalsEncounterType}<br/>
