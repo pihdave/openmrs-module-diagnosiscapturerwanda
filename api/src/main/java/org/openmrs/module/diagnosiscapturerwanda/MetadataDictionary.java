@@ -78,6 +78,9 @@ public final class MetadataDictionary {
 	public static EncounterType ENCOUNTER_TYPE_VITALS;
 	public static EncounterType ENCOUNTER_TYPE_DIAGNOSIS;
 	public static EncounterType ENCOUNTER_TYPE_LABS;
+	public static EncounterType ENCOUNTER_TYPE_FINDINGS;
+	//public static EncounterType ENCOUNTER_TYPE_TREATMENT; use diagnosis encounter type -- diagnosis and treatment go together
+	//public static EncounterType ENCOUNTER_TYPE_PHARMACY;  not yet required for this module
 	
 	public static VisitType VISIT_TYPE_OUTPATIENT;
 	
@@ -133,12 +136,11 @@ public final class MetadataDictionary {
 	 */
 	private void setupConcept(String key, String value, List<String> unfoundItems){
     	try {
-    		String input = value.trim();
-	        if (input != null && !"".equals(input)){
-	            Concept c = Context.getConceptService().getConceptByUuid(input);
+	        if (value != null && !"".equals(value)){
+	            Concept c = Context.getConceptService().getConceptByUuid(value);
 	        	if (c == null){
 	        		try {
-	        			c = Context.getConceptService().getConcept(Integer.valueOf(input));
+	        			c = Context.getConceptService().getConcept(Integer.valueOf(value));
 	        		} catch (Exception ex){
 	        			//pass, string was not numeric
 	        		}
@@ -163,12 +165,11 @@ public final class MetadataDictionary {
 	
 	private void setupEncounterType(String key, String value, List<String> unfoundItems){
 		try {
-    		String input = value.trim();
-	        if (input != null && !"".equals(input)){
-	            EncounterType et = Context.getEncounterService().getEncounterTypeByUuid(input);
+	        if (value != null && !"".equals(value)){
+	            EncounterType et = Context.getEncounterService().getEncounterTypeByUuid(value);
 	        	if (et == null){
 	        		try {
-	        			et = Context.getEncounterService().getEncounterType(Integer.valueOf(input));
+	        			et = Context.getEncounterService().getEncounterType(Integer.valueOf(value));
 	        		} catch (Exception ex){
 	        			//pass, string was not numeric
 	        		}
@@ -244,12 +245,11 @@ public final class MetadataDictionary {
 	 */
 	private void setupVisitType(String key,String value, List<String> unfoundItems){
 		try {
-    		String input = value.trim();
-	        if (input != null && !"".equals(input)){
-	            VisitType vt = Context.getVisitService().getVisitTypeByUuid(input);
+	        if (value != null && !"".equals(value)){
+	            VisitType vt = Context.getVisitService().getVisitTypeByUuid(value);
 	        	if (vt == null){
 	        		try {
-	        			vt = Context.getVisitService().getVisitType(Integer.valueOf(input));
+	        			vt = Context.getVisitService().getVisitType(Integer.valueOf(value));
 	        		} catch (Exception ex){
 	        			//pass, string was not numeric
 	        		}

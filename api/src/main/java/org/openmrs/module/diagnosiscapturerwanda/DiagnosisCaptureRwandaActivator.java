@@ -15,6 +15,7 @@ package org.openmrs.module.diagnosiscapturerwanda;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.openmrs.EncounterType;
 import org.openmrs.api.APIException;
 import org.openmrs.api.ConceptService;
 import org.openmrs.api.EncounterService;
@@ -112,6 +113,20 @@ public class DiagnosisCaptureRwandaActivator implements ModuleActivator, Runnabl
 	            Context.addProxyPrivilege(PrivilegeConstants.VIEW_ENCOUNTER_TYPES);
 	            Context.addProxyPrivilege(PrivilegeConstants.VIEW_IDENTIFIER_TYPES);
 	            Context.addProxyPrivilege(PrivilegeConstants.VIEW_VISIT_TYPES);
+	            Context.addProxyPrivilege(PrivilegeConstants.MANAGE_ENCOUNTER_TYPES);
+	            //this is the only thing missing from Rwink, so i'm adding it here.
+	            //we can probably remove this later on, because the GP should be able to point to any encounter type it wants...
+	            {
+	                EncounterType et = Context.getEncounterService().getEncounterType("Findings");
+	                if (et == null)
+	      		    	et = Context.getEncounterService().getEncounterTypeByUuid("76162246-15d8-43b0-9666-5884ad1e2be4");
+	                if (et == null) {
+	                    et = new EncounterType("Findings", "An encounter type representing discovery of findings/symptoms during an initial primary care visit.");
+	                    et.setUuid("76162246-15d8-43b0-9666-5884ad1e2be4");
+	                    Context.getEncounterService().saveEncounterType(et);
+	                    log.info("Created new Findings encounter type: " + et);
+	                }
+	            }
 	            MetadataDictionary.getInstance();
 	        } catch (Exception ex) {
 	            log.error(ex);
@@ -128,6 +143,7 @@ public class DiagnosisCaptureRwandaActivator implements ModuleActivator, Runnabl
 	            Context.removeProxyPrivilege(PrivilegeConstants.VIEW_ENCOUNTER_TYPES);
 	            Context.removeProxyPrivilege(PrivilegeConstants.VIEW_IDENTIFIER_TYPES);
 	            Context.removeProxyPrivilege(PrivilegeConstants.VIEW_VISIT_TYPES);
+	            Context.removeProxyPrivilege(PrivilegeConstants.MANAGE_ENCOUNTER_TYPES);
 	            Context.closeSession();
 	            
 	            log.info("Finished loading DiagnosisCaptureRwanda metadata.");

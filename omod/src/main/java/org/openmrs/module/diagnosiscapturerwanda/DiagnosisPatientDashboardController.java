@@ -17,7 +17,11 @@ import javax.servlet.http.HttpSession;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.openmrs.Encounter;
 import org.openmrs.Patient;
+import org.openmrs.Visit;
+import org.openmrs.api.context.Context;
+import org.openmrs.module.diagnosiscapturerwanda.util.DiagnosisUtil;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -31,9 +35,32 @@ public class DiagnosisPatientDashboardController {
 	
 	//TODO:
 	@RequestMapping(value="/module/diagnosiscapturerwanda/diagnosisPatientDashboard",method=RequestMethod.GET)
-    public String processDashboardPageGet(@RequestParam(value="patientId") Patient patient,  HttpSession session, ModelMap map){
+    public String processDashboardPageGet(@RequestParam(value="patientId") Patient patient,  
+    		@RequestParam(required=false, value="encounterUuid") String encounterUuid,
+    		@RequestParam(required=false, value="encounterId") Integer encounterId,
+    		@RequestParam(required=false, value="visitId") Integer visitId,
+    		HttpSession session, ModelMap map){
 		map.put("patient", patient);
-		//get encounter from request, if not find today's registration encounter
+		//find the Visit
+		Encounter registrationEnc = null;
+		if (encounterUuid != null){
+			registrationEnc = Context.getEncounterService().getEncounterByUuid(encounterUuid);
+		}
+		if (registrationEnc == null && encounterId != null){
+			registrationEnc = Context.getEncounterService().getEncounter(encounterId);
+		}
+		//this will throw exception if visit is not found.
+		Visit visit = null;
+		if (visitId != null)
+			visit = Context.getVisitService().getVisit(visitId);
+		if (visit == null)
+			visit = DiagnosisUtil.findVisit(registrationEnc, patient, session); //null encounter is handled by method 
+		map.put("visit", visit);
+		map.put("vitalsEncounterType", MetadataDictionary.ENCOUNTER_TYPE_VITALS);
+		map.put("diagnosisEncounterType", MetadataDictionary.ENCOUNTER_TYPE_DIAGNOSIS);
+		map.put("labEncounterType", MetadataDictionary.ENCOUNTER_TYPE_LABS);
+		map.put("registrationEncounterType", MetadataDictionary.ENCOUNTER_TYPE_REGISTRATION);
+		map.put("findingsEncounterType", MetadataDictionary.ENCOUNTER_TYPE_FINDINGS);
 		return null;
     }
 
