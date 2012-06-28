@@ -24,10 +24,10 @@ import java.util.Properties;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.hibernate.type.IdentifierType;
 import org.openmrs.Concept;
 import org.openmrs.EncounterType;
 import org.openmrs.PatientIdentifierType;
+import org.openmrs.VisitType;
 import org.openmrs.api.context.Context;
 
 /**
@@ -79,6 +79,8 @@ public final class MetadataDictionary {
 	public static EncounterType ENCOUNTER_TYPE_DIAGNOSIS;
 	public static EncounterType ENCOUNTER_TYPE_LABS;
 	
+	public static VisitType VISIT_TYPE_OUTPATIENT;
+	
 	public static PatientIdentifierType IDENTIFIER_TYPE_REGISTRATION;
 	/*
 	 * note, this is these are the same strings that i'm using for rwandaprimarycare, so you can switch between the two apps:
@@ -112,6 +114,8 @@ public final class MetadataDictionary {
 		    			 setupEncounterType((String) entry.getKey(), (String) entry.getValue(), unfoundItems);
 		    		 else if (((String) entry.getKey()).contains("IDENTIFIER_TYPE"))
 		    			 setupIdentifierType((String) entry.getKey(), (String) entry.getValue(), unfoundItems);
+		    		 else if (((String) entry.getKey()).contains("VISIT_TYPE"))
+		    			 setupVisitType((String) entry.getKey(), (String) entry.getValue(), unfoundItems);
 		    		 
 		    	 }
 		         for (String str: unfoundItems)
@@ -230,5 +234,36 @@ public final class MetadataDictionary {
 				ex.printStackTrace();
 			}
 		} 
+	}
+	
+	/**
+	 * 
+	 * @param key
+	 * @param value
+	 * @param unfoundItems
+	 */
+	private void setupVisitType(String key,String value, List<String> unfoundItems){
+		try {
+    		String input = value.trim();
+	        if (input != null && !"".equals(input)){
+	            VisitType pit = Context.getVisitService().getVisitTypeByUuid(input);
+	        	if (pit == null){
+	        		try {
+	        			pit = Context.getVisitService().getVisitType(Integer.valueOf(input));
+	        		} catch (Exception ex){
+	        			//pass, string was not numeric
+	        		}
+	        	}
+	            if (pit != null){
+	            	setField(key, pit);
+	            	return;
+	            } else
+	            	unfoundItems.add(key);
+	        } else
+	        	unfoundItems.add(key);
+	           
+    	} catch (Exception ex){
+    		unfoundItems.add(key);
+    	}
 	}
 }
