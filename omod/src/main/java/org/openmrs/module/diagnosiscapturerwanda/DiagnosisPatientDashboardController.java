@@ -32,14 +32,17 @@ import org.springframework.web.bind.annotation.RequestParam;
 public class DiagnosisPatientDashboardController {
 	
 	protected final Log log = LogFactory.getLog(getClass());
-	
+
 	//TODO:
 	@RequestMapping(value="/module/diagnosiscapturerwanda/diagnosisPatientDashboard",method=RequestMethod.GET)
-    public String processDashboardPageGet(@RequestParam(value="patientId") Patient patient,  
+    public String processDashboardPageGet(@RequestParam(value="patientId") Integer patientId,  
     		@RequestParam(required=false, value="encounterUuid") String encounterUuid,
     		@RequestParam(required=false, value="encounterId") Integer encounterId,
     		@RequestParam(required=false, value="visitId") Integer visitId,
     		HttpSession session, ModelMap map){
+		Patient patient = Context.getPatientService().getPatient(patientId);
+		if (patient == null)
+			return null;
 		map.put("patient", patient);
 		//find the Visit
 		Encounter registrationEnc = null;
