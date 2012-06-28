@@ -61,6 +61,8 @@ public class DiagnosisPatientDashboardController {
 		map.put("labEncounterType", MetadataDictionary.ENCOUNTER_TYPE_LABS);
 		map.put("registrationEncounterType", MetadataDictionary.ENCOUNTER_TYPE_REGISTRATION);
 		map.put("findingsEncounterType", MetadataDictionary.ENCOUNTER_TYPE_FINDINGS);
+		
+		
 		return null;
     }
 

@@ -13,8 +13,11 @@
  */
 package org.openmrs.module.diagnosiscapturerwanda;
 
+import java.util.Date;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.openmrs.EncounterRole;
 import org.openmrs.EncounterType;
 import org.openmrs.api.APIException;
 import org.openmrs.api.ConceptService;
@@ -122,6 +125,8 @@ public class DiagnosisCaptureRwandaActivator implements ModuleActivator, Runnabl
 	      		    	et = Context.getEncounterService().getEncounterTypeByUuid("76162246-15d8-43b0-9666-5884ad1e2be4");
 	                if (et == null) {
 	                    et = new EncounterType("Findings", "An encounter type representing discovery of findings/symptoms during an initial primary care visit.");
+	                    et.setDateCreated(new Date());
+	                    et.setCreator(Context.getEncounterService().getEncounterRoleByUuid(EncounterRole.UNKNOWN_ENCOUNTER_ROLE_UUID).getCreator());
 	                    et.setUuid("76162246-15d8-43b0-9666-5884ad1e2be4");
 	                    Context.getEncounterService().saveEncounterType(et);
 	                    log.info("Created new Findings encounter type: " + et);
