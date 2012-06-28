@@ -1,7 +1,6 @@
 <%@ include file="/WEB-INF/template/include.jsp"%>
 
-<openmrs:require privilege="View Patients" otherwise="/login.htm"
-	redirect="/index.htm" />
+<openmrs:require privilege="View Patients" otherwise="/login.htm" redirect="/index.htm" />
 
 <openmrs:globalProperty key="visits.enabled" var="visitsEnabled" />
 

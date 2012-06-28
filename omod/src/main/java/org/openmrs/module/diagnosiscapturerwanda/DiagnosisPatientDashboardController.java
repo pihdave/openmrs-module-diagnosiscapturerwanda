@@ -32,6 +32,8 @@ public class DiagnosisPatientDashboardController {
 	//TODO:
 	@RequestMapping(value="/module/diagnosiscapturerwanda/diagnosisPatientDashboard",method=RequestMethod.GET)
     public String processDashboardPageGet(@RequestParam(value="patientId") Patient patient,  HttpSession session, ModelMap map){
+		map.put("patient", patient);
+		//get encounter from request, if not find today's registration encounter
 		return null;
     }
 

@@ -68,9 +68,10 @@ public class InMemoryDiagnosisCaptureQueueServiceImpl implements DiagnosisCaptur
 		}
 		if (pos >= 0 && found){
 			QueueObj o = queue.remove(pos);
-			o.setActionProcessed();
-			if (o.getQueueNumber() == null)
-				o.setQueueNumber(getNextQueueNumber());
+			newObj.setActionNew();
+			newObj.setQueueNumber(o.getQueueNumber());
+			if (newObj.getQueueNumber() == null)
+				newObj.setQueueNumber(getNextQueueNumber());
 			queue.add(pos, newObj);
 		}
 	}
