@@ -111,6 +111,7 @@ public class DiagnosisCaptureRwandaActivator implements ModuleActivator, Runnabl
 	            Context.addProxyPrivilege("SQL Level Access");
 	            Context.addProxyPrivilege(PrivilegeConstants.VIEW_ENCOUNTER_TYPES);
 	            Context.addProxyPrivilege(PrivilegeConstants.VIEW_IDENTIFIER_TYPES);
+	            Context.addProxyPrivilege(PrivilegeConstants.VIEW_VISIT_TYPES);
 	            MetadataDictionary.getInstance();
 	        } catch (Exception ex) {
 	            log.error(ex);
@@ -126,6 +127,7 @@ public class DiagnosisCaptureRwandaActivator implements ModuleActivator, Runnabl
 	            Context.removeProxyPrivilege("Manage Global Properties");
 	            Context.removeProxyPrivilege(PrivilegeConstants.VIEW_ENCOUNTER_TYPES);
 	            Context.removeProxyPrivilege(PrivilegeConstants.VIEW_IDENTIFIER_TYPES);
+	            Context.removeProxyPrivilege(PrivilegeConstants.VIEW_VISIT_TYPES);
 	            Context.closeSession();
 	            
 	            log.info("Finished loading DiagnosisCaptureRwanda metadata.");

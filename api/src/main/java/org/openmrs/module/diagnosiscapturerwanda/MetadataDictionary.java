@@ -109,13 +109,13 @@ public final class MetadataDictionary {
 		     if (props.size() > 0){
 		    	 for (Map.Entry<Object, Object> entry : props.entrySet()) {
 		    		 if (((String) entry.getKey()).contains("CONCEPT_"))
-		    			 setupConcept((String) entry.getKey(), (String) entry.getValue(), unfoundItems);
+		    			 setupConcept((String) entry.getKey(), ((String) entry.getValue()).trim(), unfoundItems);
 		    		 else if (((String) entry.getKey()).contains("ENCOUNTER_TYPE"))
-		    			 setupEncounterType((String) entry.getKey(), (String) entry.getValue(), unfoundItems);
+		    			 setupEncounterType((String) entry.getKey(), ((String) entry.getValue()).trim(), unfoundItems);
 		    		 else if (((String) entry.getKey()).contains("IDENTIFIER_TYPE"))
-		    			 setupIdentifierType((String) entry.getKey(), (String) entry.getValue(), unfoundItems);
-		    		 else if (((String) entry.getKey()).contains("VISIT_TYPE"))
-		    			 setupVisitType((String) entry.getKey(), (String) entry.getValue(), unfoundItems);
+		    			 setupIdentifierType((String) entry.getKey(), ((String) entry.getValue()).trim(), unfoundItems);
+		    		 else if (((String) entry.getKey()).contains("VISIT_TYPE_"))
+		    			 setupVisitType((String) entry.getKey(), ((String) entry.getValue()).trim(), unfoundItems);
 		    		 
 		    	 }
 		         for (String str: unfoundItems)
@@ -246,16 +246,16 @@ public final class MetadataDictionary {
 		try {
     		String input = value.trim();
 	        if (input != null && !"".equals(input)){
-	            VisitType pit = Context.getVisitService().getVisitTypeByUuid(input);
-	        	if (pit == null){
+	            VisitType vt = Context.getVisitService().getVisitTypeByUuid(input);
+	        	if (vt == null){
 	        		try {
-	        			pit = Context.getVisitService().getVisitType(Integer.valueOf(input));
+	        			vt = Context.getVisitService().getVisitType(Integer.valueOf(input));
 	        		} catch (Exception ex){
 	        			//pass, string was not numeric
 	        		}
 	        	}
-	            if (pit != null){
-	            	setField(key, pit);
+	            if (vt != null){
+	            	setField(key, vt);
 	            	return;
 	            } else
 	            	unfoundItems.add(key);
@@ -263,6 +263,7 @@ public final class MetadataDictionary {
 	        	unfoundItems.add(key);
 	           
     	} catch (Exception ex){
+    		ex.printStackTrace();
     		unfoundItems.add(key);
     	}
 	}
