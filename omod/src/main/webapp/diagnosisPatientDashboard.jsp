@@ -17,6 +17,9 @@ labEncounterType = ${labEncounterType}<br/>
 vitalsEncounterType = ${vitalsEncounterType}<br/>
 diagnosisEncounterType =${diagnosisEncounterType}
 
+<br/>
+<a href="./treatment.form?patientId=${visit.patient.patientId}">Treatment</a>
+
 </div>
     
     
