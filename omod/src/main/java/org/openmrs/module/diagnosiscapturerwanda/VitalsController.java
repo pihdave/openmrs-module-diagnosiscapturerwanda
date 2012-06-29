@@ -65,7 +65,7 @@ public class VitalsController {
         questions.put("weight", MetadataDictionary.CONCEPT_VITALS_WEIGHT);
         questions.put("height", MetadataDictionary.CONCEPT_VITALS_HEIGHT);
         questions.put("systolicBp", MetadataDictionary.CONCEPT_VITALS_SYSTOLIC_BLOOD_PRESSURE);
-        questions.put("diastolicBp", MetadataDictionary.CONCEPT_VITALS_DIATOLIC_BLOOD_PRESSURE);
+        questions.put("diastolicBp", MetadataDictionary.CONCEPT_VITALS_DIASTOLIC_BLOOD_PRESSURE);
         return questions;
     }
 
