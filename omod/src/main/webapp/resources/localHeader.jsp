@@ -99,6 +99,12 @@
 </table>
 </div>
 
+
+<div class="box">
+	<button style="" onClick="document.location='${pageContext.request.contextPath}/module/diagnosiscapturerwanda/diagnosisHomepage.list'"><spring:message code="diagnosiscapturerwanda.title"/> <spring:message code="diagnosiscapturerwanda.home"/></button>
+</div>
+
+
 <openmrs:globalProperty var="programIdsToShow"
 	key="dashboard.header.programs_to_show" listSeparator="," />
 <%--

@@ -180,7 +180,7 @@ public class DiagnosisUtil {
      * @param session (required)
      * @return the visit
      */
-    public static Visit findVisit(Encounter enc, Patient patient, HttpSession session){
+    public static Visit findVisit(Encounter enc, Patient patient, HttpSession session) throws RuntimeException {
     	if (patient == null || session == null)
     		throw new RuntimeException("patient and session are required in util method findVisit");
 		Visit visit = null;
@@ -202,6 +202,18 @@ public class DiagnosisUtil {
 		if (visit == null)
 			throw new RuntimeException("You must register the patient first!");
 		return visit;
+    }
+    
+    /**
+     * check to see if visit start date is between (or equal to) day's start and end
+     * @param v
+     * @return
+     */
+    public static boolean isVisitToday(Visit v){
+    	if ((getStartAndEndOfDay(v.getStartDatetime())[0].getTime() <= v.getStartDatetime().getTime()) 
+    			&& (v.getStartDatetime().getTime() <= getStartAndEndOfDay(v.getStartDatetime())[1].getTime()))
+    		return true;
+    	return false;
     }
 	
 }

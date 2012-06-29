@@ -51,10 +51,11 @@ public final class MetadataDictionary {
 	}
 	
 	public static Concept CONCEPT_PRIMARY_CARE_DIAGNOSIS;  // the master list of diagnoses
-	public static Concept CONCEPT_ICPC_DIAGNOSIS_GROUPING_CATEGORIES;   //icpc-like categories
-	public static Concept CONCEPT_ICPC_SYMPTOM_INFECTION_INJURY_DIAGNOSIS;  //icpc-like categories
-	public static Concept CONCEPT_PRIMARY_CARE_PRIMARY_DIAGNOSIS_CONSTRUCT;
-	public static Concept CONCEPT_PRIMARY_CARE_SECONDARY_DIAGNOSIS_CONSTRUCT;
+	public static Concept CONCEPT_SET_ICPC_DIAGNOSIS_GROUPING_CATEGORIES;   //icpc-like categories
+	public static Concept CONCEPT_SET_ICPC_SYMPTOM_INFECTION_INJURY_DIAGNOSIS;  //icpc-like categories
+	public static Concept CONCEPT_SET_SYMPTOM_GROUPING; //for restricting by symptoms only
+	public static Concept CONCEPT_SET_PRIMARY_CARE_PRIMARY_DIAGNOSIS_CONSTRUCT;
+	public static Concept CONCEPT_SET_PRIMARY_CARE_SECONDARY_DIAGNOSIS_CONSTRUCT;
 	public static Concept CONCEPT_DIAGNOSIS_ORDER; //used in secondary diagnosis only.
 	public static Concept CONCEPT_DIAGNOSIS_ORDER_PRIMARY;
 	public static Concept CONCEPT_DIAGNOSIS_ORDER_SECONDARY;
@@ -67,12 +68,14 @@ public final class MetadataDictionary {
 	public static Concept CONCEPT_VITALS_HEIGHT;
 	public static Concept CONCEPT_VITALS_WEIGHT;
 	public static Concept CONCEPT_VITALS_SYSTOLIC_BLOOD_PRESSURE;
-	public static Concept CONCEPT_VITALS_DIATOLIC_BLOOD_PRESSURE;
+	public static Concept CONCEPT_VITALS_DIASTOLIC_BLOOD_PRESSURE;
 	public static Concept CONCEPT_VITALS_BMI;
 	public static Concept CONCEPT_OTHER_SIGNS_OR_SYMPTOMS;
 	public static Concept CONCEPT_TREATMENT_OTHER;
 	public static Concept CONCEPT_REFERRED_TO;
 	public static Concept CONCEPT_SERVICE_REQUESTED;
+	public static Concept CONCEPT_SET_PRIMARY_CARE_FINDINGS_CONSTRUCT;
+	public static Concept CONCEPT_FINDINGS_OTHER;
 	
 	public static EncounterType ENCOUNTER_TYPE_REGISTRATION;
 	public static EncounterType ENCOUNTER_TYPE_VITALS;

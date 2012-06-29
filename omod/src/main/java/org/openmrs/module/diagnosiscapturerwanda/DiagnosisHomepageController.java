@@ -119,7 +119,8 @@ public class DiagnosisHomepageController {
     	String json = "{\"result\": \"FAILED\",\"reason\":\" action can only be process, select or remove\"}";
     	try {
 	    	if (action.equals("process")) {
-	    		Context.getService(DiagnosisCaptureQueueService.class).selectQueueObjectByEncounterUuid(encUuid);
+	    		//this is now handled by the DiagnosisPatientDashboardController, so that direct jumps from registration to diagnosis app dashboard removes patients from queue...
+	    		//Context.getService(DiagnosisCaptureQueueService.class).selectQueueObjectByEncounterUuid(encUuid);
 	    		json = "{\"result\": \"SUCCESS\"}";
 	    	} else if (action.equals("skip")) {
 	    		Context.getService(DiagnosisCaptureQueueService.class).skipQueueObjectByEncounterUuid(encUuid);

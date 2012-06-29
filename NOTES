@@ -4,7 +4,7 @@ cp -r /home/dthomas/git/openmrs-module-diagnosiscapturerwanda/omod/src/main/weba
 mysql -P3316 --socket='/home/dthomas/OpenmrsStandalone/openmrs-standalone-1.8.3/database/data/mysql.sock' -uopenmrs -ptest trac_test_19
 
 
-mvn package -DskipTests -Pdeploy-web -Ddeploy.path=/opt/tomcat/webapps/openmrs
+mvn package -DskipTests -Pdeploy-web -Ddeploy.path=/usr/local/tomcat6/webapps/openmrs
 
 
 

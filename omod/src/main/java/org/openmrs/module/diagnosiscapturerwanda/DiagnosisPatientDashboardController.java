@@ -21,6 +21,7 @@ import org.openmrs.Encounter;
 import org.openmrs.Patient;
 import org.openmrs.Visit;
 import org.openmrs.api.context.Context;
+import org.openmrs.module.diagnosiscapturerwanda.queue.DiagnosisCaptureQueueService;
 import org.openmrs.module.diagnosiscapturerwanda.util.DiagnosisUtil;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -52,19 +53,62 @@ public class DiagnosisPatientDashboardController {
 		if (registrationEnc == null && encounterId != null){
 			registrationEnc = Context.getEncounterService().getEncounter(encounterId);
 		}
+		if (registrationEnc != null && !registrationEnc.getPatient().equals(patient))
+			throw new RuntimeException("encounter passed into DiagnosisPatientDashboardController doesn't belong to patient passed into this controller.");
+		
 		//this will throw exception if visit is not found.
 		Visit visit = null;
 		if (visitId != null)
 			visit = Context.getVisitService().getVisit(visitId);
-		if (visit == null)
-			visit = DiagnosisUtil.findVisit(registrationEnc, patient, session); //null encounter is handled by method 
+		try {
+			if (visit == null)
+				visit = DiagnosisUtil.findVisit(registrationEnc, patient, session); //null encounter is handled by method 
+		} catch (RuntimeException ex){
+			//pass -- registration required message handled in jsp, based on visit being null
+		}
+		if (visit != null && !visit.getPatient().equals(patient))	
+			throw new RuntimeException("visit passed into DiagnosisPatientDashboardController doesn't belong to patient passed into this controller.");
 		map.put("visit", visit);
 		map.put("vitalsEncounterType", MetadataDictionary.ENCOUNTER_TYPE_VITALS);
 		map.put("diagnosisEncounterType", MetadataDictionary.ENCOUNTER_TYPE_DIAGNOSIS);
 		map.put("labEncounterType", MetadataDictionary.ENCOUNTER_TYPE_LABS);
 		map.put("registrationEncounterType", MetadataDictionary.ENCOUNTER_TYPE_REGISTRATION);
 		map.put("findingsEncounterType", MetadataDictionary.ENCOUNTER_TYPE_FINDINGS);
+		if (visit != null)
+			map.put("visitIsToday", DiagnosisUtil.isVisitToday(visit));
 		
+		//CONCEPTS	
+		//vitals
+		map.put("concept_temperature", MetadataDictionary.CONCEPT_VITALS_TEMPERATURE);
+		map.put("concept_height", MetadataDictionary.CONCEPT_VITALS_HEIGHT);
+		map.put("concept_weight", MetadataDictionary.CONCEPT_VITALS_WEIGHT);
+		map.put("concept_systolic", MetadataDictionary.CONCEPT_VITALS_SYSTOLIC_BLOOD_PRESSURE);
+		map.put("concept_diastolic", MetadataDictionary.CONCEPT_VITALS_DIASTOLIC_BLOOD_PRESSURE);
+		
+		//findings
+		map.put("concept_set_finding", MetadataDictionary.CONCEPT_SET_PRIMARY_CARE_FINDINGS_CONSTRUCT); //contains 
+		map.put("concept_findings_other", MetadataDictionary.CONCEPT_FINDINGS_OTHER);
+		map.put("concept_diagnosis", MetadataDictionary.CONCEPT_PRIMARY_CARE_DIAGNOSIS);
+		
+		//labs -- NEED TO MAP OUT SIMPLE LAB ENTRY
+		
+		
+		//diagnosis
+		map.put("concept_set_primary_diagnosis", MetadataDictionary.CONCEPT_SET_PRIMARY_CARE_PRIMARY_DIAGNOSIS_CONSTRUCT);
+		map.put("concept_set_secondary_diagnosis", MetadataDictionary.CONCEPT_SET_PRIMARY_CARE_SECONDARY_DIAGNOSIS_CONSTRUCT);
+		map.put("concept_primary_secondary", MetadataDictionary.CONCEPT_DIAGNOSIS_ORDER);
+		map.put("concept_confirmed_suspected", MetadataDictionary.CONCEPT_DIAGNOSIS_CONFIRMED_SUSPECTED);
+		
+		
+		//treatment
+		
+		
+		
+		
+		
+		//remove from queue
+		if (registrationEnc != null)
+			Context.getService(DiagnosisCaptureQueueService.class).selectQueueObjectByEncounterUuid(registrationEnc.getUuid());
 		
 		return null;
     }
