@@ -25,6 +25,8 @@ import java.util.Properties;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.Concept;
+import org.openmrs.ConceptAnswer;
+import org.openmrs.ConceptSet;
 import org.openmrs.EncounterType;
 import org.openmrs.PatientIdentifierType;
 import org.openmrs.VisitType;
@@ -52,8 +54,13 @@ public final class MetadataDictionary {
 	
 	public static Concept CONCEPT_PRIMARY_CARE_DIAGNOSIS;  // the master list of diagnoses
 	public static Concept CONCEPT_SET_ICPC_DIAGNOSIS_GROUPING_CATEGORIES;   //icpc-like categories
+	
 	public static Concept CONCEPT_SET_ICPC_SYMPTOM_INFECTION_INJURY_DIAGNOSIS;  //icpc-like categories
-	public static Concept CONCEPT_SET_SYMPTOM_GROUPING; //for restricting by symptoms only
+	public static Concept CONCEPT_CLASSIFICATION_SYMPTOM;
+	public static Concept CONCEPT_CLASSIFICATION_INFECTION;
+	public static Concept CONCEPT_CLASSIFICATION_INJURY;
+	public static Concept CONCEPT_CLASSIFICATION_DIAGNOSIS;
+	
 	public static Concept CONCEPT_SET_PRIMARY_CARE_PRIMARY_DIAGNOSIS_CONSTRUCT;
 	public static Concept CONCEPT_SET_PRIMARY_CARE_SECONDARY_DIAGNOSIS_CONSTRUCT;
 	public static Concept CONCEPT_DIAGNOSIS_ORDER; //used in secondary diagnosis only.
@@ -153,7 +160,19 @@ public final class MetadataDictionary {
 	            	c.getConceptMappings();
 	            	c.getNames();
 	            	c.getConceptSets();
+	            	c.getSetMembers();
+	            	if (c.getSetMembers() != null && c.getSetMembers().size() > 0){
+	            		for (Concept cs : c.getSetMembers()){
+	            			cs.getName();
+	            			cs.getSetMembers();
+	            		}
+	            	}
 	            	c.getAnswers();
+	            	if (c.getAnswers(false) != null && c.getAnswers().size() > 0){
+	            		for (ConceptAnswer ca : c.getAnswers()){
+	            			ca.getAnswerConcept().getNames();
+	            		}
+	            	}
 	            	setField(key, c);
 	            	return;
 	            } else

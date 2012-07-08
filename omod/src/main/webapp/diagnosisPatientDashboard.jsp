@@ -177,6 +177,7 @@
 			
 			
 			<!-- Diagnoses -->
+			<!--  TODO:  convert this to a portlet; its the same as on the diagnosis capture page -->
 			<tr><td>
 				<div><b><spring:message code="diagnosiscapturerwanda.diagnosis"/></b></div>
 				<div id="diagnosisDiv">
@@ -295,6 +296,9 @@
 </div>    
 
 <div>
+
+
+<!--  
 this page accepts parameters visitId, encounterId of any visit encounter, encounterUuid of any visit encounter
 visit = ${visit}<br/>
 <a href="./vitals.form?visitId=${visit.visitId}">vitalsEncounterType = ${vitalsEncounterType}</a><br/>
@@ -302,11 +306,12 @@ findingsEncounterType = ${findingsEncounterType}<br/>
 labEncounterType = ${labEncounterType}<br/>
 vitalsEncounterType = ${vitalsEncounterType}<br/>
 diagnosisEncounterType =${diagnosisEncounterType}
-
 <br/>
 <a href="./treatment.form?patientId=${visit.patient.patientId}">Treatment</a>
 <br/>
 TODO on this page:  BMI, format numeric values, "change" buttons, finish labs, finish treatment, css this shit
+-->
+
 </div>
     
     

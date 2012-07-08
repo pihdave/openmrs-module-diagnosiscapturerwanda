@@ -13,9 +13,15 @@
  */
 package org.openmrs.module.diagnosiscapturerwanda.jsonconverter;
 
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 import org.openmrs.Concept;
+import org.openmrs.ConceptSet;
 import org.openmrs.OpenmrsObject;
 import org.openmrs.api.context.Context;
+import org.openmrs.module.diagnosiscapturerwanda.MetadataDictionary;
 import org.openmrs.module.diagnosiscapturerwanda.util.DiagnosisUtil;
 import org.openmrs.ui.framework.SimpleObject;
 import org.springframework.core.convert.converter.Converter;
@@ -40,10 +46,48 @@ public class DiagnosisCustomOpenmrsObjectConverter implements Converter<OpenmrsO
 				ret.put("shortName", c.getShortNameInLocale(Context.getLocale()).getName());
 			else
 				ret.put("shortName", "");
-			//TODO:  add groupings and categories to concepts if they're diagnoses
-			Context.getConceptService().getSetsContainingConcept(c);
+			//add groupings and categories to concepts if they're diagnoses.  TODO:  could definitely be optimized.
+			List<ConceptSet> conceptSets = Context.getConceptService().getSetsContainingConcept(c);
+			Set<Integer> firstLevelSetIds = new HashSet<Integer>();
+			for (ConceptSet cs : conceptSets)
+				firstLevelSetIds.add(cs.getConceptSet().getConceptId());
+			
 			ret.put("grouping", "");
+			boolean found = false;
+			for (Concept cChapter : MetadataDictionary.CONCEPT_SET_ICPC_DIAGNOSIS_GROUPING_CATEGORIES.getSetMembers()){
+				if (firstLevelSetIds.contains(cChapter.getConceptId())){
+					//for lazy loading:
+					//cChapter = Context.getConceptService().getConcept(cChapter.getConceptId());
+					for (Concept cInner: cChapter.getSetMembers()){
+						if (cInner.getConceptId().equals(c.getConceptId())){
+							ret.put("grouping", cChapter.getConceptId());
+							found = true;
+							break;
+						}	
+					}
+					if (found)
+						break;
+				}
+			}
+
 			ret.put("category", "");
+			found = false;
+			for (Concept cCategory : MetadataDictionary.CONCEPT_SET_ICPC_SYMPTOM_INFECTION_INJURY_DIAGNOSIS.getSetMembers()){
+				if (firstLevelSetIds.contains(cCategory.getConceptId())){
+					//for lazy loading:
+					//cCategory = Context.getConceptService().getConcept(cCategory.getConceptId());
+					for (Concept cInner: cCategory.getSetMembers()){
+						if (cInner.getConceptId().equals(c.getConceptId())){
+							ret.put("category", cCategory.getConceptId());
+							found = true;
+							break;
+						}	
+					}
+					if (found)
+						break;
+				}
+			}
+			
 		} else throw new RuntimeException("DiagnosisCustomOpenmrsObjectConverter only supports Concepts currently");
 		return ret;
 	}

@@ -46,7 +46,7 @@ public class DiagnosisUtil {
 
 	
 	/**
-	 * This is the main method for converting either a List<OpenmrsObject> or OpenmrsObject to JSON
+	 * This is the main method for converting either a List<Object> or OpenmrsObject to JSON
 	 * @param o
 	 * @return
 	 */
@@ -78,7 +78,8 @@ public class DiagnosisUtil {
 			Concept groups = Context.getConceptService().getConcept(groupingId);
 			if (groups != null){
 				for (Concept cs : groups.getSetMembers()){
-					ret.add(cs);
+					if (!ret.contains(cs))
+						ret.add(cs);
 				}
 			}
 		}
@@ -86,7 +87,8 @@ public class DiagnosisUtil {
 			Concept cats = Context.getConceptService().getConcept(classificationId);
 			if (cats != null){
 				for (Concept cs: cats.getSetMembers()){
-					ret.add(cs);
+					if (!ret.contains(cs))
+						ret.add(cs);
 				}
 			}
 		}

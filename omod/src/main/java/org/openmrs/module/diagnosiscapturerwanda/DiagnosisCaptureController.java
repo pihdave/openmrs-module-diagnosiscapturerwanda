@@ -13,11 +13,20 @@
  */
 package org.openmrs.module.diagnosiscapturerwanda;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.servlet.http.HttpSession;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.openmrs.Concept;
+import org.openmrs.ConceptAnswer;
+import org.openmrs.ConceptSearchResult;
 import org.openmrs.Patient;
+import org.openmrs.Visit;
+import org.openmrs.api.context.Context;
+import org.openmrs.module.diagnosiscapturerwanda.util.DiagnosisUtil;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -31,7 +40,43 @@ public class DiagnosisCaptureController {
 	
 	//TODO:
 	@RequestMapping(value="/module/diagnosiscapturerwanda/diagnosisCapture", method=RequestMethod.GET)
-    public String processDiagnosisCapturePageGet(@RequestParam(value="patientId") Patient patient,  HttpSession session, ModelMap map){
+    public String processDiagnosisCapturePageGet(@RequestParam(value="patientId") Integer patientId,
+    		@RequestParam(value="visitId") Integer visitId,
+    		HttpSession session, 
+    		ModelMap map){
+		
+		Patient patient = Context.getPatientService().getPatient(patientId);
+		if (patient == null)
+			return null;
+		map.put("patient", patient);
+		
+		Visit visit = Context.getVisitService().getVisit(visitId);
+		if (visit == null)
+			throw new RuntimeException("You must pass in a valid visitId to this page.");
+		if (visit != null && !visit.getPatient().equals(patient))	
+			throw new RuntimeException("visit passed into DiagnosisPatientDashboardController doesn't belong to patient passed into this controller.");
+		map.put("visit", visit);
+		
+		map.put("concept_set_primary_diagnosis", MetadataDictionary.CONCEPT_SET_PRIMARY_CARE_PRIMARY_DIAGNOSIS_CONSTRUCT);
+		map.put("concept_set_secondary_diagnosis", MetadataDictionary.CONCEPT_SET_PRIMARY_CARE_SECONDARY_DIAGNOSIS_CONSTRUCT);
+		map.put("concept_primary_secondary", MetadataDictionary.CONCEPT_DIAGNOSIS_ORDER);
+		map.put("concept_confirmed_suspected", MetadataDictionary.CONCEPT_DIAGNOSIS_CONFIRMED_SUSPECTED);
+		map.put("concept_diagnosis_other", MetadataDictionary.CONCEPT_DIAGNOSIS_NON_CODED);
+		map.put("concept_confirmed", MetadataDictionary.CONCEPT_CONFIRMED);
+		map.put("concept_suspected", MetadataDictionary.CONCEPT_SUSPTECTED);
+
+		map.put("concept_set_body_system", MetadataDictionary.CONCEPT_SET_ICPC_DIAGNOSIS_GROUPING_CATEGORIES);
+		map.put("concept_set_diagnosis_classification", MetadataDictionary.CONCEPT_SET_ICPC_SYMPTOM_INFECTION_INJURY_DIAGNOSIS);
+		
+		map.put("encounter_type_diagnosis", MetadataDictionary.ENCOUNTER_TYPE_DIAGNOSIS);
+		map.put("encounter_type_findings", MetadataDictionary.ENCOUNTER_TYPE_FINDINGS);
+		
+		map.put("concept_symptom", MetadataDictionary.CONCEPT_CLASSIFICATION_SYMPTOM);
+		map.put("concept_infection", MetadataDictionary.CONCEPT_CLASSIFICATION_INFECTION);
+		map.put("concept_injury", MetadataDictionary.CONCEPT_CLASSIFICATION_INJURY);
+		map.put("concept_diagnosis", MetadataDictionary.CONCEPT_CLASSIFICATION_DIAGNOSIS);
+
+		
 		return null;
     }
 
@@ -41,5 +86,27 @@ public class DiagnosisCaptureController {
     public String processDiagnosisCaptureSubmit(){
     	return null;
     }
-
+    
+    
+    @RequestMapping(value="/module/diagnosiscapturerwanda/getDiagnosisByNameJSON", method=RequestMethod.GET)
+    public String getDiagnosisByNameJSON(@RequestParam("searchPhrase") String searchPhrase,
+			HttpSession session, 
+			ModelMap model){
+    	List<Concept> cList = new ArrayList<Concept>();
+    	for (ConceptSearchResult csr : Context.getConceptService().findConceptAnswers(searchPhrase, Context.getLocale(), MetadataDictionary.CONCEPT_PRIMARY_CARE_DIAGNOSIS)){
+    		cList.add(csr.getConcept());
+    	}
+    	model.put("json", DiagnosisUtil.convertToJSON(cList));
+    	return "/module/diagnosiscapturerwanda/jsonAjaxResponse";
+    }
+    
+    
+    @RequestMapping(value="/module/diagnosiscapturerwanda/getDiagnosesByIcpcSystemJSON", method=RequestMethod.GET)
+    public String getDiagnosesByIcpcSystemJSON(@RequestParam("groupingId") int groupingId,
+			HttpSession session, 
+			ModelMap model){
+    	List<Concept> cList = DiagnosisUtil.getConceptListByGroupingAndClassification(groupingId, null);
+    	model.put("json", DiagnosisUtil.convertToJSON(cList));
+    	return "/module/diagnosiscapturerwanda/jsonAjaxResponse";
+    }
 }
