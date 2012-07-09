@@ -3,6 +3,7 @@
 <%@ include file="/WEB-INF/template/include.jsp"%>
 <%@ include file="/WEB-INF/template/header.jsp"%>
 <%@ include file="resources/localHeader.jsp" %>
+<openmrs:htmlInclude file="/scripts/jquery-ui/js/jquery-ui.custom.min.js" />
 <style>
 	<%@ include file="resources/diagnosiscapturerwanda.css" %>
 </style>
@@ -88,10 +89,11 @@
 			</tr>
 	</table>
 	<br/>
+	
+	
 	<!-- here's the form -->
 	<form id="diagnosisForm" method="post" >	
 	<div><h3><spring:message code="diagnosiscapturerwanda.addANewDiagnosis"/></h3></div>
-	
 	<div>
 		<!-- form -->
 		<div class="box">
@@ -100,8 +102,8 @@
 					<td colspan="4">
 					<!-- todo: needs autocomplete -->
 					<!--<spring:message code="diagnosiscapturerwanda.diagnosis"/>:--> 
-					<span id="diagnosisName" style="color:red;font-size:120%"><i><b><spring:message code="diagnosiscapturerwanda.noneSelected"/></i></b></span>
-					<input type="hidden" name="diagnosisId" value="" />
+					<span style="font-size:200%"><i><b><span id="diagnosisName" style="color:red;"><spring:message code="diagnosiscapturerwanda.noneSelected"/></span></i></b></span>
+					<input type="hidden" id="diagnosisId" name="diagnosisId" value="" />
 					</td>
 				</tr>
 				<tr>
@@ -138,9 +140,9 @@
 	<div><h3><spring:message code="diagnosiscapturerwanda.lookupDiagnosis"/></h3></div>
 	<div class="box">
 		<div>
-			<table>
+			<table style="background-color:whitesmoke;">
 				<tr>
-				<td style="width:50%">
+				<td style="width:600px" valign=top>
 					<div><spring:message code="diagnosiscapturerwanda.lookupDiagnosisByName"/>:</div>
 					<div>&nbsp;</div>
 					
@@ -156,7 +158,8 @@
 						</c:forEach>
 					</div>
 				</td>
-				<td>
+				<td> &nbsp;&nbsp; </td>
+				<td valign=top style="width:70%">
 					<div id="categorySearchResults"/>
 				</td>
 				</tr>
@@ -193,21 +196,68 @@ var _infection=${concept_infection.conceptId};
 var _diagnosis=${concept_diagnosis.conceptId};
 
 function ajaxLookup(item){
-	alert(item.value);
 	if (item.value.length > 2){
-		$j.getJSON('getDiagnosisByNameJSON.list?searchPhrase=' + item.value, function(json) {
-			alert(json);
+		
+		$j.getJSON('getDiagnosisByNameJSON.list?searchPhrase=' + item.value, function(json){
+			
+			$j("input#ajaxDiagnosisLookup").autocomplete({
+				//TODO: create this from json... label=name, value=conceptId
+			    source: [ { label: "Choice1", value: "value2" } , { label: "javascript", value: "value1" } ],
+			    minLength: 2,
+			    select: function(event, ui) { alert(ui.item.label + " " + ui.item.value); return false;} //we've added our own handler...
+			});
 		});
 	}
 }
 
+
+
+
 function filterByCategory(id){
-	alert('here2');
 	$j.getJSON('getDiagnosesByIcpcSystemJSON.list?groupingId=' + id, function(json) {
-		alert(json);
+		 
+		 //build a little legend
+		 var ret = "<br/><span>  <span class='symptom_color'>&nbsp;&nbsp&nbsp;&nbsp</span>   <spring:message code='diagnosiscapturerwanda.symptom'/> </span>";
+		 ret += "<span> <span class='infection_color'>&nbsp;&nbsp&nbsp;&nbsp</span>    <spring:message code='diagnosiscapturerwanda.infection'/> </span>";
+		 ret += "<span> <span class='injury_color'>&nbsp;&nbsp&nbsp;&nbsp</span> <spring:message code='diagnosiscapturerwanda.injury'/>  </span>";
+		 ret += "<span> <span class='diagnosis_color'>&nbsp;&nbsp&nbsp;&nbsp</span> <spring:message code='diagnosiscapturerwanda.diagnosis'/> </span><br/><br/>";
+	 	 ret += "<table><tr valign=top><td>";
+
+	 	 //TODO: reduce this, using an array
+		 $j.each(json, function(item) {
+		 	 if (json[item].category == _symptom){
+		 		 ret+="<button class='symptom' onclick=\"javascript: setNewDiagnosis(" + json[item].id + ", \'" + json[item].name + "\');\"  >" + json[item].name + "</button><br/>";
+		 	 }
+	     });
+		 ret+="</td><td>";
+		 $j.each(json, function(item) {
+		 	 if (json[item].category == _infection){
+		 		 ret+="<button class='infection' onclick=\"javascript: setNewDiagnosis(" + json[item].id + ", \'" + json[item].name + "\');\" >" + json[item].name + "</button><br/>";
+		 	 }
+	     });
+		 ret+="</td><td>";
+		 $j.each(json, function(item) {
+		 	 if (json[item].category == _injury){
+		 		 ret+="<button class='injury' onclick=\"javascript: setNewDiagnosis(" + json[item].id + ", \'" + json[item].name + "\');\" >" + json[item].name + "</button><br/>";
+		 	 }
+	     });
+		 ret+="</td><td>";
+		 $j.each(json, function(item) {
+		 	 if (json[item].category == _diagnosis){
+		 		 ret+="<button class='diagnosis' onclick=\"javascript: setNewDiagnosis(" + json[item].id + ", \'" + json[item].name + "\');\" >" + json[item].name + "</button><br/>";
+		 	 }
+	     });
+		 ret+="</td></tr></table>";
+		 $j("#categorySearchResults").html(ret);
 	});
 }
 
+function setNewDiagnosis(diagnosisId, diagnosisName){
+	$j("#diagnosisName").html("<span style='color:blue'>" + diagnosisName + "</span>");
+	$j("#diagnosisId").val(diagnosisId);
+}
+
+	
 </script>
     
 <%@ include file="/WEB-INF/template/footer.jsp"%>  

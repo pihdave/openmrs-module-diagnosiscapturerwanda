@@ -14,6 +14,8 @@
 package org.openmrs.module.diagnosiscapturerwanda;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import javax.servlet.http.HttpSession;
@@ -21,7 +23,6 @@ import javax.servlet.http.HttpSession;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.Concept;
-import org.openmrs.ConceptAnswer;
 import org.openmrs.ConceptSearchResult;
 import org.openmrs.Patient;
 import org.openmrs.Visit;
@@ -106,6 +107,13 @@ public class DiagnosisCaptureController {
 			HttpSession session, 
 			ModelMap model){
     	List<Concept> cList = DiagnosisUtil.getConceptListByGroupingAndClassification(groupingId, null);
+    	Collections.sort(cList, new Comparator<Concept>(){
+			@Override
+			public int compare(Concept o1, Concept o2) {
+				return o1.getName().getName().compareTo(o2.getName().getName());  //put in alphabetical order by locale
+			}
+    		
+    	});
     	model.put("json", DiagnosisUtil.convertToJSON(cList));
     	return "/module/diagnosiscapturerwanda/jsonAjaxResponse";
     }

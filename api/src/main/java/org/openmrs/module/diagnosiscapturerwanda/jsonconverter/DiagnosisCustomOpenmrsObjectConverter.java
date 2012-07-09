@@ -41,7 +41,7 @@ public class DiagnosisCustomOpenmrsObjectConverter implements Converter<OpenmrsO
 		ret.put("id", openmrsObj.getId());
 		if (o instanceof Concept){
 			Concept c = (Concept) o;
-			ret.put("name", c.getName(Context.getLocale()).getName());
+			ret.put("name", c.getName().getName().toUpperCase());
 			if (c.getShortNameInLocale(Context.getLocale()) != null)
 				ret.put("shortName", c.getShortNameInLocale(Context.getLocale()).getName());
 			else
