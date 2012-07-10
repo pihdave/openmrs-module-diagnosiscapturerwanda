@@ -65,6 +65,50 @@ public class DiagnosisUtil {
 		return bu.toJson(toConvert);
 	}
 	
+	/**
+	 * jquery autocomplete widget needs shit to look like:  { label: "Choice1", value: "id1" } , { label: "Choice2", value: "id2" }
+	 * @param cList
+	 * @return
+	 */
+	public static String convertToJSONAutoComplete(List<Concept> cList){
+		BasicUiUtils bu = new BasicUiUtils();
+		List<AutoCompleteObj> ret = new ArrayList<AutoCompleteObj>();
+		if (cList != null){
+			for (Concept c: cList){
+				AutoCompleteObj o = new AutoCompleteObj();
+				o.setValue(c.getConceptId());
+				o.setLabel(c.getName().getName().toUpperCase());
+				ret.add(o);
+			}
+		}
+		return bu.toJson(ret);
+	}
+	
+	/**
+	 * helper class for the autocomplete json function...
+	 * @author dthomas
+	 *
+	 */
+	public static class AutoCompleteObj {
+		
+		private String label;
+		private Integer value;
+		
+		public String getLabel() {
+			return label;
+		}
+		public void setLabel(String label) {
+			this.label = label;
+		}
+		public Integer getValue() {
+			return value;
+		}
+		public void setValue(Integer value) {
+			this.value = value;
+		}
+		
+	}
+	
 	/*
 	 * TODO
 	 * Returns a list of concepts based on choice of grouping and classification

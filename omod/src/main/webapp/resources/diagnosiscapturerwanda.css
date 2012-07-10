@@ -13,6 +13,7 @@
 	padding:3px 17px;
 	text-decoration:none;
 	text-shadow:1px 0px 0px #ffffff;
+	text-align: left;
 }.ICPCButtonClass:hover {
 	background-color:#e9e9e9;
 }.ICPCButtonClass:active {
@@ -38,6 +39,7 @@
 	padding:6px 24px;
 	text-decoration:none;
 	text-shadow:1px 1px 0px #aade7c;
+	text-align: left;
 }.symptom:hover {
 	background-color:#5cb811;
 }.symptom:active {
@@ -67,6 +69,7 @@
 	padding:6px 24px;
 	text-decoration:none;
 	text-shadow:1px 1px 0px #ffee66;
+	text-align: left;
 }.infection:hover {
 	background-color:#ffab23;
 }.infection:active {
@@ -96,6 +99,7 @@
 	padding:6px 24px;
 	text-decoration:none;
 	text-shadow:1px 1px 0px #98231a;
+	text-align: left;
 }.injury:hover {
 	background-color:#d34639;
 }.injury:active {
@@ -124,6 +128,7 @@
 	padding:6px 24px;
 	text-decoration:none;
 	text-shadow:1px 1px 0px #8628ce;
+	text-align: left;
 }.diagnosis:hover {
 	background-color:#a341ee;
 }.diagnosis:active {
@@ -133,5 +138,16 @@
 
 .diagnosis_color {
 		background-color:#c579ff;
+}
+
+.icpcResults {
+  table-layout:fixed;
+  width:100%;
+}
+.icpcResults th{
+  width: 25%;
+}
+ .icpcResults td{
+  width: 25%;
 }
 

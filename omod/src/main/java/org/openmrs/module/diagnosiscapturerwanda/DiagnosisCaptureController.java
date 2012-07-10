@@ -16,6 +16,7 @@ package org.openmrs.module.diagnosiscapturerwanda;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 
 import javax.servlet.http.HttpSession;
@@ -24,10 +25,15 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.Concept;
 import org.openmrs.ConceptSearchResult;
+import org.openmrs.Encounter;
+import org.openmrs.EncounterType;
+import org.openmrs.Location;
+import org.openmrs.Obs;
 import org.openmrs.Patient;
 import org.openmrs.Visit;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.diagnosiscapturerwanda.util.DiagnosisUtil;
+import org.openmrs.util.OpenmrsConstants;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -46,6 +52,7 @@ public class DiagnosisCaptureController {
     		HttpSession session, 
     		ModelMap map){
 		
+		
 		Patient patient = Context.getPatientService().getPatient(patientId);
 		if (patient == null)
 			return null;
@@ -58,6 +65,16 @@ public class DiagnosisCaptureController {
 			throw new RuntimeException("visit passed into DiagnosisPatientDashboardController doesn't belong to patient passed into this controller.");
 		map.put("visit", visit);
 		
+		DiagnosisCaptureController.loadMetadata(map);
+		
+		return null;
+    }
+
+	/**
+	 * helper that throws concepts in the model
+	 * @param map
+	 */
+    private static ModelMap loadMetadata(ModelMap map){
 		map.put("concept_set_primary_diagnosis", MetadataDictionary.CONCEPT_SET_PRIMARY_CARE_PRIMARY_DIAGNOSIS_CONSTRUCT);
 		map.put("concept_set_secondary_diagnosis", MetadataDictionary.CONCEPT_SET_PRIMARY_CARE_SECONDARY_DIAGNOSIS_CONSTRUCT);
 		map.put("concept_primary_secondary", MetadataDictionary.CONCEPT_DIAGNOSIS_ORDER);
@@ -65,27 +82,55 @@ public class DiagnosisCaptureController {
 		map.put("concept_diagnosis_other", MetadataDictionary.CONCEPT_DIAGNOSIS_NON_CODED);
 		map.put("concept_confirmed", MetadataDictionary.CONCEPT_CONFIRMED);
 		map.put("concept_suspected", MetadataDictionary.CONCEPT_SUSPTECTED);
-
 		map.put("concept_set_body_system", MetadataDictionary.CONCEPT_SET_ICPC_DIAGNOSIS_GROUPING_CATEGORIES);
 		map.put("concept_set_diagnosis_classification", MetadataDictionary.CONCEPT_SET_ICPC_SYMPTOM_INFECTION_INJURY_DIAGNOSIS);
-		
 		map.put("encounter_type_diagnosis", MetadataDictionary.ENCOUNTER_TYPE_DIAGNOSIS);
 		map.put("encounter_type_findings", MetadataDictionary.ENCOUNTER_TYPE_FINDINGS);
-		
 		map.put("concept_symptom", MetadataDictionary.CONCEPT_CLASSIFICATION_SYMPTOM);
 		map.put("concept_infection", MetadataDictionary.CONCEPT_CLASSIFICATION_INFECTION);
 		map.put("concept_injury", MetadataDictionary.CONCEPT_CLASSIFICATION_INJURY);
 		map.put("concept_diagnosis", MetadataDictionary.CONCEPT_CLASSIFICATION_DIAGNOSIS);
-
-		
-		return null;
+		return map;
     }
-
-    
-	//TODO:
+	
     @RequestMapping(value="/module/diagnosiscapturerwanda/diagnosisCapture", method=RequestMethod.POST)
-    public String processDiagnosisCaptureSubmit(){
-    	return null;
+    public void processDiagnosisCaptureSubmit(
+    		@RequestParam(value="hiddenVisitId") Integer visitId,
+    		@RequestParam(value="diagnosisId") Integer diagnosisId,
+    		@RequestParam(value="primary_secondary") Integer primarySecondary,
+    		@RequestParam(value="confirmed_suspected") Integer confirmedSuspected,
+    		@RequestParam(value="diagnosisOther") String diagnosisOther,
+    		HttpSession session, 
+    		ModelMap map){
+    	
+    	Visit visit = Context.getVisitService().getVisit(visitId);
+    	if (visit == null)
+    		throw new RuntimeException("There is no visit for this patient on this day.  Please go to the diagnosis patient dashboard to figure out why...");
+    	Patient p = visit.getPatient();
+    	map.put("visit", visit);
+    	map.put("patient", visit.getPatient());
+    	DiagnosisCaptureController.loadMetadata(map);
+    	
+    	//TODO: edit:  switch primary/secondary if necessary, compare values, trim 'other'
+    	
+    	//New Encounter:
+    	Concept diagnosis = Context.getConceptService().getConcept(diagnosisId);
+    	if (diagnosis != null){
+    		
+    		Encounter enc = constructPrimaryDiagnosisEncounter(visit, MetadataDictionary.ENCOUNTER_TYPE_DIAGNOSIS);
+    		enc = constructDiagnosisObsTree(enc, diagnosis, primarySecondary, Context.getConceptService().getConcept(confirmedSuspected), diagnosisOther);
+    		
+    		//this is total crap;  its for the encounter validator which enforces the encounter between visit start and stop
+    		if (enc.getEncounterDatetime().getTime() > visit.getStopDatetime().getTime()){
+    			visit.setStopDatetime(DiagnosisUtil.getStartAndEndOfDay(enc.getEncounterDatetime())[1]);
+    			Context.getVisitService().saveVisit(visit);
+    		}
+    			
+    		enc.setVisit(visit);
+    		Context.getEncounterService().saveEncounter(enc);
+
+    	}	
+  
     }
     
     
@@ -97,7 +142,7 @@ public class DiagnosisCaptureController {
     	for (ConceptSearchResult csr : Context.getConceptService().findConceptAnswers(searchPhrase, Context.getLocale(), MetadataDictionary.CONCEPT_PRIMARY_CARE_DIAGNOSIS)){
     		cList.add(csr.getConcept());
     	}
-    	model.put("json", DiagnosisUtil.convertToJSON(cList));
+    	model.put("json", DiagnosisUtil.convertToJSONAutoComplete(cList));
     	return "/module/diagnosiscapturerwanda/jsonAjaxResponse";
     }
     
@@ -116,5 +161,70 @@ public class DiagnosisCaptureController {
     	});
     	model.put("json", DiagnosisUtil.convertToJSON(cList));
     	return "/module/diagnosiscapturerwanda/jsonAjaxResponse";
+    }
+    
+    /**
+     * build the diagnosis encounter
+     */
+    private Encounter constructPrimaryDiagnosisEncounter(Visit visit, EncounterType encType){
+    		Encounter encounter = new Encounter();
+            encounter.setPatient(visit.getPatient());
+            encounter.setEncounterDatetime(new Date());
+            encounter.setEncounterType(encType);
+            
+            String locStr = Context.getAuthenticatedUser().getUserProperty(OpenmrsConstants.USER_PROPERTY_DEFAULT_LOCATION);
+            Location userLocation = null;
+            try { 
+                userLocation = Context.getLocationService().getLocation(Integer.valueOf(locStr));
+            } catch (Exception ex){
+                //pass
+            }
+            encounter.setLocation(userLocation);
+            encounter.setProvider(Context.getAuthenticatedUser().getPerson()); //TODO: fix this
+
+    		return encounter;
+    }
+    
+    /**
+     * build the primary diagnosis obs tree and attach to encounter
+     */
+    private Encounter constructDiagnosisObsTree(Encounter enc, Concept diagnosis, Integer primarySecondary, Concept confirmedSusptectedAnswer, String other){
+    		
+    		//determine primary or secondary; 0 = primary 1=secondary
+    		Concept c = primarySecondary.equals(0) ? MetadataDictionary.CONCEPT_SET_PRIMARY_CARE_PRIMARY_DIAGNOSIS_CONSTRUCT : MetadataDictionary.CONCEPT_SET_PRIMARY_CARE_SECONDARY_DIAGNOSIS_CONSTRUCT;
+    		
+    		//build the obsGroup
+    		Obs oParent = buildObs(enc.getPatient(), c, enc.getEncounterDatetime(), null, null, enc.getLocation());
+    		//build the children
+    		Obs oDiagnosis = buildObs(enc.getPatient(), MetadataDictionary.CONCEPT_PRIMARY_CARE_DIAGNOSIS, enc.getEncounterDatetime(), diagnosis, null, enc.getLocation());
+    		Obs oConfirmedSuspected = buildObs(enc.getPatient(), MetadataDictionary.CONCEPT_DIAGNOSIS_CONFIRMED_SUSPECTED, enc.getEncounterDatetime(), confirmedSusptectedAnswer, null, enc.getLocation());
+    		Obs oOther = buildObs(enc.getPatient(), MetadataDictionary.CONCEPT_DIAGNOSIS_NON_CODED, enc.getEncounterDatetime(), null, other, enc.getLocation());
+    	
+    		oParent.addGroupMember(oDiagnosis);
+    		oParent.addGroupMember(oConfirmedSuspected);
+    		if (oOther.getValueText() != null)
+    			oParent.addGroupMember(oOther);
+    		
+    		enc.addObs(oParent);
+    		
+    		return enc;
+    }
+    
+    /**
+     * instantiate new obs:
+     */
+    private Obs buildObs(Patient p, Concept concept, Date obsDatetime, Concept answer, String value, Location location){
+    	Obs ret = new Obs();
+    	ret.setConcept(concept);
+    	ret.setCreator(Context.getAuthenticatedUser());
+    	ret.setDateCreated(new Date());
+    	ret.setLocation(location);
+    	ret.setObsDatetime(obsDatetime);
+    	ret.setPerson(p);
+    	if (answer != null)
+    		ret.setValueCoded(answer);
+    	if (value != null && !value.equals(""))
+    		ret.setValueText(value);
+    	return ret;
     }
 }

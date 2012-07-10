@@ -10,7 +10,9 @@
 <br/>
 <div class="box">
 	<!--  <div><h3><spring:message code="diagnosiscapturerwanda.diagnosis.diagnoses"/> &nbsp; <openmrs:formatDate date="${visit.startDatetime}" type="short" /></h3></div>-->
-	<!--  TODO:  convert this to a portlet; its the same as on the patient dashboard -->
+	
+	
+	<!--  TODO:  convert this table to a portlet; its the same as on the patient dashboard -->
 	<table>
 		<tr style='background-color: whitesmoke;'>
 			<th><spring:message code="diagnosiscapturerwanda.primaryDiagnosis"/></th>
@@ -91,6 +93,8 @@
 	<br/>
 	
 	
+	
+	
 	<!-- here's the form -->
 	<form id="diagnosisForm" method="post" >	
 	<div><h3><spring:message code="diagnosiscapturerwanda.addANewDiagnosis"/></h3></div>
@@ -103,22 +107,23 @@
 					<!-- todo: needs autocomplete -->
 					<!--<spring:message code="diagnosiscapturerwanda.diagnosis"/>:--> 
 					<span style="font-size:200%"><i><b><span id="diagnosisName" style="color:red;"><spring:message code="diagnosiscapturerwanda.noneSelected"/></span></i></b></span>
-					<input type="hidden" id="diagnosisId" name="diagnosisId" value="" />
+					<input type="hidden" id="diagnosisId" name="diagnosisId" value="-1" />
+					<input type="hidden" name="hiddenVisitId" value="${visit.id}" />
 					</td>
 				</tr>
 				<tr>
 					<td>
 						<spring:message code="diagnosiscapturerwanda.primarySecondary"/>:
 						<select name="primary_secondary">
-							<option val="0" SELECTED><spring:message code="diagnosiscapturerwanda.primary"/></option>
-							<option val="1"><spring:message code="diagnosiscapturerwanda.secondary"/></option>
+							<option value="0" SELECTED><spring:message code="diagnosiscapturerwanda.primary"/></option>
+							<option value="1"><spring:message code="diagnosiscapturerwanda.secondary"/></option>
 						</select>
 					</td>
 					<td>
 						<spring:message code="diagnosiscapturerwanda.confirmedSusptected"/>: 
-						<select name="primary_secondary">
-							<option val="${concept_confirmed.id}"><spring:message code="diagnosiscapturerwanda.confirmed"/></option>
-							<option val="${concept_suspected.id}" SELECTED><spring:message code="diagnosiscapturerwanda.suspected"/></option>
+						<select name="confirmed_suspected">
+							<option value="${concept_confirmed.id}"><spring:message code="diagnosiscapturerwanda.confirmed"/></option>
+							<option value="${concept_suspected.id}" SELECTED><spring:message code="diagnosiscapturerwanda.suspected"/></option>
 						</select>
 					</td>
 					<td>
@@ -137,6 +142,9 @@
 	</div>
 	</form>
 	<div>&nbsp;</div>
+	
+	
+	<!-- here's the diagnosis picker widget -->
 	<div><h3><spring:message code="diagnosiscapturerwanda.lookupDiagnosis"/></h3></div>
 	<div class="box">
 		<div>
@@ -148,7 +156,7 @@
 					
 					<div><input type="text" value="" id="ajaxDiagnosisLookup" onkeyup="ajaxLookup(this);" style="width:100%;"/></div>
 					<div>&nbsp;</div>
-					
+					<div style="height:25px;"><hr/></div>
 					<div><spring:message code="diagnosiscapturerwanda.orDiagnosisLookupBy"/>:</div>
 					<div>&nbsp;</div>
 					<div>
@@ -167,26 +175,7 @@
 		</div>
 	</div>
 
-</div>
-    
-    
-    
-<br/><br/>
-<div>
-	patient:${patient}<br/>
-	visit:${visit}<br/>
-	concept_set_primary_diagnosis:${concept_set_primary_diagnosis}<br/>
-	concept_set_secondary_diagnosis:${concept_set_secondary_diagnosis}<br/>
-	concept_primary_secondary:${concept_primary_secondary}<br/>
-	concept_confirmed_suspected:${concept_confirmed_suspected}<br/>
-	concept_diagnosis_other:${concept_diagnosis_other}<br/>
-	concept_set_body_system:${concept_set_body_system}<br/>
-	concept_set_diagnosis_classification:${concept_set_diagnosis_classification}<br/>
-	encounter_type_diagnosis:${encounter_type_diagnosis}<br/>
-	encounter_type_findings:${encounter_type_findings}<br/>
-	
-
-</div>    
+</div> 
 
 <script type="text/javascript">
 
@@ -201,10 +190,13 @@ function ajaxLookup(item){
 		$j.getJSON('getDiagnosisByNameJSON.list?searchPhrase=' + item.value, function(json){
 			
 			$j("input#ajaxDiagnosisLookup").autocomplete({
-				//TODO: create this from json... label=name, value=conceptId
-			    source: [ { label: "Choice1", value: "value2" } , { label: "javascript", value: "value1" } ],
+			    source: json,
 			    minLength: 2,
-			    select: function(event, ui) { alert(ui.item.label + " " + ui.item.value); return false;} //we've added our own handler...
+			    select: function(event, ui) { 
+			    			setNewDiagnosis(ui.item.value, ui.item.label); 
+			    			$j('#categorySearchResults').empty();
+			    			return false;
+			    		}
 			});
 		});
 	}
@@ -221,7 +213,7 @@ function filterByCategory(id){
 		 ret += "<span> <span class='infection_color'>&nbsp;&nbsp&nbsp;&nbsp</span>    <spring:message code='diagnosiscapturerwanda.infection'/> </span>";
 		 ret += "<span> <span class='injury_color'>&nbsp;&nbsp&nbsp;&nbsp</span> <spring:message code='diagnosiscapturerwanda.injury'/>  </span>";
 		 ret += "<span> <span class='diagnosis_color'>&nbsp;&nbsp&nbsp;&nbsp</span> <spring:message code='diagnosiscapturerwanda.diagnosis'/> </span><br/><br/>";
-	 	 ret += "<table><tr valign=top><td>";
+	 	 ret += "<table class='icpcResults'><tr valign=top><td>";
 
 	 	 //TODO: reduce this, using an array
 		 $j.each(json, function(item) {
