@@ -8,6 +8,8 @@
 	<%@ include file="resources/diagnosiscapturerwanda.css" %>
 </style>
 <br/>
+<div id="errMsg" style="background-color: lightpink;"><c:if test="${more_than_one_primary_diagnosis_err != null}"><i><spring:message code="diagnosiscapturerwanda.onlyOnePrimaryDiagnosisError"/></i></c:if></div>
+
 <div class="box">
 	<!--  <div><h3><spring:message code="diagnosiscapturerwanda.diagnosis.diagnoses"/> &nbsp; <openmrs:formatDate date="${visit.startDatetime}" type="short" /></h3></div>-->
 	
@@ -22,73 +24,75 @@
 		</tr>
 		<c:set var="enc" value=""/>
 			<c:forEach items="${visit.encounters}" var="encTmp" varStatus="pos">
-				<c:if test="${encTmp.encounterType == diagnosisEncounterType}">
+				<c:if test="${encTmp.encounterType == encounter_type_diagnosis}">
 					<c:set var="enc" value="${encTmp}"/>
 				</c:if>
 			</c:forEach>
-			<tr>
-				<c:if test="${empty enc}">
-					<td colspan="3"><spring:message code="diagnosiscapturerwanda.noDiagnosesInThisVisit"/></td>
-				</c:if>
-				<c:if test="${!empty enc}">
-					<!-- primary diagnosis -->
-					<c:forEach items="${enc.obs}" var="obs">
-						<c:if test="${obs.concept == concept_set_primary_diagnosis}"><!-- the primary diagnosis conceptSet -->
-							<c:set var="diagnosis" value=""/>
-							<c:set var="diagnosisText" value=""/>
-							<c:set var="confirmedSusptected" value=""/>
-							<c:forEach items="obs.groupMembers" var="groupObs"><!--  for each set of group members -->
-								<c:if test="${groupObs.concept == concept_diagnosis}">
-									<c:set var="diagnosis" value="${groupObs}"/>
-								</c:if>
-								<c:if test="${groupObs.concept == concept_diagnosis_other}">
-									<c:set var="diagnosisText" value="${groupObs}"/>
-								</c:if>
-								<c:if test="${groupObs.concept == concept_confirmed_suspected}">
-									<c:set var="confirmedSusptected" value="${groupObs}"/>
-								</c:if>
-							</c:forEach>
-							<c:if test="${!empty diagnosis || !empty diagnosisText }">
-								<tr>
-									<td><input type="checkbox" CHECKED/></td>
-									<td><openmrs:format concept="${diagnosis.valueCoded}"/></td>
-									<td>${diagnosisText.valueText}</td>
-									<td><openmrs:format concept="${confirmedSusptected.valueCoded}"/></td>
-									<td></td>
-								</tr>
+			<c:if test="${empty enc}">
+				<tr><td colspan="3"><spring:message code="diagnosiscapturerwanda.noDiagnosesInThisVisit"/></td></tr>
+			</c:if>
+			<c:if test="${!empty enc}">
+				<!-- primary diagnosis -->
+				<c:forEach items="${enc.allObs}" var="obs">
+					<c:if test="${obs.concept == concept_set_primary_diagnosis}"><!-- the primary diagnosis conceptSet -->
+						<c:set var="diagnosis" value=""/>
+						<c:set var="diagnosisText" value=""/>
+						<c:set var="confirmedSusptected" value=""/>
+						<c:forEach items="${obs.groupMembers}" var="groupObs"><!--  for each set of group members -->
+							<c:if test="${groupObs.concept == concept_primary_care_diagnosis}">
+								<c:set var="diagnosis" value="${groupObs}"/>
 							</c:if>
-						</c:if>
-					</c:forEach>
-					<!-- seconadary diagnosis -->
-					<c:forEach items="${enc.obs}" var="obs">
-						<c:if test="${obs.concept == concept_set_secondary_diagnosis}"><!-- the primary diagnosis conceptSet -->
-							<c:set var="diagnosis" value=""/>
-							<c:set var="diagnosisText" value=""/>
-							<c:set var="confirmedSusptected" value=""/>
-							<c:forEach items="obs.groupMembers" var="groupObs"><!--  for each set of group members -->
-								<c:if test="${groupObs.concept == concept_diagnosis}">
-									<c:set var="diagnosis" value="${groupObs}"/>
-								</c:if>
-								<c:if test="${groupObs.concept == concept_diagnosis_other}">
-									<c:set var="diagnosisText" value="${groupObs}"/>
-								</c:if>
-								<c:if test="${groupObs.concept == concept_confirmed_suspected}">
-									<c:set var="confirmedSusptected" value="${groupObs}"/>
-								</c:if>
-							</c:forEach>
-							<c:if test="${!empty diagnosis || !empty diagnosisText }">
-								<tr>
-									<td></td>
-									<td><openmrs:format concept="${diagnosis.valueCoded}"/></td>
-									<td>${diagnosisText.valueText}</td>
-									<td><openmrs:format concept="${confirmedSusptected.valueCoded}"/></td>
-									<td></td>
-								</tr>
+							<c:if test="${groupObs.concept == concept_diagnosis_other}">
+								<c:set var="diagnosisText" value="${groupObs}"/>
 							</c:if>
+							<c:if test="${groupObs.concept == concept_confirmed_suspected}">
+								<c:set var="confirmedSusptected" value="${groupObs}"/>
+							</c:if>
+						</c:forEach>
+						<c:if test="${!empty diagnosis || !empty diagnosisText }">
+							<tr>
+								<td> &nbsp;&nbsp; <img src='<%= request.getContextPath() %>/images/checkmark.png' alt="X"/> </td>
+								<td><c:if test="${!empty diagnosis}"><openmrs:format concept="${diagnosis.valueCoded}"/></c:if></td>
+								<td><c:if test="${!empty diagnosisText}">${diagnosisText.valueText}</c:if></td>
+								<td><c:if test="${!empty confirmedSusptected}"><openmrs:format concept="${confirmedSusptected.valueCoded}"/></c:if></td>
+								<td></td>
+							</tr>
 						</c:if>
-					</c:forEach>
-				</c:if>
-			</tr>
+					</c:if>
+				</c:forEach>
+				<!-- all seconadary diagnoses -->
+				<c:forEach items="${visit.encounters}" var="encTmp" varStatus="pos">
+					<c:if test="${encTmp.encounterType == encounter_type_diagnosis}">
+						<c:forEach items="${encTmp.allObs}" var="obs">
+							<c:if test="${obs.concept == concept_set_secondary_diagnosis}"><!-- the secondary diagnosis conceptSet -->
+								<c:set var="diagnosis" value=""/>
+								<c:set var="diagnosisText" value=""/>
+								<c:set var="confirmedSusptected" value=""/>
+								<c:forEach items="${obs.groupMembers}" var="groupObs"><!--  for each set of group members -->
+									<c:if test="${groupObs.concept == concept_primary_care_diagnosis}">
+										<c:set var="diagnosis" value="${groupObs}"/>
+									</c:if>
+									<c:if test="${groupObs.concept == concept_diagnosis_other}">
+										<c:set var="diagnosisText" value="${groupObs}"/>
+									</c:if>
+									<c:if test="${groupObs.concept == concept_confirmed_suspected}">
+										<c:set var="confirmedSusptected" value="${groupObs}"/>
+									</c:if>
+								</c:forEach>
+								<c:if test="${!empty diagnosis || !empty diagnosisText }">
+									<tr>
+										<td> &nbsp; </td>
+										<td><c:if test="${!empty diagnosis}"><openmrs:format concept="${diagnosis.valueCoded}"/></c:if></td>
+										<td><c:if test="${!empty diagnosisText}">${diagnosisText.valueText}</c:if></td>
+										<td><c:if test="${!empty confirmedSusptected}"><openmrs:format concept="${confirmedSusptected.valueCoded}"/></c:if></td>
+										<td></td>
+									</tr>
+								</c:if>
+							</c:if>
+						</c:forEach>
+					</c:if>
+				</c:forEach>	
+			</c:if>
 	</table>
 	<br/>
 	
@@ -251,5 +255,5 @@ function setNewDiagnosis(diagnosisId, diagnosisName){
 
 	
 </script>
-    
+   
 <%@ include file="/WEB-INF/template/footer.jsp"%>  

@@ -18,6 +18,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 import javax.servlet.http.HttpSession;
 
@@ -78,6 +79,7 @@ public class DiagnosisCaptureController {
 		map.put("concept_set_primary_diagnosis", MetadataDictionary.CONCEPT_SET_PRIMARY_CARE_PRIMARY_DIAGNOSIS_CONSTRUCT);
 		map.put("concept_set_secondary_diagnosis", MetadataDictionary.CONCEPT_SET_PRIMARY_CARE_SECONDARY_DIAGNOSIS_CONSTRUCT);
 		map.put("concept_primary_secondary", MetadataDictionary.CONCEPT_DIAGNOSIS_ORDER);
+		map.put("concept_primary_care_diagnosis", MetadataDictionary.CONCEPT_PRIMARY_CARE_DIAGNOSIS);
 		map.put("concept_confirmed_suspected", MetadataDictionary.CONCEPT_DIAGNOSIS_CONFIRMED_SUSPECTED);
 		map.put("concept_diagnosis_other", MetadataDictionary.CONCEPT_DIAGNOSIS_NON_CODED);
 		map.put("concept_confirmed", MetadataDictionary.CONCEPT_CONFIRMED);
@@ -94,7 +96,7 @@ public class DiagnosisCaptureController {
     }
 	
     @RequestMapping(value="/module/diagnosiscapturerwanda/diagnosisCapture", method=RequestMethod.POST)
-    public void processDiagnosisCaptureSubmit(
+    public String processDiagnosisCaptureSubmit(
     		@RequestParam(value="hiddenVisitId") Integer visitId,
     		@RequestParam(value="diagnosisId") Integer diagnosisId,
     		@RequestParam(value="primary_secondary") Integer primarySecondary,
@@ -106,31 +108,65 @@ public class DiagnosisCaptureController {
     	Visit visit = Context.getVisitService().getVisit(visitId);
     	if (visit == null)
     		throw new RuntimeException("There is no visit for this patient on this day.  Please go to the diagnosis patient dashboard to figure out why...");
-    	Patient p = visit.getPatient();
     	map.put("visit", visit);
     	map.put("patient", visit.getPatient());
     	DiagnosisCaptureController.loadMetadata(map);
     	
+    	boolean hasValidationError = false;
     	//TODO: edit:  switch primary/secondary if necessary, compare values, trim 'other'
     	
     	//New Encounter:
     	Concept diagnosis = Context.getConceptService().getConcept(diagnosisId);
-    	if (diagnosis != null){
+    	if (diagnosis != null || (diagnosisOther != null && !diagnosisOther.equals(""))){
     		
-    		Encounter enc = constructPrimaryDiagnosisEncounter(visit, MetadataDictionary.ENCOUNTER_TYPE_DIAGNOSIS);
+    		Encounter enc = constructPrimaryDiagnosisEncounter(visit.getPatient(), MetadataDictionary.ENCOUNTER_TYPE_DIAGNOSIS);
     		enc = constructDiagnosisObsTree(enc, diagnosis, primarySecondary, Context.getConceptService().getConcept(confirmedSuspected), diagnosisOther);
     		
-    		//this is total crap;  its for the encounter validator which enforces the encounter between visit start and stop
-    		if (enc.getEncounterDatetime().getTime() > visit.getStopDatetime().getTime()){
-    			visit.setStopDatetime(DiagnosisUtil.getStartAndEndOfDay(enc.getEncounterDatetime())[1]);
-    			Context.getVisitService().saveVisit(visit);
+    		//validate:  
+    		hasValidationError = !hasExactlyOnePrimaryDiagnosis(visit, enc);
+    		
+    		//validate method
+    		if (!hasValidationError){
+    			//this is total crap;  its for the encounter validator which enforces the encounter between visit start and stop
+        		if (enc.getEncounterDatetime().getTime() > visit.getStopDatetime().getTime()){
+        			visit.setStopDatetime(DiagnosisUtil.getStartAndEndOfDay(enc.getEncounterDatetime())[1]);
+        			Context.getVisitService().saveVisit(visit);
+        		}
+        		//save
+    			enc.setVisit(visit);
+	    		enc = Context.getEncounterService().saveEncounter(enc);
+	    		visit.getEncounters().add(enc);
+    		} else {
+    			map.put("more_than_one_primary_diagnosis_err","err");
+    			enc = null;
     		}
-    			
-    		enc.setVisit(visit);
-    		Context.getEncounterService().saveEncounter(enc);
-
     	}	
-  
+		
+    	DiagnosisCaptureController.loadMetadata(map);
+    	return null;
+    }
+    
+    /**
+     * validates diagnosis encounter creation.  there must be exactly one primary diagnosis.
+     * @param v
+     * @param newEnc
+     * @return
+     */
+    private boolean hasExactlyOnePrimaryDiagnosis(Visit v, Encounter newEnc){
+    	Set<Encounter> visitEncs = v.getEncounters();
+    	if (newEnc != null)
+    		visitEncs.add(newEnc);
+    	int count = 0;
+    	for (Encounter e : visitEncs){
+    		if (e.getEncounterType().equals(MetadataDictionary.ENCOUNTER_TYPE_DIAGNOSIS)){
+    			for (Obs o : e.getObsAtTopLevel(false)){
+    				if (o.getConcept().equals(MetadataDictionary.CONCEPT_SET_PRIMARY_CARE_PRIMARY_DIAGNOSIS_CONSTRUCT))
+    					count ++;
+    			}
+    		}
+    	}
+    	visitEncs.remove(newEnc);
+    	return (count == 1? true : false);
     }
     
     
@@ -166,9 +202,9 @@ public class DiagnosisCaptureController {
     /**
      * build the diagnosis encounter
      */
-    private Encounter constructPrimaryDiagnosisEncounter(Visit visit, EncounterType encType){
+    private Encounter constructPrimaryDiagnosisEncounter(Patient patient, EncounterType encType){
     		Encounter encounter = new Encounter();
-            encounter.setPatient(visit.getPatient());
+            encounter.setPatient(patient);
             encounter.setEncounterDatetime(new Date());
             encounter.setEncounterType(encType);
             

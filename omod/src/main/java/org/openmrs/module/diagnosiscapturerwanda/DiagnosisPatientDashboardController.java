@@ -69,11 +69,12 @@ public class DiagnosisPatientDashboardController {
 		if (visit != null && !visit.getPatient().equals(patient))	
 			throw new RuntimeException("visit passed into DiagnosisPatientDashboardController doesn't belong to patient passed into this controller.");
 		map.put("visit", visit);
-		map.put("vitalsEncounterType", MetadataDictionary.ENCOUNTER_TYPE_VITALS);
-		map.put("diagnosisEncounterType", MetadataDictionary.ENCOUNTER_TYPE_DIAGNOSIS);
-		map.put("labEncounterType", MetadataDictionary.ENCOUNTER_TYPE_LABS);
-		map.put("registrationEncounterType", MetadataDictionary.ENCOUNTER_TYPE_REGISTRATION);
-		map.put("findingsEncounterType", MetadataDictionary.ENCOUNTER_TYPE_FINDINGS);
+		
+		map.put("encounter_type_visit", MetadataDictionary.ENCOUNTER_TYPE_VITALS);
+		map.put("encounter_type_lab", MetadataDictionary.ENCOUNTER_TYPE_LABS);
+		map.put("encounter_type_registration", MetadataDictionary.ENCOUNTER_TYPE_REGISTRATION);
+		map.put("encounter_type_diagnosis", MetadataDictionary.ENCOUNTER_TYPE_DIAGNOSIS);
+		map.put("encounter_type_findings", MetadataDictionary.ENCOUNTER_TYPE_FINDINGS);
 		if (visit != null)
 			map.put("visitIsToday", DiagnosisUtil.isVisitToday(visit));
 		
@@ -88,7 +89,7 @@ public class DiagnosisPatientDashboardController {
 		//findings
 		map.put("concept_set_finding", MetadataDictionary.CONCEPT_SET_PRIMARY_CARE_FINDINGS_CONSTRUCT); //contains 
 		map.put("concept_findings_other", MetadataDictionary.CONCEPT_FINDINGS_OTHER);
-		map.put("concept_diagnosis", MetadataDictionary.CONCEPT_PRIMARY_CARE_DIAGNOSIS);
+		map.put("concept_primary_care_diagnosis", MetadataDictionary.CONCEPT_PRIMARY_CARE_DIAGNOSIS);
 		
 		//labs -- NEED TO MAP OUT SIMPLE LAB ENTRY
 		
