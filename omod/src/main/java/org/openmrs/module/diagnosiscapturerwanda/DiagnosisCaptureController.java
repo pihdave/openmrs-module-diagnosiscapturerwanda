@@ -32,9 +32,11 @@ import org.openmrs.Location;
 import org.openmrs.Obs;
 import org.openmrs.Patient;
 import org.openmrs.Visit;
+import org.openmrs.api.EncounterService;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.diagnosiscapturerwanda.util.DiagnosisUtil;
 import org.openmrs.util.OpenmrsConstants;
+import org.openmrs.util.OpenmrsUtil;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -46,10 +48,19 @@ public class DiagnosisCaptureController {
 	
 	protected final Log log = LogFactory.getLog(getClass());
 	
-	//TODO:
+	/**
+	 * this is the main getter method
+	 * @param patientId
+	 * @param visitId
+	 * @param encounterId
+	 * @param session
+	 * @param map
+	 * @return
+	 */
 	@RequestMapping(value="/module/diagnosiscapturerwanda/diagnosisCapture", method=RequestMethod.GET)
     public String processDiagnosisCapturePageGet(@RequestParam(value="patientId") Integer patientId,
     		@RequestParam(value="visitId") Integer visitId,
+    		@RequestParam(required=false, value="encounterId") Integer encounterId,
     		HttpSession session, 
     		ModelMap map){
 		
@@ -68,11 +79,19 @@ public class DiagnosisCaptureController {
 		
 		DiagnosisCaptureController.loadMetadata(map);
 		
+		if (encounterId != null){
+			try {
+				map.put("encounter", Context.getEncounterService().getEncounter(encounterId));
+			} catch (Exception ex){
+				log.error("invalid encounterId passed to DiagnosisCapture Controller.");
+			}
+		}
+		
 		return null;
     }
 
 	/**
-	 * helper that throws concepts in the model
+	 * helper that throws concepts & encounterTypes in the model
 	 * @param map
 	 */
     private static ModelMap loadMetadata(ModelMap map){
@@ -95,9 +114,21 @@ public class DiagnosisCaptureController {
 		return map;
     }
 	
+    /**
+     * this is the main setter method
+     * @param visitId
+     * @param diagnosisId
+     * @param primarySecondary
+     * @param confirmedSuspected
+     * @param diagnosisOther
+     * @param session
+     * @param map
+     * @return
+     */
     @RequestMapping(value="/module/diagnosiscapturerwanda/diagnosisCapture", method=RequestMethod.POST)
     public String processDiagnosisCaptureSubmit(
     		@RequestParam(value="hiddenVisitId") Integer visitId,
+    		@RequestParam(required=false, value="hiddenEncounterId") Integer hiddenEncounterId,
     		@RequestParam(value="diagnosisId") Integer diagnosisId,
     		@RequestParam(value="primary_secondary") Integer primarySecondary,
     		@RequestParam(value="confirmed_suspected") Integer confirmedSuspected,
@@ -113,17 +144,61 @@ public class DiagnosisCaptureController {
     	DiagnosisCaptureController.loadMetadata(map);
     	
     	boolean hasValidationError = false;
-    	//TODO: edit:  switch primary/secondary if necessary, compare values, trim 'other'
     	
-    	//New Encounter:
-    	Concept diagnosis = Context.getConceptService().getConcept(diagnosisId);
-    	if (diagnosis != null || (diagnosisOther != null && !diagnosisOther.equals(""))){
+    	//Edit Encounter:  switch primary/secondary if necessary, compare values, trim 'other'
+    	Encounter enc = null;
+    	boolean saveNeeded = false;
+    	if (hiddenEncounterId != null){
     		
-    		Encounter enc = constructPrimaryDiagnosisEncounter(visit.getPatient(), MetadataDictionary.ENCOUNTER_TYPE_DIAGNOSIS);
-    		enc = constructDiagnosisObsTree(enc, diagnosis, primarySecondary, Context.getConceptService().getConcept(confirmedSuspected), diagnosisOther);
-    		
-    		//validate:  
-    		hasValidationError = !hasExactlyOnePrimaryDiagnosis(visit, enc);
+    		enc = Context.getEncounterService().getEncounter(hiddenEncounterId);
+    		for (Obs oParent : enc.getObsAtTopLevel(false)){
+    			boolean continueWithThisObs = false;
+    			if (oParent.getConcept().equals(MetadataDictionary.CONCEPT_SET_PRIMARY_CARE_PRIMARY_DIAGNOSIS_CONSTRUCT)){
+    				continueWithThisObs = true;
+	    			if (primarySecondary.equals(1)){
+	    				saveNeeded = true;
+	    				oParent.setConcept(MetadataDictionary.CONCEPT_SET_PRIMARY_CARE_SECONDARY_DIAGNOSIS_CONSTRUCT);
+	    			}	
+    			} else if (oParent.getConcept().equals(MetadataDictionary.CONCEPT_SET_PRIMARY_CARE_SECONDARY_DIAGNOSIS_CONSTRUCT)) {
+    				continueWithThisObs = true;
+    				if (primarySecondary.equals(0)){
+	    				saveNeeded = true;
+	    				oParent.setConcept(MetadataDictionary.CONCEPT_SET_PRIMARY_CARE_PRIMARY_DIAGNOSIS_CONSTRUCT);
+    				}
+    			}
+    			if (continueWithThisObs){
+    				for (Obs o : oParent.getGroupMembers(false)){
+    					//new diagnosis
+    					if (o.getConcept().equals(MetadataDictionary.CONCEPT_PRIMARY_CARE_DIAGNOSIS) && OpenmrsUtil.nullSafeEquals(diagnosisId, o.getValueCoded().getConceptId()) == false){
+    						o.setValueCoded(Context.getConceptService().getConcept(diagnosisId));
+    						saveNeeded = true;
+    					}
+    					if (o.getConcept().equals(MetadataDictionary.CONCEPT_DIAGNOSIS_NON_CODED) && OpenmrsUtil.nullSafeEquals(diagnosisOther, o.getValueText()) == false){
+    						o.setValueText(diagnosisOther);
+    						saveNeeded = true;
+    					}
+    					if (o.getConcept().equals(MetadataDictionary.CONCEPT_DIAGNOSIS_CONFIRMED_SUSPECTED) && OpenmrsUtil.nullSafeEquals(confirmedSuspected, o.getValueCoded().getConceptId()) == false){
+    						o.setValueCoded(Context.getConceptService().getConcept(confirmedSuspected));
+    						saveNeeded = true;
+    					}
+    				}
+    			}
+    		}
+    	} else {
+    	
+	    	//else its a New Encounter:
+	    	Concept diagnosis = Context.getConceptService().getConcept(diagnosisId);
+	    	if (diagnosis != null || (diagnosisOther != null && !diagnosisOther.equals(""))){
+	    		
+	    		enc = constructPrimaryDiagnosisEncounter(visit.getPatient(), MetadataDictionary.ENCOUNTER_TYPE_DIAGNOSIS);
+	    		enc = constructDiagnosisObsTree(enc, diagnosis, primarySecondary, Context.getConceptService().getConcept(confirmedSuspected), diagnosisOther);
+	    	}	
+	    	saveNeeded = true;
+	    	
+    	}
+    	//validate and save
+		if (saveNeeded && enc != null){
+			hasValidationError = !hasOneOrNoPrimaryDiagnosis(visit, enc);
     		
     		//validate method
     		if (!hasValidationError){
@@ -137,13 +212,17 @@ public class DiagnosisCaptureController {
 	    		enc = Context.getEncounterService().saveEncounter(enc);
 	    		visit.getEncounters().add(enc);
     		} else {
+
     			map.put("more_than_one_primary_diagnosis_err","err");
-    			enc = null;
+    			DiagnosisCaptureController.loadMetadata(map);
+    			// if encounter already has an ID, then we're editing an encounter, and want to return to editing an encounter
+    			if (enc != null && enc.getId() != null)
+    				map.put("encounter", enc);
+    			return null;
     		}
-    	}	
-		
-    	DiagnosisCaptureController.loadMetadata(map);
-    	return null;
+		}
+		//if everything's cool, then reset with a redirect
+    	return "redirect:/module/diagnosiscapturerwanda/diagnosisCapture.list?patientId=" + visit.getPatient().getPatientId() + "&visitId=" + visit.getVisitId();
     }
     
     /**
@@ -152,13 +231,13 @@ public class DiagnosisCaptureController {
      * @param newEnc
      * @return
      */
-    private boolean hasExactlyOnePrimaryDiagnosis(Visit v, Encounter newEnc){
+    private boolean hasOneOrNoPrimaryDiagnosis(Visit v, Encounter newEnc){
     	Set<Encounter> visitEncs = v.getEncounters();
     	if (newEnc != null)
     		visitEncs.add(newEnc);
     	int count = 0;
     	for (Encounter e : visitEncs){
-    		if (e.getEncounterType().equals(MetadataDictionary.ENCOUNTER_TYPE_DIAGNOSIS)){
+    		if (!e.isVoided() && e.getEncounterType().equals(MetadataDictionary.ENCOUNTER_TYPE_DIAGNOSIS)){
     			for (Obs o : e.getObsAtTopLevel(false)){
     				if (o.getConcept().equals(MetadataDictionary.CONCEPT_SET_PRIMARY_CARE_PRIMARY_DIAGNOSIS_CONSTRUCT))
     					count ++;
@@ -166,10 +245,16 @@ public class DiagnosisCaptureController {
     		}
     	}
     	visitEncs.remove(newEnc);
-    	return (count == 1? true : false);
+    	return (count <= 1? true : false);
     }
     
-    
+    /**
+     * the ajax method for looking up a diagnosis by name
+     * @param searchPhrase
+     * @param session
+     * @param model
+     * @return
+     */
     @RequestMapping(value="/module/diagnosiscapturerwanda/getDiagnosisByNameJSON", method=RequestMethod.GET)
     public String getDiagnosisByNameJSON(@RequestParam("searchPhrase") String searchPhrase,
 			HttpSession session, 
@@ -182,7 +267,29 @@ public class DiagnosisCaptureController {
     	return "/module/diagnosiscapturerwanda/jsonAjaxResponse";
     }
     
+    @RequestMapping(value="/module/diagnosiscapturerwanda/deleteDiagnosis", method=RequestMethod.POST)
+    public String deleteDiagnosis(@RequestParam("encounterId") Integer encounterId,
+			HttpSession session, 
+			ModelMap model){
+    	try {
+    		EncounterService es = Context.getEncounterService();
+    		Encounter enc = es.getEncounter(encounterId);
+    		es.voidEncounter(enc, "Voided through diagnosisCapture");
+    		model.put("json", DiagnosisUtil.convertToJSON("{\"result\":\"success\"}"));
+    	} catch (Exception ex){
+    		model.put("json", DiagnosisUtil.convertToJSON("{\"result\":\"failed\"}"));
+    		ex.printStackTrace();
+    	}
+    	return "/module/diagnosiscapturerwanda/jsonAjaxResponse";
+    }
     
+    /**
+     * the ajax method that returns all diagnosis in an ICPC chapter
+     * @param groupingId
+     * @param session
+     * @param model
+     * @return
+     */
     @RequestMapping(value="/module/diagnosiscapturerwanda/getDiagnosesByIcpcSystemJSON", method=RequestMethod.GET)
     public String getDiagnosesByIcpcSystemJSON(@RequestParam("groupingId") int groupingId,
 			HttpSession session, 
@@ -200,7 +307,7 @@ public class DiagnosisCaptureController {
     }
     
     /**
-     * build the diagnosis encounter
+     * utility to build the diagnosis encounter
      */
     private Encounter constructPrimaryDiagnosisEncounter(Patient patient, EncounterType encType){
     		Encounter encounter = new Encounter();
@@ -222,7 +329,7 @@ public class DiagnosisCaptureController {
     }
     
     /**
-     * build the primary diagnosis obs tree and attach to encounter
+     * utility build the primary diagnosis obs tree and attach to encounter
      */
     private Encounter constructDiagnosisObsTree(Encounter enc, Concept diagnosis, Integer primarySecondary, Concept confirmedSusptectedAnswer, String other){
     		
@@ -247,7 +354,7 @@ public class DiagnosisCaptureController {
     }
     
     /**
-     * instantiate new obs:
+     * util to instantiate new obs:
      */
     private Obs buildObs(Patient p, Concept concept, Date obsDatetime, Concept answer, String value, Location location){
     	Obs ret = new Obs();
