@@ -83,6 +83,7 @@ public final class MetadataDictionary {
 	public static Concept CONCEPT_SERVICE_REQUESTED;
 	public static Concept CONCEPT_SET_PRIMARY_CARE_FINDINGS_CONSTRUCT;
 	public static Concept CONCEPT_FINDINGS_OTHER;
+	public static Concept CONCEPT_FINDINGS;
 	
 	public static EncounterType ENCOUNTER_TYPE_REGISTRATION;
 	public static EncounterType ENCOUNTER_TYPE_VITALS;

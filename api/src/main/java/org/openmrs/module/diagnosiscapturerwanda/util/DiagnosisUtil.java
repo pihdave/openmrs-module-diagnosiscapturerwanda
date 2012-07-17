@@ -16,6 +16,7 @@ package org.openmrs.module.diagnosiscapturerwanda.util;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.StringTokenizer;
@@ -23,19 +24,25 @@ import java.util.StringTokenizer;
 import javax.servlet.http.HttpSession;
 
 import org.openmrs.Concept;
+import org.openmrs.ConceptNumeric;
 import org.openmrs.Encounter;
 import org.openmrs.EncounterType;
 import org.openmrs.Location;
+import org.openmrs.Obs;
 import org.openmrs.OpenmrsObject;
 import org.openmrs.Order;
 import org.openmrs.OrderType;
 import org.openmrs.Patient;
 import org.openmrs.Visit;
+import org.openmrs.api.AdministrationService;
+import org.openmrs.api.ConceptService;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.diagnosiscapturerwanda.MetadataDictionary;
 import org.openmrs.module.diagnosiscapturerwanda.jsonconverter.DiagnosisCustomListConverter;
 import org.openmrs.module.diagnosiscapturerwanda.jsonconverter.DiagnosisCustomOpenmrsObjectConverter;
 import org.openmrs.ui.framework.BasicUiUtils;
+import org.openmrs.util.OpenmrsConstants;
+import org.springframework.util.StringUtils;
 
 
 /**
@@ -110,20 +117,20 @@ public class DiagnosisUtil {
 	}
 	
 	/*
-	 * TODO
 	 * Returns a list of concepts based on choice of grouping and classification
 	 * must handle invalid ids
 	 * grouping ID are the diagnosis body systems
 	 * classificaitonId is the injury/diagnosis/symptom/... conceptSet
 	 */
 	public static List<Concept> getConceptListByGroupingAndClassification(Integer groupingId, Integer classificationId){
-		List<Concept> ret = new ArrayList<Concept>();
+		List<Concept> groupsRet = new ArrayList<Concept>();
+		List<Concept> classificationRet = new ArrayList<Concept>();
 		if (groupingId != null){
 			Concept groups = Context.getConceptService().getConcept(groupingId);
 			if (groups != null){
 				for (Concept cs : groups.getSetMembers()){
-					if (!ret.contains(cs))
-						ret.add(cs);
+					if (!groupsRet.contains(cs))
+						groupsRet.add(cs);
 				}
 			}
 		}
@@ -131,13 +138,59 @@ public class DiagnosisUtil {
 			Concept cats = Context.getConceptService().getConcept(classificationId);
 			if (cats != null){
 				for (Concept cs: cats.getSetMembers()){
-					if (!ret.contains(cs))
-						ret.add(cs);
+					if (!classificationRet.contains(cs))
+						classificationRet.add(cs);
 				}
 			}
 		}
-		return ret;
+
+		//filter and return:
+		if (groupingId != null && classificationId != null){
+			List<Concept> ret = intersection(groupsRet,classificationRet);
+			Collections.sort(ret, new ConceptNameComparator());
+			return ret;
+		} else if (classificationId == null){
+			Collections.sort(groupsRet, new ConceptNameComparator());
+			return groupsRet;
+		} else if (groupingId == null){
+			Collections.sort(classificationRet, new ConceptNameComparator());
+			return classificationRet;
+		} else
+			return new ArrayList<Concept>();
 	}
+	
+	
+	/**
+	 * concept name comparator
+	 * @author dthomas
+	 *
+	 */
+	private static class ConceptNameComparator implements Comparator<Concept>{
+		@Override
+		public int compare(Concept o1, Concept o2) {
+			return o1.getName().getName().compareTo(o2.getName().getName());  //put in alphabetical order by locale
+		}
+	}
+	
+	/**
+	 * helper class to intersect two arrayLists
+	 * @param <T>
+	 * @param list1
+	 * @param list2
+	 * @return
+	 */
+	private static <T> List<T> intersection(List<T> list1, List<T> list2) {
+        List<T> list = new ArrayList<T>();
+
+        for (T t : list1) {
+            if(list2.contains(t)) {
+                list.add(t);
+            }
+        }
+
+        return list;
+    }
+
 	
 	/**
 	 * Returns the simplelabentry supported lab tests based on global property
@@ -261,5 +314,134 @@ public class DiagnosisUtil {
     		return true;
     	return false;
     }
+    
+    /**
+     * calculate BMI.  Ripped directly out of default openmrs portlet controller
+     */
+	public static String bmiAsString(Patient p){
+		AdministrationService as = Context.getAdministrationService();
+		ConceptService cs = Context.getConceptService();
+		List<Obs> patientObs = Context.getObsService().getObservationsByPerson(p);
+		Obs latestWeight = null;
+		Obs latestHeight = null;
+		String bmiAsString = "?";
+		try {
+			String weightString = as.getGlobalProperty("concept.weight");
+			ConceptNumeric weightConcept = null;
+			if (StringUtils.hasLength(weightString))
+				weightConcept = cs.getConceptNumeric(cs.getConcept(Integer.valueOf(weightString))
+				        .getConceptId());
+			String heightString = as.getGlobalProperty("concept.height");
+			ConceptNumeric heightConcept = null;
+			if (StringUtils.hasLength(heightString))
+				heightConcept = cs.getConceptNumeric(cs.getConcept(Integer.valueOf(heightString))
+				        .getConceptId());
+			for (Obs obs : patientObs) {
+				if (obs.getConcept().equals(weightConcept)) {
+					if (latestWeight == null
+					        || obs.getObsDatetime().compareTo(latestWeight.getObsDatetime()) > 0)
+						latestWeight = obs;
+				} else if (obs.getConcept().equals(heightConcept)) {
+					if (latestHeight == null
+					        || obs.getObsDatetime().compareTo(latestHeight.getObsDatetime()) > 0)
+						latestHeight = obs;
+				}
+			}
+			if (latestWeight != null && latestHeight != null) {
+				double weightInKg;
+				double heightInM;
+				if (weightConcept.getUnits().equals("kg"))
+					weightInKg = latestWeight.getValueNumeric();
+				else if (weightConcept.getUnits().equals("lb"))
+					weightInKg = latestWeight.getValueNumeric() * 0.45359237;
+				else
+					throw new IllegalArgumentException("Can't handle units of weight concept: "
+					        + weightConcept.getUnits());
+				if (heightConcept.getUnits().equals("cm"))
+					heightInM = latestHeight.getValueNumeric() / 100;
+				else if (heightConcept.getUnits().equals("m"))
+					heightInM = latestHeight.getValueNumeric();
+				else if (heightConcept.getUnits().equals("in"))
+					heightInM = latestHeight.getValueNumeric() * 0.0254;
+				else
+					throw new IllegalArgumentException("Can't handle units of height concept: "
+					        + heightConcept.getUnits());
+				double bmi = weightInKg / (heightInM * heightInM);
+				String temp = "" + bmi;
+				bmiAsString = temp.substring(0, temp.indexOf('.') + 2);
+			}
+		}
+		catch (Exception ex) {
+			ex.printStackTrace();
+			return "";
+		}
+		return bmiAsString;
+	}
+
 	
+    /**
+     * utility to build the diagnosis/findings encounter
+     */
+    public static Encounter constructPrimaryDiagnosisEncounter(Patient patient, EncounterType encType){
+    		Encounter encounter = new Encounter();
+            encounter.setPatient(patient);
+            encounter.setEncounterDatetime(new Date());
+            encounter.setEncounterType(encType);
+            
+            String locStr = Context.getAuthenticatedUser().getUserProperty(OpenmrsConstants.USER_PROPERTY_DEFAULT_LOCATION);
+            Location userLocation = null;
+            try { 
+                userLocation = Context.getLocationService().getLocation(Integer.valueOf(locStr));
+            } catch (Exception ex){
+                //pass
+            }
+            encounter.setLocation(userLocation);
+            encounter.setProvider(Context.getAuthenticatedUser().getPerson()); //TODO: fix this
+
+    		return encounter;
+    }
+    
+    /**
+     * util to instantiate new obs:
+     */
+    public static Obs buildObs(Patient p, Concept concept, Date obsDatetime, Concept answer, String value, Location location){
+    	Obs ret = new Obs();
+    	ret.setConcept(concept);
+    	ret.setCreator(Context.getAuthenticatedUser());
+    	ret.setDateCreated(new Date());
+    	ret.setLocation(location);
+    	ret.setObsDatetime(obsDatetime);
+    	ret.setPerson(p);
+    	if (answer != null)
+    		ret.setValueCoded(answer);
+    	if (value != null && !value.equals(""))
+    		ret.setValueText(value);
+    	return ret;
+    }
+    
+    /**
+     * pull the most recent encounter out of a visit by encounterType
+     * @param v
+     * @param et
+     * @return
+     */
+    public static Encounter findEncounterByTypeInVisit(Visit v, EncounterType et){
+    	if (et == null)
+    		return null;
+    	List<Encounter> eList = new ArrayList<Encounter>();
+    	for (Encounter e: v.getEncounters()){
+    		if (!e.isVoided() && et.equals(e.getEncounterType()))
+    			eList.add(e);
+    	}
+    	if (eList.size() == 0)
+    		return null;
+    	Collections.sort(eList, new Comparator<Encounter>(){
+			@Override
+			public int compare(Encounter o1, Encounter o2) {
+				return o2.getEncounterDatetime().compareTo(o1.getEncounterDatetime()); //this is supposed to be chronological desc
+			}
+    	});
+    	return eList.get(eList.size()-1);
+    }
+    
 }

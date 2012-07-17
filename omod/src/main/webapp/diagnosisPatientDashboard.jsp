@@ -3,6 +3,14 @@
 <%@ include file="/WEB-INF/template/include.jsp"%>
 <%@ include file="/WEB-INF/template/header.jsp"%>
 <%@ include file="resources/localHeader.jsp" %>
+<style>
+	<%@ include file="resources/diagnosiscapturerwanda.css" %>
+</style>
+<script type="text/javascript">
+<%@ include file="resources/diagnosisCapture.js" %>
+</script>
+
+<openmrs:htmlInclude file="/scripts/jquery-ui/js/jquery-ui.custom.min.js" />
     
 <div class="box">
 <br/>
@@ -28,8 +36,8 @@
 		</div><br/>
 		
 		
-		<table>
-			
+		<table id="frameTable"> <!-- frames the page  -->
+			<tr><td colspan="2" class="spacer"><br/>&nbsp;</td></tr><!-- spacer -->
 			<!-- VITALS -->
 			<tr><td>
 			<div><b><spring:message code="diagnosiscapturerwanda.vitals"/></b></div>
@@ -51,7 +59,7 @@
 					<c:set var="systolicObs" value=""/>
 					<c:set var="diastolicObs" value=""/>
 					<c:forEach items="${visit.encounters}" var="encTmp" varStatus="pos">
-						<c:if test="${encTmp.encounterType == encounter_type_vitals}">
+						<c:if test="${encTmp.encounterType == encounter_type_vitals && encTmp.voided == false}">
 							<c:set var="enc" value="${encTmp}"/>
 						</c:if>
 					</c:forEach>
@@ -78,13 +86,11 @@
 									<c:set var="diastolicObs" value="${obs}"/>					
 								</c:if>			
 							</c:forEach>
-							<!-- build row -->
-							<!-- TODO:  BMI -->
 							<tr>
 								<td>${tempObs.valueNumeric}</td>
 								<td>${heightObs.valueNumeric}</td>
 								<td>${weightObs.valueNumeric}</td>
-								<td>TODO</td><!-- BMI -->
+								<td>${currentBMI}</td>
 								<td>${systolicObs.valueNumeric}/${diastolicObs.valueNumeric}</td>
 								<td></td>
 							</tr>
@@ -95,7 +101,7 @@
 			</td>
 			<td><button onclick="document.location='./vitals.form?visitId=${visit.visitId}'"><spring:message code="diagnosiscapturerwanda.changeVitals"/></button></td>
 			</tr>
-			<tr><td colspan="2"><br/>&nbsp;</td></tr><!-- spacer -->
+			<tr><td colspan="2" class="spacer"><br/>&nbsp;</td></tr><!-- spacer -->
 			
 			
 			
@@ -103,52 +109,53 @@
 			<tr><td>
 			<div><b><spring:message code="diagnosiscapturerwanda.findings"/></b></div>
 			<div id="findingsDiv">
-				<table>
-					<tr style='background-color: whitesmoke;'>
-						<th><spring:message code="diagnosiscapturerwanda.finding"/></th>
-						<th><spring:message code="diagnosiscapturerwanda.otherFindings"/></th>
-						<th></th>
-					</tr>
-					<c:set var="enc" value=""/>
-					<c:forEach items="${visit.encounters}" var="encTmp" varStatus="pos">
-						<c:if test="${encTmp.encounterType == encounter_type_findings}">
-							<c:set var="enc" value="${encTmp}"/>
-						</c:if>
-					</c:forEach>
-					<tr>
-						<c:if test="${empty enc}">
-							<td colspan="3"><spring:message code="diagnosiscapturerwanda.noFindingsInThisVisit"/></td>
-						</c:if>
-						<c:if test="${!empty enc}">
-							<c:forEach items="${enc.allObs}" var="obs">
-								<c:if test="${obs.concept == concept_set_finding}"><!-- the findings conceptSet -->
-									<c:set var="finding" value=""/>
-									<c:set var="findingText" value=""/>
-									<c:forEach items="${obs.groupMembers}" var="groupObs"><!--  for each set of group members -->
-										<c:if test="${groupObs.concept == concept_primary_care_diagnosis}">
-											<c:set var="finding" value="${groupObs}"/>
-										</c:if>
-										<c:if test="${groupObs.concept == concept_findings_other}">
-											<c:set var="findingText" value="${groupObs}"/>
+					<table>
+						<tr style='background-color: whitesmoke;'>
+							<th><spring:message code="diagnosiscapturerwanda.finding"/></th>
+							<th><spring:message code="diagnosiscapturerwanda.otherFindings"/></th>
+							<th></th>
+						</tr>
+						<c:set var="encTest" value=""/>
+						<c:forEach items="${visit.encounters}" var="enc" varStatus="pos">
+							<c:if test="${enc.encounterType == encounter_type_findings && enc.voided == false}">
+								<c:set var="encTest" value="${enc}"/>
+								<tr>
+									<c:forEach items="${enc.allObs}" var="obs">
+										<c:if test="${obs.concept == concept_set_findings}"><!-- the findings conceptSet -->	
+											<c:set var="finding" value=""/>
+											<c:set var="findingText" value=""/>
+											<c:forEach items="${obs.groupMembers}" var="groupObs">
+												<c:if test="${groupObs.concept == concept_findings}">
+													<c:set var="finding" value="${groupObs}"/>
+												</c:if>
+												<c:if test="${groupObs.concept == concept_findings_other}">
+													<c:set var="findingText" value="${groupObs}"/>
+												</c:if>
+											</c:forEach>
+											<c:if test="${!empty finding || !empty findingText }">
+												<tr>
+													<td><openmrs:format concept="${finding.valueCoded}"/></td>
+													<td>${findingText.valueText}</td>
+													<td>
+													&nbsp; <a href="#" onclick="editDiagnosis(${obs.id}, 'findings');"><img src='<%= request.getContextPath() %>/images/edit.gif' alt="edit"/></a>
+													&nbsp; <a href="#" onclick="deleteDiagnosis(${obs.id});"><img src='<%= request.getContextPath() %>/images/delete.gif' alt="delete" /></a>
+												</td>
+												</tr>
+											</c:if>
 										</c:if>
 									</c:forEach>
-									<c:if test="${!empty finding || !empty findingText }">
-										<tr>
-											<td><openmrs:format concept="${finding.valueCoded}"/></td>
-											<td>${finding.valueText}</td>
-											<td></td>
-										</tr>
-									</c:if>
-								</c:if>
-							</c:forEach>
+								</tr>
+							</c:if>
+						</c:forEach>
+						<c:if test="${empty encTest}">
+							<td colspan="3"><spring:message code="diagnosiscapturerwanda.noFindingsInThisVisit"/></td>
 						</c:if>
-					</tr>
-				</table>
+					</table>
 			</div>
 			</td>
 			<td><button onclick="document.location='./findings.form?visitId=${visit.visitId}&patientId=${patient.patientId}'"><spring:message code="diagnosiscapturerwanda.changeFindings"/></button></td>
 			</tr>
-			<tr><td colspan="2"><br/>&nbsp;</td></tr><!-- spacer -->
+			<tr><td colspan="2" class="spacer" ><br/>&nbsp;</td></tr><!-- spacer -->
 	
 	
 	
@@ -173,98 +180,14 @@
 			</td>
 			<td><button onclick="document.location='./labs.form?visitId=${visit.visitId}&patientId=${patient.patientId}'"><spring:message code="diagnosiscapturerwanda.changeLabs"/></button></td>
 			</tr>
-			<tr><td colspan="2"><br/>&nbsp;</td></tr><!-- spacer -->
+			<tr><td colspan="2" class="spacer"><br/>&nbsp;</td></tr><!-- spacer -->
 			
 			
 			<!-- Diagnoses -->
-			<!--  TODO:  convert this to a portlet; its the same as on the diagnosis capture page -->
 			<tr><td>
 				<div><b><spring:message code="diagnosiscapturerwanda.diagnosis"/></b></div>
 				<div id="diagnosisDiv">
-					<table>
-						<tr style='background-color: whitesmoke;'>
-							<th><spring:message code="diagnosiscapturerwanda.primaryDiagnosis"/></th>
-							<th><spring:message code="diagnosiscapturerwanda.diagnosis"/></th>
-							<th><spring:message code="diagnosiscapturerwanda.otherDiagnosis"/></th>
-							<th><spring:message code="diagnosiscapturerwanda.confirmedSusptected"/></th>
-						</tr>
-						<c:set var="enc" value=""/>
-						
-						<!-- primary diagnosis -->
-						<c:forEach items="${visit.encounters}" var="encTmp" varStatus="pos">
-							<c:if test="${encTmp.encounterType == encounter_type_diagnosis && encTmp.voided == false}">
-								<c:set var="enc" value="${encTmp}"/>
-								<c:forEach items="${encTmp.allObs}" var="obs">
-									<c:if test="${obs.concept == concept_set_primary_diagnosis}"><!-- the primary diagnosis conceptSet -->
-										<c:set var="diagnosis" value=""/>
-										<c:set var="diagnosisText" value=""/>
-										<c:set var="confirmedSusptected" value=""/>
-										<c:forEach items="${obs.groupMembers}" var="groupObs"><!--  for each set of group members -->
-											<c:if test="${groupObs.concept == concept_primary_care_diagnosis}">
-												<c:set var="diagnosis" value="${groupObs}"/>
-											</c:if>
-											<c:if test="${groupObs.concept == concept_diagnosis_other}">
-												<c:set var="diagnosisText" value="${groupObs}"/>
-											</c:if>
-											<c:if test="${groupObs.concept == concept_confirmed_suspected}">
-												<c:set var="confirmedSusptected" value="${groupObs}"/>
-											</c:if>
-										</c:forEach>
-										<c:if test="${!empty diagnosis || !empty diagnosisText }">
-											<tr id="diagnosisRow_${enc.encounterId}">
-												<td> &nbsp;&nbsp; <img src='<%= request.getContextPath() %>/images/checkmark.png' alt="X"/> </td>
-												<td><c:if test="${!empty diagnosis}"><openmrs:format concept="${diagnosis.valueCoded}"/></c:if></td>
-												<td><c:if test="${!empty diagnosisText}">${diagnosisText.valueText}</c:if></td>
-												<td><c:if test="${!empty confirmedSusptected}"><openmrs:format concept="${confirmedSusptected.valueCoded}" withConceptNameType="SHORT"/></c:if></td>
-												<td>
-
-												</td>
-											</tr>
-										</c:if>
-									</c:if>
-								</c:forEach>
-							</c:if>
-						</c:forEach>		
-						<!-- all seconadary diagnoses -->
-						<c:forEach items="${visit.encounters}" var="encTmp" varStatus="pos">
-							<c:if test="${encTmp.encounterType == encounter_type_diagnosis && encTmp.voided == false}">
-								<c:set var="enc" value="${encTmp}"/>
-								<c:forEach items="${encTmp.allObs}" var="obs">
-									<c:if test="${obs.concept == concept_set_secondary_diagnosis}"><!-- the secondary diagnosis conceptSet -->
-										<c:set var="diagnosis" value=""/>
-										<c:set var="diagnosisText" value=""/>
-										<c:set var="confirmedSusptected" value=""/>
-										<c:forEach items="${obs.groupMembers}" var="groupObs"><!--  for each set of group members -->
-											<c:if test="${groupObs.concept == concept_primary_care_diagnosis}">
-												<c:set var="diagnosis" value="${groupObs}"/>
-											</c:if>
-											<c:if test="${groupObs.concept == concept_diagnosis_other}">
-												<c:set var="diagnosisText" value="${groupObs}"/>
-											</c:if>
-											<c:if test="${groupObs.concept == concept_confirmed_suspected}">
-												<c:set var="confirmedSusptected" value="${groupObs}"/>
-											</c:if>
-										</c:forEach>
-										<c:if test="${!empty diagnosis || !empty diagnosisText }">
-											<tr id="diagnosisRow_${encTmp.encounterId}">
-												<td> &nbsp; </td>
-												<td><c:if test="${!empty diagnosis}"><openmrs:format concept="${diagnosis.valueCoded}"/></c:if></td>
-												<td><c:if test="${!empty diagnosisText}">${diagnosisText.valueText}</c:if></td>
-												<td><c:if test="${!empty confirmedSusptected}"><openmrs:format concept="${confirmedSusptected.valueCoded}" withConceptNameType="SHORT"/></c:if></td>
-												<td> 
-
-												</td>
-											</tr>
-										</c:if>
-									</c:if>
-								</c:forEach>
-							</c:if>
-						</c:forEach>			
-						<!-- no diagnosis encounters in visit -->		
-						<c:if test="${empty enc}">
-							<tr><td colspan="3"><spring:message code="diagnosiscapturerwanda.noDiagnosesInThisVisit"/></td></tr>
-						</c:if>
-					</table>
+					<openmrs:portlet url="diagnosisTable" id="diagnosisTable" moduleId="diagnosiscapturerwanda" />
 				</div>
 			 </td>
 			 <td><button onclick="document.location='./diagnosisCapture.form?visitId=${visit.visitId}&patientId=${patient.patientId}'"><spring:message code="diagnosiscapturerwanda.changeDiagnosis"/></button></td>
@@ -289,7 +212,7 @@
 			</td>
 			<td><button onclick="document.location='./treatment.form?visitId=${visit.visitId}&patientId=${patient.patientId}'"><spring:message code="diagnosiscapturerwanda.changeTreatment"/></button></td>
 			</tr>
-			<tr><td colspan="2"><br/>&nbsp;</td></tr><!-- spacer -->
+			<tr><td colspan="2" class="spacer"><br/>&nbsp;</td></tr><!-- spacer -->
 			
 			
 		</table>	

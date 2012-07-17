@@ -70,7 +70,7 @@ public class DiagnosisPatientDashboardController {
 			throw new RuntimeException("visit passed into DiagnosisPatientDashboardController doesn't belong to patient passed into this controller.");
 		map.put("visit", visit);
 		
-		map.put("encounter_type_visit", MetadataDictionary.ENCOUNTER_TYPE_VITALS);
+		map.put("encounter_type_vitals", MetadataDictionary.ENCOUNTER_TYPE_VITALS);
 		map.put("encounter_type_lab", MetadataDictionary.ENCOUNTER_TYPE_LABS);
 		map.put("encounter_type_registration", MetadataDictionary.ENCOUNTER_TYPE_REGISTRATION);
 		map.put("encounter_type_diagnosis", MetadataDictionary.ENCOUNTER_TYPE_DIAGNOSIS);
@@ -85,11 +85,14 @@ public class DiagnosisPatientDashboardController {
 		map.put("concept_weight", MetadataDictionary.CONCEPT_VITALS_WEIGHT);
 		map.put("concept_systolic", MetadataDictionary.CONCEPT_VITALS_SYSTOLIC_BLOOD_PRESSURE);
 		map.put("concept_diastolic", MetadataDictionary.CONCEPT_VITALS_DIASTOLIC_BLOOD_PRESSURE);
+			//calculated:
+		//  BMI could be improved to only include obs from this visit?  But it makes sense to check for previous heights for adults... etc...
+		map.put("currentBMI", DiagnosisUtil.bmiAsString(patient));
 		
 		//findings
-		map.put("concept_set_finding", MetadataDictionary.CONCEPT_SET_PRIMARY_CARE_FINDINGS_CONSTRUCT); //contains 
+		map.put("concept_set_findings", MetadataDictionary.CONCEPT_SET_PRIMARY_CARE_FINDINGS_CONSTRUCT);
 		map.put("concept_findings_other", MetadataDictionary.CONCEPT_FINDINGS_OTHER);
-		map.put("concept_primary_care_diagnosis", MetadataDictionary.CONCEPT_PRIMARY_CARE_DIAGNOSIS);
+		map.put("concept_findings", MetadataDictionary.CONCEPT_FINDINGS);
 		
 		//labs -- NEED TO MAP OUT SIMPLE LAB ENTRY
 		
@@ -97,6 +100,7 @@ public class DiagnosisPatientDashboardController {
 		//diagnosis
 		map.put("concept_set_primary_diagnosis", MetadataDictionary.CONCEPT_SET_PRIMARY_CARE_PRIMARY_DIAGNOSIS_CONSTRUCT);
 		map.put("concept_set_secondary_diagnosis", MetadataDictionary.CONCEPT_SET_PRIMARY_CARE_SECONDARY_DIAGNOSIS_CONSTRUCT);
+		map.put("concept_primary_care_diagnosis", MetadataDictionary.CONCEPT_PRIMARY_CARE_DIAGNOSIS);
 		map.put("concept_primary_secondary", MetadataDictionary.CONCEPT_DIAGNOSIS_ORDER);
 		map.put("concept_confirmed_suspected", MetadataDictionary.CONCEPT_DIAGNOSIS_CONFIRMED_SUSPECTED);
 		map.put("concept_diagnosis_other", MetadataDictionary.CONCEPT_DIAGNOSIS_NON_CODED);
