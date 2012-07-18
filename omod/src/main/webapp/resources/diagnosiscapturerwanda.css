@@ -151,7 +151,9 @@
   width: 25%;
 }
 
-#spacer td {
-	background-color:whitesmoke;
-}
+.labTable td {
+	padding:5px;
+	margin:5px 5px;
+}	
+
 

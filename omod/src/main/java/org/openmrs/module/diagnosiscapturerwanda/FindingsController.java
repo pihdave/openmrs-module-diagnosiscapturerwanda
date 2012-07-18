@@ -165,7 +165,7 @@ public class FindingsController {
 	    	Concept diagnosis = Context.getConceptService().getConcept(diagnosisId);
 	    	if (diagnosis != null || (diagnosisOther != null && !diagnosisOther.equals(""))){
 	    		if (enc == null)
-	    			enc = DiagnosisUtil.constructPrimaryDiagnosisEncounter(visit.getPatient(), MetadataDictionary.ENCOUNTER_TYPE_FINDINGS);
+	    			enc = DiagnosisUtil.buildEncounter(visit.getPatient(), MetadataDictionary.ENCOUNTER_TYPE_FINDINGS);
 	    		enc = constructDiagnosisObsTree(enc, diagnosis, diagnosisOther);
 	    	}	
 	    	saveNeeded = true;

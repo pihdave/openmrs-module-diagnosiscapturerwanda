@@ -57,11 +57,10 @@ public class DiagnosisHomepageController {
         	map.put("userLocation", null);
         } else {
         	map.put("userLocation", userLocation);
-        }
+        }        
     }
 
     
-	//TODO:
     @RequestMapping(value="/module/diagnosiscapturerwanda/diagnosisHomepage",method=RequestMethod.POST)
     public void processHomePageSubmit(ModelMap model, HttpSession session, HttpServletRequest request){
     	String locationStr = request.getParameter("location");

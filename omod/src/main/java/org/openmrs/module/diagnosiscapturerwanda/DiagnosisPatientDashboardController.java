@@ -41,11 +41,14 @@ public class DiagnosisPatientDashboardController {
     		@RequestParam(required=false, value="encounterId") Integer encounterId,
     		@RequestParam(required=false, value="visitId") Integer visitId,
     		HttpSession session, ModelMap map){
+		
+		//patient
 		Patient patient = Context.getPatientService().getPatient(patientId);
 		if (patient == null)
 			return null;
 		map.put("patient", patient);
-		//find the Visit
+		
+		//registration enc
 		Encounter registrationEnc = null;
 		if (encounterUuid != null){
 			registrationEnc = Context.getEncounterService().getEncounterByUuid(encounterUuid);
@@ -55,8 +58,8 @@ public class DiagnosisPatientDashboardController {
 		}
 		if (registrationEnc != null && !registrationEnc.getPatient().equals(patient))
 			throw new RuntimeException("encounter passed into DiagnosisPatientDashboardController doesn't belong to patient passed into this controller.");
-		
-		//this will throw exception if visit is not found.
+
+		//find the Visit
 		Visit visit = null;
 		if (visitId != null)
 			visit = Context.getVisitService().getVisit(visitId);
@@ -68,8 +71,10 @@ public class DiagnosisPatientDashboardController {
 		}
 		if (visit != null && !visit.getPatient().equals(patient))	
 			throw new RuntimeException("visit passed into DiagnosisPatientDashboardController doesn't belong to patient passed into this controller.");
+		if (registrationEnc == null)
+			registrationEnc = DiagnosisUtil.findEncounterByTypeInVisit(visit, MetadataDictionary.ENCOUNTER_TYPE_REGISTRATION);
+
 		map.put("visit", visit);
-		
 		map.put("encounter_type_vitals", MetadataDictionary.ENCOUNTER_TYPE_VITALS);
 		map.put("encounter_type_lab", MetadataDictionary.ENCOUNTER_TYPE_LABS);
 		map.put("encounter_type_registration", MetadataDictionary.ENCOUNTER_TYPE_REGISTRATION);

@@ -382,7 +382,7 @@ public class DiagnosisUtil {
     /**
      * utility to build the diagnosis/findings encounter
      */
-    public static Encounter constructPrimaryDiagnosisEncounter(Patient patient, EncounterType encType){
+    public static Encounter buildEncounter(Patient patient, EncounterType encType){
     		Encounter encounter = new Encounter();
             encounter.setPatient(patient);
             encounter.setEncounterDatetime(new Date());
@@ -417,6 +417,23 @@ public class DiagnosisUtil {
     	if (value != null && !value.equals(""))
     		ret.setValueText(value);
     	return ret;
+    }
+    
+    /**
+     * util to build a new order
+     */
+    public static Order buildOrder(Patient p, Concept c, Encounter e){
+    	Order order = new Order();
+    	order.setConcept(c);
+    	order.setCreator(Context.getAuthenticatedUser());
+    	order.setDateCreated(new Date());
+    	order.setDiscontinued(false);
+    	order.setOrderer(Context.getAuthenticatedUser());
+    	order.setOrderType(getLabOrderType());
+    	order.setPatient(p);
+    	order.setStartDate(e.getEncounterDatetime());
+    	order.setVoided(false);
+    	return order;
     }
     
     /**

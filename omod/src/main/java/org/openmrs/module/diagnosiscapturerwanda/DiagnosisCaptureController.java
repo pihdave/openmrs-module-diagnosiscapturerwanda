@@ -191,7 +191,7 @@ public class DiagnosisCaptureController {
 	    	Concept diagnosis = Context.getConceptService().getConcept(diagnosisId);
 	    	if (diagnosis != null || (diagnosisOther != null && !diagnosisOther.equals(""))){
 	    		if (enc == null)
-	    			enc = DiagnosisUtil.constructPrimaryDiagnosisEncounter(visit.getPatient(), MetadataDictionary.ENCOUNTER_TYPE_DIAGNOSIS);
+	    			enc = DiagnosisUtil.buildEncounter(visit.getPatient(), MetadataDictionary.ENCOUNTER_TYPE_DIAGNOSIS);
 	    		enc = constructDiagnosisObsTree(enc, diagnosis, primarySecondary, Context.getConceptService().getConcept(confirmedSuspected), diagnosisOther);
 	    	}	
 	    	saveNeeded = true;
