@@ -331,11 +331,11 @@ public class DiagnosisCaptureController {
     		Concept c = primarySecondary.equals(0) ? MetadataDictionary.CONCEPT_SET_PRIMARY_CARE_PRIMARY_DIAGNOSIS_CONSTRUCT : MetadataDictionary.CONCEPT_SET_PRIMARY_CARE_SECONDARY_DIAGNOSIS_CONSTRUCT;
     		
     		//build the obsGroup
-    		Obs oParent = DiagnosisUtil.buildObs(enc.getPatient(), c, enc.getEncounterDatetime(), null, null, enc.getLocation());
+    		Obs oParent = DiagnosisUtil.buildObs(enc.getPatient(), c, enc.getEncounterDatetime(), null, null, null, enc.getLocation());
     		//build the children
-    		Obs oDiagnosis = DiagnosisUtil.buildObs(enc.getPatient(), MetadataDictionary.CONCEPT_PRIMARY_CARE_DIAGNOSIS, enc.getEncounterDatetime(), diagnosis, null, enc.getLocation());
-    		Obs oConfirmedSuspected = DiagnosisUtil.buildObs(enc.getPatient(), MetadataDictionary.CONCEPT_DIAGNOSIS_CONFIRMED_SUSPECTED, enc.getEncounterDatetime(), confirmedSusptectedAnswer, null, enc.getLocation());
-    		Obs oOther = DiagnosisUtil.buildObs(enc.getPatient(), MetadataDictionary.CONCEPT_DIAGNOSIS_NON_CODED, enc.getEncounterDatetime(), null, other, enc.getLocation());
+    		Obs oDiagnosis = DiagnosisUtil.buildObs(enc.getPatient(), MetadataDictionary.CONCEPT_PRIMARY_CARE_DIAGNOSIS, enc.getEncounterDatetime(), diagnosis, null, null, enc.getLocation());
+    		Obs oConfirmedSuspected = DiagnosisUtil.buildObs(enc.getPatient(), MetadataDictionary.CONCEPT_DIAGNOSIS_CONFIRMED_SUSPECTED, enc.getEncounterDatetime(), confirmedSusptectedAnswer, null, null, enc.getLocation());
+    		Obs oOther = DiagnosisUtil.buildObs(enc.getPatient(), MetadataDictionary.CONCEPT_DIAGNOSIS_NON_CODED, enc.getEncounterDatetime(), null, other, null, enc.getLocation());
     	
     		oParent.addGroupMember(oDiagnosis);
     		oParent.addGroupMember(oConfirmedSuspected);

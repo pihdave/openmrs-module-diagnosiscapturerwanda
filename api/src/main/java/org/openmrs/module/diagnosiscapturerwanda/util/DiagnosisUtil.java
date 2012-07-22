@@ -209,9 +209,11 @@ public class DiagnosisUtil {
 					c = Context.getConceptService().getConcept(Integer.valueOf(s));
 				} catch (Exception ex){}
 			}
-			if (c != null)
+			if (c != null) {
+				//for lazy loading
+				c.getSetMembers();
 				ret.add(c);
-			else
+			} else
 				throw new RuntimeException("Unable to load concept " + s + " from global property simplelabentry.supportedTests");
 		}	
 		return ret;
@@ -404,7 +406,7 @@ public class DiagnosisUtil {
     /**
      * util to instantiate new obs:
      */
-    public static Obs buildObs(Patient p, Concept concept, Date obsDatetime, Concept answer, String value, Location location){
+    public static Obs buildObs(Patient p, Concept concept, Date obsDatetime, Concept answer, String value, Double valueNumeric, Location location){
     	Obs ret = new Obs();
     	ret.setConcept(concept);
     	ret.setCreator(Context.getAuthenticatedUser());
@@ -416,6 +418,8 @@ public class DiagnosisUtil {
     		ret.setValueCoded(answer);
     	if (value != null && !value.equals(""))
     		ret.setValueText(value);
+    	if (valueNumeric != null )
+    		ret.setValueNumeric(valueNumeric);
     	return ret;
     }
     

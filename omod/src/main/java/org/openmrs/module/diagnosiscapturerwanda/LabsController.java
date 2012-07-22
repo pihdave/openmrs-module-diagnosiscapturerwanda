@@ -13,10 +13,14 @@
  */
 package org.openmrs.module.diagnosiscapturerwanda;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.Collections;
+import java.util.Date;
+import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -25,13 +29,16 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.Concept;
 import org.openmrs.Encounter;
+import org.openmrs.Obs;
 import org.openmrs.Order;
 import org.openmrs.Patient;
 import org.openmrs.Visit;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.diagnosiscapturerwanda.util.DiagnosisUtil;
+import org.openmrs.util.OpenmrsUtil;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -67,9 +74,30 @@ public class LabsController {
 			throw new RuntimeException("visit passed into DiagnosisPatientDashboardController doesn't belong to patient passed into this controller.");
 		map.put("visit", visit);
 		
+		List<Concept> supportedLabTests = DiagnosisUtil.getSupportedLabTests();
 		LabsController.loadMetadata(map);
 		
+		//existing lab obs and orders
+		for (Encounter e: visit.getEncounters()){
+			if (!e.isVoided() && e.getEncounterType().equals(MetadataDictionary.ENCOUNTER_TYPE_LABS)){
+				map.put("labEncounter", e);
+				List<Order> labOrders = new ArrayList<Order>();
+				
+				for (Order o :e.getOrders()){
+					if (!o.isVoided() && supportedLabTests.contains(o.getConcept()))
+						labOrders.add(o);
+				}
+				map.put("labOrders", labOrders);
+				map.put("encounterObs", e.getAllObs(false));
+				map.put("labOrders", labOrders);
+				break;
+			}
+		}
 		
+		//we need to load up lab concepts themselves.
+		Map<Concept, List<Concept>> testMap = getSupportedTestMap(supportedLabTests);
+		map.put("testMap", testMap);
+		map.put("now", new Date());
 		return null;
     }
 
@@ -83,9 +111,41 @@ public class LabsController {
 		map.put("labEncounterType", DiagnosisUtil.getLabTestEncounterType());
 		return map;
     }
+    
+    
+    /**
+     * returns a map with key: conceptId of lab panel; value: list of tests in that panel.
+     * if the GP points to a single test that's not a ConceptSet, the map's value will be Collections.singletonList(key)
+     * @param supportedLabTests
+     * @return
+     */
+    private Map<Concept, List<Concept>> getSupportedTestMap(List<Concept> supportedLabTests){
+    	
+    	Map<Concept, List<Concept>> testMap = new LinkedHashMap<Concept, List<Concept>>();
+		for (Concept c : supportedLabTests){
+			if (c.getSetMembers() == null || c.getSetMembers().size() == 0)
+				testMap.put(c, Collections.singletonList(c));
+			else {
+				List<Concept> testList = new ArrayList<Concept>();
+				for (Concept cTest : c.getSetMembers()){
+					testList.add(cTest);
+				}
+				testMap.put(c, testList);
+			}
+		}
+		return testMap;
+    }
 
+    
+    /**
+     * the main post method
+     * @param map
+     * @param session
+     * @param request
+     * @return
+     */
     @RequestMapping(value="/module/diagnosiscapturerwanda/labs", method=RequestMethod.POST)
-    public String processLabsSubmit(ModelMap model, HttpSession session, HttpServletRequest request){
+    public String processLabsSubmit(ModelMap map, HttpSession session, HttpServletRequest request){
     	
     	Visit visit = Context.getVisitService().getVisit(Integer.valueOf(request.getParameter("hiddenVisitId")));
     	
@@ -94,6 +154,8 @@ public class LabsController {
     	for (Concept c : DiagnosisUtil.getSupportedLabTests()){
     		String requestParam = root + c.getConceptId();
     		if (request.getParameter(requestParam) != null){
+    			//for lazy loading:
+    			c.getSetMembers();
     			testsRequested.add(c);
     		}	
     	}
@@ -106,31 +168,97 @@ public class LabsController {
     		saveNeeded = true;
     	}	
     	
-    	//void deselected orders:
-    	if (labEnc.getOrders() != null)
+    	//void deselected orders and associated obs:
+    	if (labEnc.getOrders() != null){
 	    	for (Order o : labEnc.getOrders()){
 	    		if (!testsRequested.contains(o.getConcept()))
 	    			o = Context.getOrderService().voidOrder(o, "deselected in diagnosiscapture");
 	    	} 
-    	
-    	//TODO:  do the same for obs
-    	
-    	//now add, if necessary
-    	for (Concept c : testsRequested){
-    		boolean found = false;
-    		if (labEnc.getOrders() != null)
-	    		for (Order o : labEnc.getOrders()){
-	    			if (o.getConcept().equals(c) && !o.isVoided())
-	    				found = true;
-	    		}
-    		if (!found){
-    			//we need to create new:
-    			labEnc.addOrder(DiagnosisUtil.buildOrder(visit.getPatient(), c, labEnc));
-    			saveNeeded = true;
+    		for (Obs o : labEnc.getAllObs()){ //void all obs if their corresponding order is voided
+    			if (!o.isVoided() && o.getOrder() != null && o.getOrder().isVoided()){
+    				Context.getObsService().voidObs(o, "assoc. lab order voided");
+    			}
     		}
+    	}	
+    	
+    	
+    	//now add orders, if necessary
+    	if (testsRequested.size() > 0){
+    		Map<Concept, List<Concept>> testMap = getSupportedTestMap(DiagnosisUtil.getSupportedLabTests());
+    		SimpleDateFormat sdf = Context.getDateFormat(); //is this right?
+    		
+	    	for (Concept c : testsRequested){ //for each lab pannel
+	    		Order labPannelOrder = null;
+	    		if (labEnc.getOrders() != null)
+		    		for (Order o : labEnc.getOrders()){
+		    			if (o.getConcept().equals(c) && !o.isVoided())
+		    				labPannelOrder = o;
+		    		}
+	    		if (labPannelOrder == null){
+	    			//we need to create new:
+	    			labPannelOrder = DiagnosisUtil.buildOrder(visit.getPatient(), c, labEnc);
+	    			labEnc.addOrder(labPannelOrder);
+	    			saveNeeded = true;
+	    		}
+	    		
+	    		//get test result date, if there is one...
+	    		String resultDateStr = request.getParameter("testResultDate_" + c.getId());
+	    		//get result date for the pannel
+	    		if (StringUtils.hasText(resultDateStr)){
+		    		Date resultDate = new Date();
+		    		try {
+						resultDate = sdf.parse(resultDateStr);
+					} catch (ParseException e) {
+						//pass
+					}
+					//set discontinuedDate on the order
+					for (Order o : labEnc.getOrders()){
+		    			if (o.getConcept().equals(c) && !o.isVoided() && (o.getDiscontinuedDate() == null || !o.getDiscontinuedDate().equals(resultDate))){
+		    				o.setDiscontinued(true);
+		    				o.setDiscontinuedBy(Context.getAuthenticatedUser());
+		    				o.setDiscontinuedReasonNonCoded("diagnosiscapture lab results");
+		    				o.setDiscontinuedDate(resultDate);
+		    				saveNeeded = true;
+		    			}
+		    			break;
+		    		}
+					//finally, ALL OBS HANDLING IS HERE:
+					List<Concept> potentialObsConcepts = testMap.get(c);
+					for (Concept cTest : potentialObsConcepts){
+						String labResStr = request.getParameter("testResult_" + cTest.getId()); 
+						Obs oExisting = findNonVoidedObsInEncounter(labEnc, cTest);
+						if (StringUtils.hasText(labResStr)){
+							//get the new test result value
+							Double labTestResult = null;
+							try {
+								labTestResult = Double.valueOf(labResStr); //the lab test result
+							} catch (Exception ex){
+								ex.printStackTrace();
+								throw new RuntimeException("I'm only currently supporting valueNumeric obs for lab tests.");
+							}
+							
+							if (oExisting != null){ //edit existing
+								if (!OpenmrsUtil.nullSafeEquals(oExisting.getValueNumeric(),labTestResult)){
+									oExisting.setValueNumeric(labTestResult);
+									saveNeeded = true;
+								}
+							} else { //or create a new obs:
+								DiagnosisUtil.buildObs(visit.getPatient(), cTest, resultDate, null, null, labTestResult ,labEnc.getLocation());
+							}
+						} else if (oExisting != null) { //if empty value returned from page, void obs, or do nothing
+							oExisting.setVoided(true);
+							oExisting.setVoidedBy(Context.getAuthenticatedUser());
+							oExisting.setVoidReason("diagnosiscapture");
+							oExisting.setDateVoided(new Date());
+							saveNeeded = true;
+						}
+					}
+	    		}	
+	    	} 
     	}
     	
     	if (saveNeeded) {
+    		//stretch visit duration, if necessary
     		if (labEnc.getEncounterDatetime().getTime() > visit.getStopDatetime().getTime()){
     			visit.setStopDatetime(DiagnosisUtil.getStartAndEndOfDay(labEnc.getEncounterDatetime())[1]);
     			Context.getVisitService().saveVisit(visit);
@@ -138,6 +266,17 @@ public class LabsController {
     		//save
     		labEnc.setVisit(visit);
     		labEnc = Context.getEncounterService().saveEncounter(labEnc);
+    	}
+    	
+    	//TODO:  if there are NO non-voided obs or orders, void the encounter?
+
+    	return "redirect:/module/diagnosiscapturerwanda/labs.list?patientId=" + visit.getPatient().getPatientId() + "&visitId=" + visit.getVisitId();
+    }
+    
+    private Obs findNonVoidedObsInEncounter(Encounter e, Concept c){
+    	for (Obs o: e.getAllObs(false)){
+    		if (o.getConcept().equals(c))
+    			return o;
     	}
     	return null;
     }

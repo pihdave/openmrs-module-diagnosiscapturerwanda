@@ -196,10 +196,10 @@ public class FindingsController {
     		Concept c = MetadataDictionary.CONCEPT_SET_PRIMARY_CARE_FINDINGS_CONSTRUCT;
     		
     		//build the obsGroup
-    		Obs oParent = DiagnosisUtil.buildObs(enc.getPatient(), c, enc.getEncounterDatetime(), null, null, enc.getLocation());
+    		Obs oParent = DiagnosisUtil.buildObs(enc.getPatient(), c, enc.getEncounterDatetime(), null, null, null, enc.getLocation());
     		//build the children
-    		Obs oDiagnosis = DiagnosisUtil.buildObs(enc.getPatient(), MetadataDictionary.CONCEPT_FINDINGS, enc.getEncounterDatetime(), diagnosis, null, enc.getLocation());
-    		Obs oOther = DiagnosisUtil.buildObs(enc.getPatient(), MetadataDictionary.CONCEPT_FINDINGS_OTHER, enc.getEncounterDatetime(), null, other, enc.getLocation());
+    		Obs oDiagnosis = DiagnosisUtil.buildObs(enc.getPatient(), MetadataDictionary.CONCEPT_FINDINGS, enc.getEncounterDatetime(), diagnosis, null, null, enc.getLocation());
+    		Obs oOther = DiagnosisUtil.buildObs(enc.getPatient(), MetadataDictionary.CONCEPT_FINDINGS_OTHER, enc.getEncounterDatetime(), null, other, null, enc.getLocation());
     	
     		oParent.addGroupMember(oDiagnosis);
     		oParent.addGroupMember(oOther);
