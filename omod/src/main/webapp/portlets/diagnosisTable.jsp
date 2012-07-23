@@ -2,7 +2,7 @@
     pageEncoding="UTF-8"%>
 <%@ include file="/WEB-INF/template/include.jsp"%>
 <table style="width:100%">
-		<tr style='background-color: whitesmoke;'>
+		<tr class="gradient">
 			<th><spring:message code="diagnosiscapturerwanda.primaryDiagnosis"/></th>
 			<th><spring:message code="diagnosiscapturerwanda.diagnosis"/></th>
 			<th><spring:message code="diagnosiscapturerwanda.otherDiagnosis"/></th>

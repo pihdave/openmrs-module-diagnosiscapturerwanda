@@ -12,7 +12,7 @@
 
 <openmrs:htmlInclude file="/scripts/jquery-ui/js/jquery-ui.custom.min.js" />
     
-<div class="box">
+<div class="boxInner">
 <br/>
 <!-- patient is not registered -->
 <c:if test="${empty visit}">
@@ -27,23 +27,19 @@
 <!-- patient is registered -->
 <c:if test="${!empty visit}">
 	<div><spring:message code="diagnosiscapturerwanda.visitDate"/> &nbsp; <openmrs:formatDate date="${visit.startDatetime}" type="short" /></div>
-	<div class="box" id="mainDiv">
-	
-	
-		<div><spring:message code="diagnosiscapturerwanda.registeredToday"/> 
+	<div><spring:message code="diagnosiscapturerwanda.registeredToday"/> 
 			<c:if test="${visitIsToday}"><spring:message code="diagnosiscapturerwanda.yes"/></c:if>
 		    <c:if test="${!visitIsToday}"><spring:message code="diagnosiscapturerwanda.no"/></c:if>
-		</div><br/>
-		
-		
+	</div><br/>
+	<div class="boxInner" id="mainDiv" style="background-color:#FAFAFA">
 		<table id="frameTable"> <!-- frames the page  -->
-			<tr><td colspan="2" class="spacer"><br/>&nbsp;</td></tr><!-- spacer -->
+		
 			<!-- VITALS -->
 			<tr><td>
-			<div><b><spring:message code="diagnosiscapturerwanda.vitals"/></b></div>
-			<div id="vitalsDiv">
+			<div><b><spring:message code="diagnosiscapturerwanda.vitals"/></b></div><br/>
+			<div id="vitalsDiv" class="boxInner">
 				<table>
-					<tr style='background-color: whitesmoke;'>
+					<tr class="gradient">
 						<th><spring:message code="diagnosiscapturerwanda.temperature"/></th>
 						<th><spring:message code="diagnosiscapturerwanda.height"/></th>
 						<th><spring:message code="diagnosiscapturerwanda.weight"/></th>
@@ -99,7 +95,9 @@
 				</table>
 			</div>
 			</td>
-			<td><button onclick="document.location='./vitals.form?visitId=${visit.visitId}'"><spring:message code="diagnosiscapturerwanda.changeVitals"/></button></td>
+			<td valign="top">
+				<button onclick="document.location='./vitals.form?visitId=${visit.visitId}'"><spring:message code="diagnosiscapturerwanda.changeVitals"/></button>
+			</td>
 			</tr>
 			<tr><td colspan="2" class="spacer"><br/>&nbsp;</td></tr><!-- spacer -->
 			
@@ -107,10 +105,10 @@
 			
 			<!-- Findings -->
 			<tr><td>
-			<div><b><spring:message code="diagnosiscapturerwanda.findings"/></b></div>
-			<div id="findingsDiv">
+			<div><b><spring:message code="diagnosiscapturerwanda.findings"/></b></div><br/>
+			<div id="findingsDiv" class="boxInner">
 					<table>
-						<tr style='background-color: whitesmoke;'>
+						<tr class="gradient">
 							<th><spring:message code="diagnosiscapturerwanda.finding"/></th>
 							<th><spring:message code="diagnosiscapturerwanda.otherFindings"/></th>
 							<th></th>
@@ -153,7 +151,7 @@
 					</table>
 			</div>
 			</td>
-			<td><button onclick="document.location='./findings.form?visitId=${visit.visitId}&patientId=${patient.patientId}'"><spring:message code="diagnosiscapturerwanda.changeFindings"/></button></td>
+			<td valign="top"><button onclick="document.location='./findings.form?visitId=${visit.visitId}&patientId=${patient.patientId}'"><spring:message code="diagnosiscapturerwanda.changeFindings"/></button></td>
 			</tr>
 			<tr><td colspan="2" class="spacer" ><br/>&nbsp;</td></tr><!-- spacer -->
 	
@@ -167,39 +165,36 @@
 			<tr><td>
 			<div><b><spring:message code="diagnosiscapturerwanda.labs"/></b></div>
 			<div id="labsDiv">
-				<table>
-					<tr style='background-color: whitesmoke;'>
-						<th><spring:message code="diagnosiscapturerwanda.pannel"/></th>
-						<th><spring:message code="diagnosiscapturerwanda.test"/></th>
-						<th><spring:message code="diagnosiscapturerwanda.result"/></th>
-						<th><spring:message code="diagnosiscapturerwanda.units"/></th>
-						<th></th>
-					</tr>
-				</table>
+					<script>
+					$j(document).ready(function() {
+						 $j('#labsDiv').load('http://localhost:8088/openmrs19/module/diagnosiscapturerwanda/labs.form?visitId=26&patientId=124&readOnly=true');
+					});
+					
+					</script>
 			</div>
 			</td>
-			<td><button onclick="document.location='./labs.form?visitId=${visit.visitId}&patientId=${patient.patientId}'"><spring:message code="diagnosiscapturerwanda.changeLabs"/></button></td>
+			<td valign="top"><button onclick="document.location='./labs.form?visitId=${visit.visitId}&patientId=${patient.patientId}'"><spring:message code="diagnosiscapturerwanda.changeLabs"/></button></td>
 			</tr>
 			<tr><td colspan="2" class="spacer"><br/>&nbsp;</td></tr><!-- spacer -->
 			
 			
 			<!-- Diagnoses -->
 			<tr><td>
-				<div><b><spring:message code="diagnosiscapturerwanda.diagnosis"/></b></div>
-				<div id="diagnosisDiv">
+				<div><b><spring:message code="diagnosiscapturerwanda.diagnosis"/></b></div><br/>
+				<div id="diagnosisDiv" class="boxInner">
 					<openmrs:portlet url="diagnosisTable" id="diagnosisTable" moduleId="diagnosiscapturerwanda" />
 				</div>
 			 </td>
-			 <td><button onclick="document.location='./diagnosisCapture.form?visitId=${visit.visitId}&patientId=${patient.patientId}'"><spring:message code="diagnosiscapturerwanda.changeDiagnosis"/></button></td>
+			 <td valign="top"><button onclick="document.location='./diagnosisCapture.form?visitId=${visit.visitId}&patientId=${patient.patientId}'"><spring:message code="diagnosiscapturerwanda.changeDiagnosis"/></button></td>
 			 </tr>
 			<tr><td colspan="2"><br/>&nbsp;</td></tr><!-- spacer -->
 			
 			<!-- treatment -->
 			<tr><td>
 			<div><b><spring:message code="diagnosiscapturerwanda.treatment"/></b></div>
-			<div id="labsDiv">
+			<div id="labsDiv" class="boxInner">
 				<table>
-					<tr style='background-color: whitesmoke;'>
+					<tr class="gradient">
 						<th><spring:message code="diagnosiscapturerwanda.drugOrRegimen"/></th>
 						<th><spring:message code="diagnosiscapturerwanda.dosage"/></th>
 						<th><spring:message code="diagnosiscapturerwanda.startDate"/></th>
@@ -210,7 +205,7 @@
 				</table>
 			</div>
 			</td>
-			<td><button onclick="document.location='./treatment.form?visitId=${visit.visitId}&patientId=${patient.patientId}'"><spring:message code="diagnosiscapturerwanda.changeTreatment"/></button></td>
+			<td valign="top"><button onclick="document.location='./treatment.form?visitId=${visit.visitId}&patientId=${patient.patientId}'"><spring:message code="diagnosiscapturerwanda.changeTreatment"/></button></td>
 			</tr>
 			<tr><td colspan="2" class="spacer"><br/>&nbsp;</td></tr><!-- spacer -->
 			

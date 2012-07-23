@@ -10,9 +10,13 @@
 <openmrs:htmlInclude file="/dwr/interface/DWRPatientService.js"/>
 <openmrs:htmlInclude file="/scripts/jquery/dataTables/css/dataTables_jui.css"/>
 <openmrs:htmlInclude file="/scripts/jquery/dataTables/js/jquery.dataTables.min.js"/>
+
+<style>
+	<%@ include file="resources/diagnosiscapturerwanda.css" %>
+</style>
     
 <!-- header -->    
-<div class="box">
+<div>
 <%@page import="org.openmrs.module.diagnosiscapturerwanda.util.DiagnosisUtil"%>   
 <% org.openmrs.Location workstationLocation = DiagnosisUtil.getLocationLoggedIn(session); %>
 	<div style="background-color: #f0f0f0; border: 1px black solid; padding: 5px">
@@ -23,6 +27,7 @@
 
 <!-- capture user's current location -->
 <% if (workstationLocation == null) { %>
+	<div class="boxInner">
 	<form method="POST">
 		<table>
 			<tr>
@@ -41,7 +46,8 @@
 				<td colspan="2"><input type="submit" value="<spring:message code="diagnosiscapturerwanda.submit"/>"/></td>
 			</tr>
 		</table>
-	</form>	
+	</form>
+	</div>	
 <% } %>
 
 <!-- user's location is set, so you can proceed with showing possible patients, searching for patients, service queue, etc... -->
@@ -50,14 +56,15 @@
 
 <!-- here's the patient search widget -->
 
-<openmrs:portlet id="diagnosisCapturefindPatient" url="diagnosisFindPatient"  moduleId="diagnosiscapturerwanda" parameters="size=full|postURL=${pageContext.request.contextPath}/module/diagnosiscapturerwanda/diagnosisPatientDashboard.list|showIncludeVoided=false|viewType=shortEdit|hideAddNewPatient=true"/>
-
+<div>
+	<openmrs:portlet id="diagnosisCapturefindPatient" url="diagnosisFindPatient"  moduleId="diagnosiscapturerwanda" parameters="size=full|postURL=${pageContext.request.contextPath}/module/diagnosiscapturerwanda/diagnosisPatientDashboard.list|showIncludeVoided=false|viewType=shortEdit|hideAddNewPatient=true"/>
+</div>
 <br/>
 <!--  here's the list of today's patients -->
 <div>
 	<span><spring:message code='diagnosiscapturerwanda.nextPatientInQueue'/></span>
-</div>
-<div class="box" id="queueDiv">
+</div><br/>
+<div class="boxInner" id="queueDiv">
 </div>
 	 <script type="text/javascript">
 	 $j(document).ready(function() {

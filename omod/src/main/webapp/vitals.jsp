@@ -3,17 +3,19 @@
 <%@ include file="/WEB-INF/template/include.jsp"%>
 <%@ include file="/WEB-INF/template/header.jsp"%>
 <%@ include file="resources/localHeader.jsp" %>
+<style>
+	<%@ include file="resources/diagnosiscapturerwanda.css" %>
+</style>
 
 <style>
     table.vitalsForm td { padding: 15px; }
 </style>
 
 <br/><br/>
-<b class="boxHeader">
-    <spring:message code="diagnosiscapturerwanda.vitals"/>
-</b>
-<div class="box">
-
+<div class="boxInner gradient">
+	<b class="boxHeader">
+    	<spring:message code="diagnosiscapturerwanda.vitals"/>
+	</b>
     <form:form commandName="vitalsCommand" method="post">
         <table class="vitalsForm">
             <tr>
@@ -56,7 +58,7 @@
 		    <tr id="buttonsAtBottom">
 		        <td colspan="2">
 		        	<input name="action" type="submit" value='<spring:message code="diagnosiscapturerwanda.submit"/>'/>
-		        	<input type="button" value='<spring:message code="general.cancel"/>' onclick="document.location.href='diagnosisPatientDashboard.form?patientId=${vitalsCommand.visit.patient.patientId}';"/>
+		        	<input type="button" value='<spring:message code="general.cancel"/>' onclick="document.location.href='diagnosisPatientDashboard.form?patientId=${vitalsCommand.visit.patient.patientId}&visitId=${vitalsCommand.visit.visitId}';"/>
 		        </td>
 		    </tr>
 	    </table>

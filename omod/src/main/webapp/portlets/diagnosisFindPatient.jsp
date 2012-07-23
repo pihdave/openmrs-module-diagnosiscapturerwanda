@@ -64,15 +64,16 @@
 
 			</script>
 
-			<div>
-				<b class="boxHeader"><spring:message code="Patient.find"/></b>
-				<div class="box">
+			<div class="boxInner">
+					<div style="background-color:white">
+					<b class="boxHeader"><spring:message code="Patient.find"/></b>
 					<div class="searchWidgetContainer" id="findPatients"></div>
 					<openmrs:globalProperty var="registrationUrl" key="diagnosiscapturerwanda.registrationSystemUrl" defaultValue=""/>
 					<c:if test="${!empty registrationUrl}">
-					<div>&nbsp;<a href="${pageContext.request.contextPath}/${registrationUrl}"><spring:message code="diagnosiscapturerwanda.registrationSystem"/></a></div>
+						<div>&nbsp;<a href="${pageContext.request.contextPath}/${registrationUrl}"><spring:message code="diagnosiscapturerwanda.registrationSystem"/></a></div>
 					</c:if>
-				</div>
+					<br/>
+					</div>
 			</div>
 			
 			<c:if test="${empty model.hideAddNewPatient}">

@@ -16,7 +16,7 @@
 
 <br/>
 <div id="errMsg" style="background-color: lightpink;"><c:if test="${more_than_one_primary_diagnosis_err != null}"><i><spring:message code="diagnosiscapturerwanda.onlyOnePrimaryDiagnosisError"/></i></c:if></div>
-<div class="box">
+<div class="boxInner gradient">
 	<!--  <div><h3><spring:message code="diagnosiscapturerwanda.diagnosis.diagnoses"/> &nbsp; <openmrs:formatDate date="${visit.startDatetime}" type="short" /></h3></div>-->
 	
 	<openmrs:portlet url="diagnosisTable" id="diagnosisTable" moduleId="diagnosiscapturerwanda" />
@@ -30,7 +30,7 @@
 	<div><h3><spring:message code="diagnosiscapturerwanda.addANewDiagnosis"/></h3></div>
 	<div>
 		<!-- form -->
-		<div class="box" style="background-color:whitesmoke;">
+		<div class="boxInner gradient">
 			<table>
 				<tr>
 					<td colspan="4">
@@ -70,10 +70,10 @@
 				<tr>
 					<td colspan="4"><br/></td>
 				</tr>
-				<tr style="font-size:130%">
+				<tr>
 					<td colspan="4">
 						<input type="button" value='<spring:message code="general.cancel"/>' onClick="document.location.href='diagnosisCapture.list?patientId=${visit.patient.patientId}&visitId=${visit.visitId}';"/>
-						&nbsp;<input type="button" value='<spring:message code="diagnosiscapturerwanda.returnToPatientDashboard"/>' onclick="document.location.href='diagnosisPatientDashboard.form?patientId=${visit.patient.patientId}';"/>
+						&nbsp;<input type="button" value='<spring:message code="diagnosiscapturerwanda.returnToPatientDashboard"/>' onclick="document.location.href='diagnosisPatientDashboard.form?patientId=${visit.patient.patientId}&visitId=${visit.visitId}';"/>
 						&nbsp;<input name="action" type="submit" value='<spring:message code="diagnosiscapturerwanda.submit"/>'/>
 					</td>
 				</tr>
@@ -87,7 +87,7 @@
 	<!-- here's the diagnosis picker widget -->
 	<div><h3><spring:message code="diagnosiscapturerwanda.lookupDiagnosis"/></h3></div>
 	<br/>
-	<div class="box" style="background-color:whitesmoke;">
+	<div class="boxInner gradient">
 		<div>
 			<table>
 				<tr>

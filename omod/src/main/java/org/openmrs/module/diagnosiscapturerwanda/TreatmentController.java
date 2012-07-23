@@ -18,6 +18,8 @@ import javax.servlet.http.HttpSession;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.Patient;
+import org.openmrs.Visit;
+import org.openmrs.api.context.Context;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -33,8 +35,20 @@ public class TreatmentController {
 	//TODO:
 
 	@RequestMapping(value="/module/diagnosiscapturerwanda/treatment", method=RequestMethod.GET)
-    public void processTreatmentPageGet(@RequestParam(value="patientId") Patient patient,  HttpSession session, ModelMap map){
-		map.put("patient", patient);
+    public void processTreatmentPageGet(@RequestParam(value="patientId") Integer patientId,  
+    		@RequestParam(value="visitId") Integer visitId,
+    		HttpSession session, ModelMap map){
+		Patient patient = Context.getPatientService().getPatient(patientId);
+		if (patient == null)
+			map.put("patient", patient);
+		
+		Visit visit = Context.getVisitService().getVisit(visitId);
+		if (visit == null)
+			throw new RuntimeException("You must pass in a valid visitId to this page.");
+		if (visit != null && !visit.getPatient().equals(patient))	
+			throw new RuntimeException("visit passed into DiagnosisPatientDashboardController doesn't belong to patient passed into this controller.");
+		map.put("visit", visit);
+		
     }
 
     

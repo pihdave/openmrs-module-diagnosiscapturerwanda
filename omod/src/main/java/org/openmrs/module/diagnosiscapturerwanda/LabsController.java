@@ -58,9 +58,13 @@ public class LabsController {
 	@RequestMapping(value="/module/diagnosiscapturerwanda/labs", method=RequestMethod.GET)
     public String processLabsPageGet(@RequestParam(value="patientId") Integer patientId,
     		@RequestParam(value="visitId") Integer visitId,
-    		@RequestParam(required=false, value="obsGroupId") Integer obsGroupId,
+    		@RequestParam(required=false, value="readOnly", defaultValue="false") String readOnly,
     		HttpSession session, 
     		ModelMap map){
+		
+		//used in the jsp for read-only view of labs in this visit
+		if (readOnly.equals("true"))
+			map.put("readOnly", true);
 		
 		Patient patient = Context.getPatientService().getPatient(patientId);
 		if (patient == null)
@@ -168,7 +172,7 @@ public class LabsController {
     		saveNeeded = true;
     	}	
     	
-    	//void deselected orders and associated obs:
+    	//void deselected orders and associated obs (leaving the encounter unvoided for now...)
     	if (labEnc.getOrders() != null){
 	    	for (Order o : labEnc.getOrders()){
 	    		if (!testsRequested.contains(o.getConcept()))
@@ -182,12 +186,14 @@ public class LabsController {
     	}	
     	
     	
-    	//now add orders, if necessary
+    	//now add orders, if necessary;  this will exclude the tests requested that have been deselected
     	if (testsRequested.size() > 0){
-    		Map<Concept, List<Concept>> testMap = getSupportedTestMap(DiagnosisUtil.getSupportedLabTests());
+    		Map<Concept, List<Concept>> testMap = getSupportedTestMap(DiagnosisUtil.getSupportedLabTests());  //map representing all possibilities
     		SimpleDateFormat sdf = Context.getDateFormat(); //is this right?
     		
-	    	for (Concept c : testsRequested){ //for each lab pannel
+	    	for (Concept c : testsRequested){ //for each selected lab pannel
+	    		
+	    		// build or find the order:
 	    		Order labPannelOrder = null;
 	    		if (labEnc.getOrders() != null)
 		    		for (Order o : labEnc.getOrders()){
@@ -201,7 +207,7 @@ public class LabsController {
 	    			saveNeeded = true;
 	    		}
 	    		
-	    		//get test result date, if there is one...
+	    		//get test result date, if there is one...  In order for there to be one, the order already has to exist (or there'd be no testResultDate_ input on the page for this order
 	    		String resultDateStr = request.getParameter("testResultDate_" + c.getId());
 	    		//get result date for the pannel
 	    		if (StringUtils.hasText(resultDateStr)){
@@ -209,24 +215,22 @@ public class LabsController {
 		    		try {
 						resultDate = sdf.parse(resultDateStr);
 					} catch (ParseException e) {
-						//pass
+						//pass; just use default of now()
 					}
 					//set discontinuedDate on the order
-					for (Order o : labEnc.getOrders()){
-		    			if (o.getConcept().equals(c) && !o.isVoided() && (o.getDiscontinuedDate() == null || !o.getDiscontinuedDate().equals(resultDate))){
-		    				o.setDiscontinued(true);
-		    				o.setDiscontinuedBy(Context.getAuthenticatedUser());
-		    				o.setDiscontinuedReasonNonCoded("diagnosiscapture lab results");
-		    				o.setDiscontinuedDate(resultDate);
-		    				saveNeeded = true;
-		    			}
-		    			break;
-		    		}
-					//finally, ALL OBS HANDLING IS HERE:
+	    			if ((labPannelOrder.getDiscontinuedDate() == null || !labPannelOrder.getDiscontinuedDate().equals(resultDate))){
+	    				labPannelOrder.setDiscontinued(true);
+	    				labPannelOrder.setDiscontinuedBy(Context.getAuthenticatedUser());
+	    				labPannelOrder.setDiscontinuedReasonNonCoded("diagnosiscapture lab results");
+	    				labPannelOrder.setDiscontinuedDate(resultDate);
+	    				saveNeeded = true;
+	    			}
+	    			
+					//finally, ALL OBS HANDLING:
 					List<Concept> potentialObsConcepts = testMap.get(c);
 					for (Concept cTest : potentialObsConcepts){
 						String labResStr = request.getParameter("testResult_" + cTest.getId()); 
-						Obs oExisting = findNonVoidedObsInEncounter(labEnc, cTest);
+						Obs oExisting = findNonVoidedObsInEncounter(labEnc, cTest); //get the existing obs for that result, if there is one.
 						if (StringUtils.hasText(labResStr)){
 							//get the new test result value
 							Double labTestResult = null;
@@ -237,13 +241,16 @@ public class LabsController {
 								throw new RuntimeException("I'm only currently supporting valueNumeric obs for lab tests.");
 							}
 							
-							if (oExisting != null){ //edit existing
-								if (!OpenmrsUtil.nullSafeEquals(oExisting.getValueNumeric(),labTestResult)){
-									oExisting.setValueNumeric(labTestResult);
-									saveNeeded = true;
-								}
+							if (oExisting != null){ // there's an existing obs
+									if (!OpenmrsUtil.nullSafeEquals(oExisting.getValueNumeric(),labTestResult)){ //only change it if necessary; else do nothing
+										oExisting.setValueNumeric(labTestResult);
+										saveNeeded = true;
+									}
 							} else { //or create a new obs:
-								DiagnosisUtil.buildObs(visit.getPatient(), cTest, resultDate, null, null, labTestResult ,labEnc.getLocation());
+								Obs resObs = DiagnosisUtil.buildObs(visit.getPatient(), cTest, resultDate, null, null, labTestResult ,labEnc.getLocation());
+								resObs.setOrder(labPannelOrder); //associate obs with order
+								labEnc.addObs(resObs);
+								saveNeeded = true;
 							}
 						} else if (oExisting != null) { //if empty value returned from page, void obs, or do nothing
 							oExisting.setVoided(true);
