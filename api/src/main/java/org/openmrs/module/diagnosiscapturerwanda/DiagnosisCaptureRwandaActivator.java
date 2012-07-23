@@ -26,6 +26,7 @@ import org.openmrs.api.context.Context;
 import org.openmrs.module.ModuleActivator;
 import org.openmrs.util.PrivilegeConstants;
 import org.springframework.context.ApplicationContext;
+import org.openmrs.module.diagnosiscapturerwanda.DiagnosisCaptureRwandaContextAware;
 
 /**
  * This class contains the logic that is run every time this module is either started or stopped.

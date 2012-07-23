@@ -16,21 +16,17 @@
 
 <br/>
 <div id="errMsg" style="background-color: lightpink;"><c:if test="${more_than_one_primary_diagnosis_err != null}"><i><spring:message code="diagnosiscapturerwanda.onlyOnePrimaryDiagnosisError"/></i></c:if></div>
-<div class="boxInner gradient">
+<div id="mainContent">
 	<!--  <div><h3><spring:message code="diagnosiscapturerwanda.diagnosis.diagnoses"/> &nbsp; <openmrs:formatDate date="${visit.startDatetime}" type="short" /></h3></div>-->
 	
-	<openmrs:portlet url="diagnosisTable" id="diagnosisTable" moduleId="diagnosiscapturerwanda" />
-	<br/>
-	
-	
-	
-	
+<table><tr><td valign="top">
+
+
 	<!-- here's the form -->
 	<form id="diagnosisForm" method="post" >	
-	<div><h3><spring:message code="diagnosiscapturerwanda.addANewDiagnosis"/></h3></div>
-	<div>
 		<!-- form -->
 		<div class="boxInner gradient">
+			<div><h3><spring:message code="diagnosiscapturerwanda.addANewDiagnosis"/></h3></div>
 			<table>
 				<tr>
 					<td colspan="4">
@@ -79,11 +75,18 @@
 				</tr>
 			</table>
 		</div>
-	</div>
 	</form>
-	<div>&nbsp;</div>
 	
-	
+</td><td valign="top">
+
+	<div class="boxInner gradient">
+		<openmrs:portlet url="diagnosisTable" id="diagnosisTable" moduleId="diagnosiscapturerwanda" />
+	</div>
+
+
+</td></tr></table><br/>
+
+
 	<!-- here's the diagnosis picker widget -->
 	<div><h3><spring:message code="diagnosiscapturerwanda.lookupDiagnosis"/></h3></div>
 	<br/>

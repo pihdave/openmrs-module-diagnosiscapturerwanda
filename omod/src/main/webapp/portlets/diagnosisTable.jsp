@@ -1,7 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
 <%@ include file="/WEB-INF/template/include.jsp"%>
-<table style="width:100%">
+<table>
 		<tr class="gradient">
 			<th><spring:message code="diagnosiscapturerwanda.primaryDiagnosis"/></th>
 			<th><spring:message code="diagnosiscapturerwanda.diagnosis"/></th>

@@ -191,7 +191,7 @@
 			
 			<!-- treatment -->
 			<tr><td>
-			<div><b><spring:message code="diagnosiscapturerwanda.treatment"/></b></div>
+			<div><b><spring:message code="diagnosiscapturerwanda.treatment"/></b></div><br/>
 			<div id="labsDiv" class="boxInner">
 				<table>
 					<tr class="gradient">
@@ -215,32 +215,9 @@
 </c:if>
 
 <div id="previousVisits">
+	TODO
 </div>
 
 </div>    
-
-<div>
-
-
-<!--  
-this page accepts parameters visitId, encounterId of any visit encounter, encounterUuid of any visit encounter
-visit = ${visit}<br/>
-<a href="./vitals.form?visitId=${visit.visitId}">vitalsEncounterType = ${vitalsEncounterType}</a><br/>
-findingsEncounterType = ${findingsEncounterType}<br/>
-labEncounterType = ${labEncounterType}<br/>
-vitalsEncounterType = ${vitalsEncounterType}<br/>
-diagnosisEncounterType =${diagnosisEncounterType}
-<br/>
-<a href="./treatment.form?patientId=${visit.patient.patientId}">Treatment</a>
-<br/>
-TODO on this page:  BMI, format numeric values, "change" buttons, finish labs, finish treatment, css this shit
--->
-
-</div>
-    
-    
-    
-    
-    
-    
+  
 <%@ include file="/WEB-INF/template/footer.jsp"%>  

@@ -16,9 +16,59 @@
 
 <br/>
 <div id="errMsg" style="background-color: lightpink;"><c:if test="${more_than_one_primary_diagnosis_err != null}"><i><spring:message code="diagnosiscapturerwanda.onlyOnePrimaryDiagnosisError"/></i></c:if></div>
-<div class="boxInner">
+<div id="mainContentDiv">
 	<!--  <div><h3><spring:message code="diagnosiscapturerwanda.diagnosis.diagnoses"/> &nbsp; <openmrs:formatDate date="${visit.startDatetime}" type="short" /></h3></div>-->
 	
+	
+<table><tr><td valign="top">
+
+
+	<!-- here's the form -->
+	<form id="diagnosisForm" method="post" >	
+		<!-- form -->
+		<div class="boxInner gradient"><div><h3><spring:message code="diagnosiscapturerwanda.addANewFinding"/></h3></div>
+			<table>
+				<tr>
+					<td colspan="4">
+					<!-- todo: needs autocomplete -->
+					<!--<spring:message code="diagnosiscapturerwanda.diagnosis"/>:--> 
+					<span style="font-size:200%"><i><b><span id="editNote"></span><span id="diagnosisName" style="color:red;"><spring:message code="diagnosiscapturerwanda.noneSelectedFindings"/></span></i></b></span>
+					<input type="hidden" id="diagnosisId" name="diagnosisId" value="-1" />
+					<input type="hidden" name="hiddenVisitId" value="${visit.id}" />
+					<c:if test="${!empty obsGroup}">
+						<input type="hidden" name="hiddenObsGroupId" value="${obsGroup.id}" />
+					</c:if>
+					</td>
+				</tr>
+				<tr>
+					<td colspan="4"><br/></td>
+				</tr>
+				<tr>
+					<td>
+						<spring:message code="diagnosiscapturerwanda.otherFinding"/>:
+					</td>
+					<td><textarea rows="10" cols="150" id="diagnosisOtherTextArea" name="diagnosisOther"></textarea></td>
+				</tr>
+				<tr>
+					<td colspan="4"><br/></td>
+				</tr>
+				<tr>
+					<td colspan="4">
+						<input type="button" value='<spring:message code="general.cancel"/>' onClick="document.location.href='findings.list?patientId=${visit.patient.patientId}&visitId=${visit.visitId}';"/>
+						&nbsp;<input type="button" value='<spring:message code="diagnosiscapturerwanda.returnToPatientDashboard"/>' onclick="document.location.href='diagnosisPatientDashboard.form?patientId=${visit.patient.patientId}&visitId=${visit.visitId}';"/>
+						&nbsp;<input name="action" type="submit" value='<spring:message code="diagnosiscapturerwanda.submit"/>'/>
+					</td>
+				</tr>
+			</table>
+		</div>
+
+	</form>
+	
+	
+</td><td valign="top">
+	
+	
+	<div class="boxInner gradient">
 	<table>
 		<tr class="gradient">
 			<th><spring:message code="diagnosiscapturerwanda.finding"/></th>
@@ -61,52 +111,10 @@
 			<td colspan="3"><spring:message code="diagnosiscapturerwanda.noFindingsInThisVisit"/></td>
 		</c:if>
 	</table>
-	<br/>
-	
-	
-	<!-- here's the form -->
-	<form id="diagnosisForm" method="post" >	
-	<div><h3><spring:message code="diagnosiscapturerwanda.addANewFinding"/></h3></div>
-	<div>
-		<!-- form -->
-		<div class="boxInner gradient">
-			<table>
-				<tr>
-					<td colspan="4">
-					<!-- todo: needs autocomplete -->
-					<!--<spring:message code="diagnosiscapturerwanda.diagnosis"/>:--> 
-					<span style="font-size:200%"><i><b><span id="editNote"></span><span id="diagnosisName" style="color:red;"><spring:message code="diagnosiscapturerwanda.noneSelectedFindings"/></span></i></b></span>
-					<input type="hidden" id="diagnosisId" name="diagnosisId" value="-1" />
-					<input type="hidden" name="hiddenVisitId" value="${visit.id}" />
-					<c:if test="${!empty obsGroup}">
-						<input type="hidden" name="hiddenObsGroupId" value="${obsGroup.id}" />
-					</c:if>
-					</td>
-				</tr>
-				<tr>
-					<td colspan="4"><br/></td>
-				</tr>
-				<tr>
-					<td>
-						<spring:message code="diagnosiscapturerwanda.otherFinding"/>:
-					</td>
-					<td><textarea rows="10" cols="150" id="diagnosisOtherTextArea" name="diagnosisOther"></textarea></td>
-				</tr>
-				<tr>
-					<td colspan="4"><br/></td>
-				</tr>
-				<tr>
-					<td colspan="4">
-						<input type="button" value='<spring:message code="general.cancel"/>' onClick="document.location.href='findings.list?patientId=${visit.patient.patientId}&visitId=${visit.visitId}';"/>
-						&nbsp;<input type="button" value='<spring:message code="diagnosiscapturerwanda.returnToPatientDashboard"/>' onclick="document.location.href='diagnosisPatientDashboard.form?patientId=${visit.patient.patientId}&visitId=${visit.visitId}';"/>
-						&nbsp;<input name="action" type="submit" value='<spring:message code="diagnosiscapturerwanda.submit"/>'/>
-					</td>
-				</tr>
-			</table>
-		</div>
 	</div>
-	</form>
-	<div>&nbsp;</div>
+
+	
+</td></tr></table><br/>
 	
 	
 	
