@@ -102,7 +102,7 @@
 
 <div>
 	<br/>
-	<button style="" onClick="document.location='${pageContext.request.contextPath}/module/diagnosiscapturerwanda/diagnosisHomepage.list'"><spring:message code="diagnosiscapturerwanda.title"/> <spring:message code="diagnosiscapturerwanda.home"/></button>
+	<button class="genericButton" onClick="document.location='${pageContext.request.contextPath}/module/diagnosiscapturerwanda/diagnosisHomepage.list'"><spring:message code="diagnosiscapturerwanda.title"/> <spring:message code="diagnosiscapturerwanda.home"/></button>
 </div>
 <br/>
 

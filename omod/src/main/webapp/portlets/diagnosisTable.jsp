@@ -37,7 +37,7 @@
 								<td><c:if test="${!empty diagnosisText}">${diagnosisText.valueText}</c:if></td>
 								<td><c:if test="${!empty confirmedSusptected}"><openmrs:format concept="${confirmedSusptected.valueCoded}" withConceptNameType="SHORT"/></c:if></td>
 								<td>
-									&nbsp; <a href="#" onclick="editDiagnosis(${obs.id},'diagnosis');"><img src='<%= request.getContextPath() %>/images/edit.gif' alt="edit"/></a>
+									&nbsp; <a href="#" onclick="editDiagnosis(${obs.id},'diagnosis',${visit.patient.id},${visit.id});"><img src='<%= request.getContextPath() %>/images/edit.gif' alt="edit"/></a>
 									&nbsp; <a href="#" onclick="deleteDiagnosis(${obs.id});"><img src='<%= request.getContextPath() %>/images/delete.gif' alt="delete" /></a>
 								</td>
 							</tr>
@@ -73,7 +73,7 @@
 								<td><c:if test="${!empty diagnosisText}">${diagnosisText.valueText}</c:if></td>
 								<td><c:if test="${!empty confirmedSusptected}"><openmrs:format concept="${confirmedSusptected.valueCoded}" withConceptNameType="SHORT"/></c:if></td>
 								<td> 
-									&nbsp; <a href="#" onclick="editDiagnosis(${obs.id}, 'diagnosis');"><img src='<%= request.getContextPath() %>/images/edit.gif' alt="edit"/></a>
+									&nbsp; <a href="#" onclick="editDiagnosis(${obs.id}, 'diagnosis',${visit.patient.id},${visit.id});"><img src='<%= request.getContextPath() %>/images/edit.gif' alt="edit"/></a>
 									&nbsp; <a href="#" onclick="deleteDiagnosis(${obs.id});"><img src='<%= request.getContextPath() %>/images/delete.gif' alt="delete" /></a>
 								</td>
 							</tr>

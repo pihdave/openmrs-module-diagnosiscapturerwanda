@@ -101,7 +101,7 @@ public class LabsController {
 		//we need to load up lab concepts themselves.
 		Map<Concept, List<Concept>> testMap = getSupportedTestMap(supportedLabTests);
 		map.put("testMap", testMap);
-		map.put("now", new Date());
+		//map.put("now", new Date());
 		return null;
     }
 
@@ -168,7 +168,7 @@ public class LabsController {
     	Encounter labEnc = DiagnosisUtil.findEncounterByTypeInVisit(visit, DiagnosisUtil.getLabTestEncounterType());
     	//check for encounter, if not exists, add
     	if (labEnc == null){
-    		labEnc = DiagnosisUtil.buildEncounter(visit.getPatient(), DiagnosisUtil.getLabTestEncounterType());
+    		labEnc = DiagnosisUtil.buildEncounter(visit.getPatient(), DiagnosisUtil.getLabTestEncounterType(), visit);
     		saveNeeded = true;
     	}	
     	

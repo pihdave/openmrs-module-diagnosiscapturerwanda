@@ -13,7 +13,6 @@
  */
 package org.openmrs.module.diagnosiscapturerwanda;
 
-import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -118,6 +117,12 @@ public class VitalsController {
                 encounter.addObs(newObs);
             }
         }
+        
+      //this is total crap;  its for the encounter validator which enforces the encounter between visit start and stop
+		if (encounter.getEncounterDatetime().getTime() > visit.getStopDatetime().getTime()){
+			visit.setStopDatetime(DiagnosisUtil.getStartAndEndOfDay(encounter.getEncounterDatetime())[1]);
+			Context.getVisitService().saveVisit(visit);
+		}
         encounter.setVisit(visit);
         Context.getEncounterService().saveEncounter(encounter);
 
@@ -146,7 +151,7 @@ public class VitalsController {
             if (encounter == null) {
                 encounter = new Encounter();
                 encounter.setPatient(visit.getPatient());
-                encounter.setEncounterDatetime(new Date());
+                encounter.setEncounterDatetime(visit.getStartDatetime()); //vitals should always correspond to the start of a visit?
                 encounter.setEncounterType(vitalEncounterType);
                 encounter.setLocation(location);
                 encounter.setProvider(Context.getAuthenticatedUser().getPerson());  // TODO: Fix this

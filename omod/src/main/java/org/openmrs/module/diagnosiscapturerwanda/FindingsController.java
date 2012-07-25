@@ -151,7 +151,8 @@ public class FindingsController {
     		
 			for (Obs o : oParent.getGroupMembers(false)){
 				//new diagnosis
-				if (o.getConcept().equals(MetadataDictionary.CONCEPT_FINDINGS) && OpenmrsUtil.nullSafeEquals(diagnosisId, o.getValueCoded().getConceptId()) == false){
+				Integer existingVal = o.getValueCoded()== null ? null : o.getValueCoded().getConceptId();
+				if (o.getConcept().equals(MetadataDictionary.CONCEPT_FINDINGS) && (OpenmrsUtil.nullSafeEquals(diagnosisId, existingVal) == false)){
 					o.setValueCoded(Context.getConceptService().getConcept(diagnosisId));
 					saveNeeded = true;
 				}
@@ -165,7 +166,7 @@ public class FindingsController {
 	    	Concept diagnosis = Context.getConceptService().getConcept(diagnosisId);
 	    	if (diagnosis != null || (diagnosisOther != null && !diagnosisOther.equals(""))){
 	    		if (enc == null)
-	    			enc = DiagnosisUtil.buildEncounter(visit.getPatient(), MetadataDictionary.ENCOUNTER_TYPE_FINDINGS);
+	    			enc = DiagnosisUtil.buildEncounter(visit.getPatient(), MetadataDictionary.ENCOUNTER_TYPE_FINDINGS, visit);
 	    		enc = constructDiagnosisObsTree(enc, diagnosis, diagnosisOther);
 	    	}	
 	    	saveNeeded = true;

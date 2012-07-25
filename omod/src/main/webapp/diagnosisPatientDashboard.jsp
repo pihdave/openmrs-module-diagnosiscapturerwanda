@@ -26,10 +26,10 @@
 </c:if>
 <!-- patient is registered -->
 <c:if test="${!empty visit}">
-	<div><spring:message code="diagnosiscapturerwanda.visitDate"/> &nbsp; <openmrs:formatDate date="${visit.startDatetime}" type="short" /></div>
+	<div><spring:message code="diagnosiscapturerwanda.visitDate"/> &nbsp; <b><openmrs:formatDate date="${visit.startDatetime}" type="short" /></b></div>
 	<div><spring:message code="diagnosiscapturerwanda.registeredToday"/> 
-			<c:if test="${visitIsToday}"><spring:message code="diagnosiscapturerwanda.yes"/></c:if>
-		    <c:if test="${!visitIsToday}"><spring:message code="diagnosiscapturerwanda.no"/></c:if>
+			<b><c:if test="${visitIsToday}"><spring:message code="diagnosiscapturerwanda.yes"/></c:if>
+		    <c:if test="${!visitIsToday}"><spring:message code="diagnosiscapturerwanda.no"/></c:if></b>
 	</div><br/>
 	<div class="boxInner" id="mainDiv" style="background-color:#FAFAFA">
 		<table id="frameTable"> <!-- frames the page  -->
@@ -96,7 +96,30 @@
 			</div>
 			</td>
 			<td valign="top">
-				<button onclick="document.location='./vitals.form?visitId=${visit.visitId}'"><spring:message code="diagnosiscapturerwanda.changeVitals"/></button>
+				<button class='genericButton' onclick="document.location='./vitals.form?visitId=${visit.visitId}'"><spring:message code="diagnosiscapturerwanda.changeVitals"/></button>
+			</td>
+			
+			<!-- previous visits -->
+			<td rowspan="10" valign="top">
+					<table>
+						<tr>
+							<td valign="top">
+								<div><b><spring:message code="diagnosiscapturerwanda.previousVisits"/></b></div><br/>
+								<div id="vitalsDiv" class="boxInner">
+									<table>
+										<tr>
+											<th class="gradient"><spring:message code="diagnosiscapturerwanda.visitDate"/></th>
+										</tr>
+										<c:forEach items="${visitList}" var="otherVisit">
+										<tr><td>
+											<a href="#" onclick="javascript:document.location.href='diagnosisPatientDashboard.list?patientId=${otherVisit.patient.id}&visitId=${otherVisit.id}'"><openmrs:formatDate date="${otherVisit.startDatetime}" type="short" />  :  ${visit.location}</a>
+										</td></tr>	
+										</c:forEach>
+									</table>
+								</div>
+							</td>
+						</tr>
+					</table>
 			</td>
 			</tr>
 			<tr><td colspan="2" class="spacer"><br/>&nbsp;</td></tr><!-- spacer -->
@@ -132,10 +155,10 @@
 											</c:forEach>
 											<c:if test="${!empty finding || !empty findingText }">
 												<tr>
-													<td><openmrs:format concept="${finding.valueCoded}"/></td>
-													<td>${findingText.valueText}</td>
+													<td><c:if test="${!empty finding }"><openmrs:format concept="${finding.valueCoded}"/></c:if></td>
+													<td><c:if test="${!empty findingText}">${findingText.valueText}</c:if></td>
 													<td>
-													&nbsp; <a href="#" onclick="editDiagnosis(${obs.id}, 'findings');"><img src='<%= request.getContextPath() %>/images/edit.gif' alt="edit"/></a>
+													&nbsp; <a href="#" onclick="editDiagnosis(${obs.id}, 'findings',${visit.patient.id},${visit.id});"><img src='<%= request.getContextPath() %>/images/edit.gif' alt="edit"/></a>
 													&nbsp; <a href="#" onclick="deleteDiagnosis(${obs.id});"><img src='<%= request.getContextPath() %>/images/delete.gif' alt="delete" /></a>
 												</td>
 												</tr>
@@ -151,7 +174,7 @@
 					</table>
 			</div>
 			</td>
-			<td valign="top"><button onclick="document.location='./findings.form?visitId=${visit.visitId}&patientId=${patient.patientId}'"><spring:message code="diagnosiscapturerwanda.changeFindings"/></button></td>
+			<td valign="top"><button class='genericButton' onclick="document.location='./findings.form?visitId=${visit.visitId}&patientId=${patient.patientId}'"><spring:message code="diagnosiscapturerwanda.changeFindings"/></button></td>
 			</tr>
 			<tr><td colspan="2" class="spacer" ><br/>&nbsp;</td></tr><!-- spacer -->
 	
@@ -167,13 +190,13 @@
 			<div id="labsDiv">
 					<script>
 					$j(document).ready(function() {
-						 $j('#labsDiv').load('http://localhost:8088/openmrs19/module/diagnosiscapturerwanda/labs.form?visitId=26&patientId=124&readOnly=true');
+						 $j('#labsDiv').load('http://localhost:8088/openmrs19/module/diagnosiscapturerwanda/labs.form?visitId=${visit.visitId}&patientId=${patient.patientId}&readOnly=true');
 					});
 					
 					</script>
 			</div>
 			</td>
-			<td valign="top"><button onclick="document.location='./labs.form?visitId=${visit.visitId}&patientId=${patient.patientId}'"><spring:message code="diagnosiscapturerwanda.changeLabs"/></button></td>
+			<td valign="top"><button class='genericButton' onclick="document.location='./labs.list?visitId=${visit.visitId}&patientId=${patient.patientId}'"><spring:message code="diagnosiscapturerwanda.changeLabs"/></button></td>
 			</tr>
 			<tr><td colspan="2" class="spacer"><br/>&nbsp;</td></tr><!-- spacer -->
 			
@@ -185,7 +208,7 @@
 					<openmrs:portlet url="diagnosisTable" id="diagnosisTable" moduleId="diagnosiscapturerwanda" />
 				</div>
 			 </td>
-			 <td valign="top"><button onclick="document.location='./diagnosisCapture.form?visitId=${visit.visitId}&patientId=${patient.patientId}'"><spring:message code="diagnosiscapturerwanda.changeDiagnosis"/></button></td>
+			 <td valign="top"><button class='genericButton' onclick="document.location='./diagnosisCapture.form?visitId=${visit.visitId}&patientId=${patient.patientId}'"><spring:message code="diagnosiscapturerwanda.changeDiagnosis"/></button></td>
 			 </tr>
 			<tr><td colspan="2"><br/>&nbsp;</td></tr><!-- spacer -->
 			
@@ -205,18 +228,13 @@
 				</table>
 			</div>
 			</td>
-			<td valign="top"><button onclick="document.location='./treatment.form?visitId=${visit.visitId}&patientId=${patient.patientId}'"><spring:message code="diagnosiscapturerwanda.changeTreatment"/></button></td>
+			<td valign="top"><button class='genericButton' onclick="document.location='./treatment.form?visitId=${visit.visitId}&patientId=${patient.patientId}'"><spring:message code="diagnosiscapturerwanda.changeTreatment"/></button></td>
 			</tr>
 			<tr><td colspan="2" class="spacer"><br/>&nbsp;</td></tr><!-- spacer -->
-			
 			
 		</table>	
 	</div><!-- end mainDiv -->
 </c:if>
-
-<div id="previousVisits">
-	TODO
-</div>
 
 </div>    
   

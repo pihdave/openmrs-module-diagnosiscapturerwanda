@@ -13,6 +13,9 @@
  */
 package org.openmrs.module.diagnosiscapturerwanda;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.servlet.http.HttpSession;
 
 import org.apache.commons.logging.Log;
@@ -74,6 +77,16 @@ public class DiagnosisPatientDashboardController {
 		if (registrationEnc == null)
 			registrationEnc = DiagnosisUtil.findEncounterByTypeInVisit(visit, MetadataDictionary.ENCOUNTER_TYPE_REGISTRATION);
 
+		//add previous primary care visits:
+		List<Visit> vListAll = Context.getVisitService().getVisitsByPatient(patient, true, false); //patient, inactive, includeVoided
+		vListAll.remove(visit);  //don't show our visit
+		List<Visit> v = new ArrayList<Visit>(); //trim visits to only outpatient
+		for (Visit vTmp : vListAll){
+			if (vTmp.getVisitType().equals(MetadataDictionary.VISIT_TYPE_OUTPATIENT))
+				v.add(vTmp);
+		}
+		map.put("visitList", v);
+		
 		map.put("visit", visit);
 		map.put("encounter_type_vitals", MetadataDictionary.ENCOUNTER_TYPE_VITALS);
 		map.put("encounter_type_lab", MetadataDictionary.ENCOUNTER_TYPE_LABS);

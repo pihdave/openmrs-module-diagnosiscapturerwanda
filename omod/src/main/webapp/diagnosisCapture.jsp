@@ -68,9 +68,9 @@
 				</tr>
 				<tr>
 					<td colspan="4">
-						<input type="button" value='<spring:message code="general.cancel"/>' onClick="document.location.href='diagnosisCapture.list?patientId=${visit.patient.patientId}&visitId=${visit.visitId}';"/>
-						&nbsp;<input type="button" value='<spring:message code="diagnosiscapturerwanda.returnToPatientDashboard"/>' onclick="document.location.href='diagnosisPatientDashboard.form?patientId=${visit.patient.patientId}&visitId=${visit.visitId}';"/>
-						&nbsp;<input name="action" type="submit" value='<spring:message code="diagnosiscapturerwanda.submit"/>'/>
+						<input type="button" class="genericButton" value='<spring:message code="general.cancel"/>' onClick="document.location.href='diagnosisCapture.list?patientId=${visit.patient.patientId}&visitId=${visit.visitId}';"/>
+						&nbsp;<input type="button" class="genericButton" value='<spring:message code="diagnosiscapturerwanda.returnToPatientDashboard"/>' onclick="document.location.href='diagnosisPatientDashboard.form?patientId=${visit.patient.patientId}&visitId=${visit.visitId}';"/>
+						&nbsp;<input name="action" class="genericButton" type="submit" value='<spring:message code="diagnosiscapturerwanda.submit"/>'/>
 					</td>
 				</tr>
 			</table>
@@ -90,7 +90,7 @@
 	<!-- here's the diagnosis picker widget -->
 	<div><h3><spring:message code="diagnosiscapturerwanda.lookupDiagnosis"/></h3></div>
 	<br/>
-	<div class="boxInner gradient">
+	<div class="boxInner" style="background-color:#FAFAFA;">
 		<div>
 			<table>
 				<tr>
@@ -140,14 +140,15 @@ $j(document).ready(function() {
 			$j("#primarySecondarySelect").val(1);
 		</c:if>
 		<c:forEach items="${obsGroup.groupMembers}" var="groupObs"><!--  for each set of group members -->
-			<c:if test="${groupObs.concept == concept_primary_care_diagnosis}">
+			<c:if test="${groupObs.concept == concept_primary_care_diagnosis && !empty groupObs.valueCoded}">
 				setNewDiagnosis(${groupObs.valueCoded}, '${groupObs.valueCoded.name.name}');
 				$j("#editNote").html(' (<spring:message code="diagnosiscapturerwanda.editing"/>) ');
 			</c:if>
 			<c:if test="${groupObs.concept == concept_diagnosis_other}">
+			    $j("#editNote").html(' (<spring:message code="diagnosiscapturerwanda.editing"/>) ');
 				$j("#diagnosisOtherTextArea").html('${groupObs.valueText}');
 			</c:if>
-			<c:if test="${groupObs.concept == concept_confirmed_suspected}">
+			<c:if test="${groupObs.concept == concept_confirmed_suspected && !empty groupObs.valueCoded}">
 				$j("#confirmedSuspectedSelect").val(${groupObs.valueCoded});
 			</c:if>
 		</c:forEach>	
@@ -155,5 +156,5 @@ $j(document).ready(function() {
 </c:if>
 	
 </script>
-   
+<br/><br/>
 <%@ include file="/WEB-INF/template/footer.jsp"%>  

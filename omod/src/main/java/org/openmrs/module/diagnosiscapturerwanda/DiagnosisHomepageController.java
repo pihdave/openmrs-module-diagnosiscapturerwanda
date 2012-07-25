@@ -65,7 +65,6 @@ public class DiagnosisHomepageController {
     public void processHomePageSubmit(ModelMap model, HttpSession session, HttpServletRequest request){
     	String locationStr = request.getParameter("location");
     		
-	        
          if (locationStr != null && !locationStr.equals("")){
              
              Location location = Context.getLocationService().getLocation(Integer.valueOf(locationStr));

@@ -110,9 +110,9 @@
 			 	//build table rows:
 			     ret += "<tr>"		 
 				 $j.each(json, function(item) {
-				 	 ret += "<td> &nbsp;<button onClick='processQueueSelection(" + json[item]["patientId"] + ", \"" + json[item]["encounterUuid"] + "\", \"process\" )'>";
+				 	 ret += "<td> &nbsp;<button class='genericButton' onClick='processQueueSelection(" + json[item]["patientId"] + ", \"" + json[item]["encounterUuid"] + "\", \"process\" )'>";
 					 ret += json[item]["patientIdentifier"] + " " + json[item]["familyName"] + " " + json[item]["givenName"]+ " (" + json[item]["gender"] + ")";
-					 ret += "</button> &nbsp;&nbsp; <button onClick='processQueueSelection(" + json[item]["patientId"] + ", \"" + json[item]["encounterUuid"] + "\", \"skip\" )'><spring:message code='diagnosiscapturerwanda.skip'/></button></td>";
+					 ret += "</button> &nbsp;&nbsp; <button class='genericButton' onClick='processQueueSelection(" + json[item]["patientId"] + ", \"" + json[item]["encounterUuid"] + "\", \"skip\" )'><spring:message code='diagnosiscapturerwanda.skip'/></button></td>";
 			     });
 			     ret += "</tr>";	
 			 }	

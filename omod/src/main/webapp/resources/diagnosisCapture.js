@@ -5,11 +5,11 @@
 /**
  * re-loads the page with a specific diagnosis obsGroup selected
  */
-function editDiagnosis(obsGroupId, type) {
+function editDiagnosis(obsGroupId, type, patientId, visitId) {
 	if (type == 'findings')
-		document.location.href='findings.list?patientId=${visit.patient.patientId}&visitId=${visit.visitId}&obsGroupId=' + obsGroupId; 
+		document.location.href='findings.list?patientId=' + patientId + '&visitId=' + visitId + '&obsGroupId=' + obsGroupId; 
 	else	
-		document.location.href='diagnosisCapture.list?patientId=${visit.patient.patientId}&visitId=${visit.visitId}&obsGroupId=' + obsGroupId; 
+		document.location.href='diagnosisCapture.list?patientId=' + patientId + '&visitId=' + visitId + '&obsGroupId=' + obsGroupId; 
 }
 
 /**

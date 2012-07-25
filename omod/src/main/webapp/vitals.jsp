@@ -57,8 +57,8 @@
 	        </tr>
 		    <tr id="buttonsAtBottom">
 		        <td colspan="2">
-		        	<input name="action" type="submit" value='<spring:message code="diagnosiscapturerwanda.submit"/>'/>
-		        	<input type="button" value='<spring:message code="general.cancel"/>' onclick="document.location.href='diagnosisPatientDashboard.form?patientId=${vitalsCommand.visit.patient.patientId}&visitId=${vitalsCommand.visit.visitId}';"/>
+		        	<input name="action" class="genericButton" type="submit" value='<spring:message code="diagnosiscapturerwanda.submit"/>'/>
+		        	<input type="button" class="genericButton" value='<spring:message code="general.cancel"/>' onclick="document.location.href='diagnosisPatientDashboard.form?patientId=${vitalsCommand.visit.patient.patientId}&visitId=${vitalsCommand.visit.visitId}';"/>
 		        </td>
 		    </tr>
 	    </table>

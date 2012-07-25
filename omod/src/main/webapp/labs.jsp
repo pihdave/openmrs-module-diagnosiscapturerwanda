@@ -48,33 +48,49 @@
 			</tr>
 			<tr>
 				<td><div>
+						<c:set var="someTestsToShow" value="false" />
 						<c:forEach items="${supportedTests}" var="test">
-			 			&nbsp;&nbsp;
-			 			<span>
-			 				<c:if test="${!readOnly}">
-				 			<input type="checkbox" name="lab_${test.id}"
-									<c:if test="${!empty enc}">
-						 				<c:forEach items="${enc.orders}" var="ord">
-						 					<c:if test="${!ord.voided && ord.concept == test}">
-						 						CHECKED
-						 					</c:if>
-										</c:forEach>
-									</c:if>
-	
-							/>
+							<c:if test="${!empty enc}">
+								<c:forEach items="${enc.orders}" var="ord">
+								 	<c:if test="${!ord.voided && ord.concept == test}">
+								 			<c:set var="someTestsToShow" value="true"/>
+								 	</c:if>
+								</c:forEach>
 							</c:if>
-							<c:if test="${readOnly}">
-								<c:if test="${!empty enc}">
-					 				<c:forEach items="${enc.orders}" var="ord">
-					 					<c:if test="${!ord.voided && ord.concept == test}">
-					 						<img src='<%= request.getContextPath() %>/images/checkmark.png' alt="X"/>
-					 					</c:if>
-									</c:forEach>
-								</c:if>
-							</c:if>
-							<openmrs:format concept="${test}" />
-						</span>
 						</c:forEach>
+						
+						<c:if test="${someTestsToShow == 'true'  || !readOnly}">
+							<c:forEach items="${supportedTests}" var="test">
+					 			&nbsp;&nbsp;
+					 			<span>
+					 				<c:if test="${!readOnly}">
+						 			<input type="checkbox" name="lab_${test.id}"
+											<c:if test="${!empty enc}">
+								 				<c:forEach items="${enc.orders}" var="ord">
+								 					<c:if test="${!ord.voided && ord.concept == test}">
+								 						CHECKED
+								 					</c:if>
+												</c:forEach>
+											</c:if>
+			
+									/>
+									</c:if>
+									<c:if test="${readOnly}">
+										<c:if test="${!empty enc}">
+							 				<c:forEach items="${enc.orders}" var="ord">
+							 					<c:if test="${!ord.voided && ord.concept == test}">
+							 						<img src='<%= request.getContextPath() %>/images/checkmark.png' alt="X"/>
+							 					</c:if>
+											</c:forEach>
+										</c:if>
+									</c:if>
+									<openmrs:format concept="${test}" />
+								</span>
+							</c:forEach>
+						</c:if>
+						<c:if test="${readOnly && someTestsToShow == 'false'}">
+							<span><i><spring:message code="diagnosiscapturerwanda.noLabs"/></i></span>
+						</c:if>
 					</div>
 				</td>
 			</tr>
@@ -159,13 +175,13 @@
 		<br />
 		<c:if test="${!readOnly}">
 			<div>
-				&nbsp;&nbsp;<input type="button"
+				&nbsp;&nbsp;<input type="button" class='genericButton'
 					value='<spring:message code="general.cancel"/>'
 					onClick="document.location.href='labs.list?patientId=${visit.patient.patientId}&visitId=${visit.visitId}';" />
-				&nbsp;&nbsp;<input type="button"
+				&nbsp;&nbsp;<input type="button" class='genericButton'
 					value='<spring:message code="diagnosiscapturerwanda.returnToPatientDashboard"/>'
 					onclick="document.location.href='diagnosisPatientDashboard.form?patientId=${visit.patient.patientId}&visitId=${visit.id}';" />
-				&nbsp;&nbsp;<input name="action" type="submit"
+				&nbsp;&nbsp;<input name="action" type="submit" class='genericButton'
 					value='<spring:message code="diagnosiscapturerwanda.submit"/>' /> <input
 					type="hidden" name="hiddenVisitId" value="${visit.id}" />
 			</div>

@@ -381,13 +381,40 @@ public class DiagnosisUtil {
 	}
 
 	
+	/**
+	 * hack to best approximate real-time extension of a visit by adding another encounter, or if encounter being added to visit is back-entry.
+	 * I'm giving an 8 hour window to extend a visit.
+	 * @param V
+	 */
+	private static Date getEncounterDatetimeFromVisit(Visit v){
+		Date maxDateInVisit = v.getStartDatetime();
+		try{
+			for (Encounter e : v.getEncounters()){
+				if (!e.isVoided() && e.getEncounterDatetime().getTime() > maxDateInVisit.getTime())
+					maxDateInVisit = e.getEncounterDatetime();
+			}
+		} catch (Exception ex){
+			//pass
+		}
+		
+		Calendar visit = Calendar.getInstance();
+		visit.setTime(maxDateInVisit);
+		visit.add(Calendar.HOUR_OF_DAY, 8);//this is a guess
+		
+		//either return now if encounter is happening within 8 hours of max event, or return max event
+		if (visit.getTime().getTime() < (new Date()).getTime()) //its back entry
+			return visit.getTime();
+		else 
+			return new Date();
+	}
+	
     /**
      * utility to build the diagnosis/findings encounter
      */
-    public static Encounter buildEncounter(Patient patient, EncounterType encType){
+    public static Encounter buildEncounter(Patient patient, EncounterType encType, Visit visit){
     		Encounter encounter = new Encounter();
             encounter.setPatient(patient);
-            encounter.setEncounterDatetime(new Date());
+            encounter.setEncounterDatetime(getEncounterDatetimeFromVisit(visit));
             encounter.setEncounterType(encType);
             
             String locStr = Context.getAuthenticatedUser().getUserProperty(OpenmrsConstants.USER_PROPERTY_DEFAULT_LOCATION);

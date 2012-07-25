@@ -54,9 +54,9 @@
 				</tr>
 				<tr>
 					<td colspan="4">
-						<input type="button" value='<spring:message code="general.cancel"/>' onClick="document.location.href='findings.list?patientId=${visit.patient.patientId}&visitId=${visit.visitId}';"/>
-						&nbsp;<input type="button" value='<spring:message code="diagnosiscapturerwanda.returnToPatientDashboard"/>' onclick="document.location.href='diagnosisPatientDashboard.form?patientId=${visit.patient.patientId}&visitId=${visit.visitId}';"/>
-						&nbsp;<input name="action" type="submit" value='<spring:message code="diagnosiscapturerwanda.submit"/>'/>
+						<input type="button" class='genericButton' value='<spring:message code="general.cancel"/>' onClick="document.location.href='findings.list?patientId=${visit.patient.patientId}&visitId=${visit.visitId}';"/>
+						&nbsp;<input type="button" class='genericButton' value='<spring:message code="diagnosiscapturerwanda.returnToPatientDashboard"/>' onclick="document.location.href='diagnosisPatientDashboard.form?patientId=${visit.patient.patientId}&visitId=${visit.visitId}';"/>
+						&nbsp;<input name="action" class='genericButton' type="submit" value='<spring:message code="diagnosiscapturerwanda.submit"/>'/>
 					</td>
 				</tr>
 			</table>
@@ -94,10 +94,10 @@
 							</c:forEach>
 							<c:if test="${!empty finding || !empty findingText }">
 								<tr>
-									<td><openmrs:format concept="${finding.valueCoded}"/></td>
-									<td>${findingText.valueText}</td>
+									<td><c:if test="${!empty finding}"><openmrs:format concept="${finding.valueCoded}"/></c:if></td>
+									<td><c:if test="${!empty findingText}">${findingText.valueText}</c:if></td>
 									<td>
-									&nbsp; <a href="#" onclick="editDiagnosis(${obs.id}, 'findings');"><img src='<%= request.getContextPath() %>/images/edit.gif' alt="edit"/></a>
+									&nbsp; <a href="#" onclick="editDiagnosis(${obs.id}, 'findings',${visit.patient.id},${visit.id});"><img src='<%= request.getContextPath() %>/images/edit.gif' alt="edit"/></a>
 									&nbsp; <a href="#" onclick="deleteDiagnosis(${obs.id});"><img src='<%= request.getContextPath() %>/images/delete.gif' alt="delete" /></a>
 								</td>
 								</tr>
@@ -122,7 +122,7 @@
 	<!-- here's the diagnosis picker widget -->
 	<div><h3><spring:message code="diagnosiscapturerwanda.lookupDiagnosis"/></h3></div>
 	<br/>
-	<div class="boxInner gradient">
+	<div class="boxInner" style="background-color:#FAFAFA;">
 		<div>
 			<table>
 				<tr>
@@ -168,14 +168,15 @@ var _diagnosis=${concept_diagnosis.conceptId};
  <c:if test="${!empty obsGroup}">
  $j(document).ready(function() {
  		<c:forEach items="${obsGroup.groupMembers}" var="groupObs"><!--  for each set of group members -->
- 			<c:if test="${groupObs.concept == concept_findings}">
+ 			<c:if test="${groupObs.concept == concept_findings && !empty groupObs.valueCoded}">
  				setNewDiagnosis(${groupObs.valueCoded}, '${groupObs.valueCoded.name.name}');
  				$j("#editNote").html(' (<spring:message code="diagnosiscapturerwanda.editing"/>) ');
  			</c:if>
  			<c:if test="${groupObs.concept == concept_findings_other}">
- 				$j("#diagnosisOtherTextArea").html('${groupObs.valueText}');
+ 				$j("#editNote").html(' (<spring:message code="diagnosiscapturerwanda.editing"/>) ');
+ 				$j("#diagnosisOtherTextArea").val('${groupObs.valueText}');
  			</c:if>
- 		</c:forEach>	
+ 		</c:forEach>
  });
  </c:if>
 	
@@ -184,5 +185,5 @@ var _diagnosis=${concept_diagnosis.conceptId};
     
     
     
-    
+ <br/><br/>  
 <%@ include file="/WEB-INF/template/footer.jsp"%>  
