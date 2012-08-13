@@ -167,6 +167,64 @@ public class DiagnosisHomepageController {
     	Context.getConceptService().getAllConceptNameTags();
     	
     	
+    	for (Concept c : cList){
+    		boolean needsUpdate = false;
+    		
+    		//activating voided fully specified names when there are no non-voided fully specified names
+    		boolean foundFullySpecified = false;
+    		for (ConceptName cn : c.getNames()){
+    			if (cn.isFullySpecifiedName()){
+    				foundFullySpecified = true;
+    				break;
+    			}
+    		}
+    		if (!foundFullySpecified){
+    			for (ConceptName cn : c.getNames(true)){
+        			if (cn.isFullySpecifiedName() && cn.isVoided()){
+        				cn.setVoided(false);
+        				cn.setVoidedBy(null);
+        				cn.setVoidReason(null);
+        				cn.setDateVoided(null);
+        				System.out.println("Updating " + c.getId() + " to have at least one fully specified name");
+        				needsUpdate = true;
+        				break;
+        			}
+        		}
+    		}
+    		
+    		if (needsUpdate){
+    			if ((c.getNames() == null || c.getNames().size() == 0) && c.isRetired()) {//if there are no names
+    				try {
+    					Context.getConceptService().purgeConcept(c);
+    				} catch (Exception ex){
+    					ConceptName cn = new ConceptName();
+    					cn.setConcept(c);
+    					cn.setConceptNameType(ConceptNameType.FULLY_SPECIFIED);
+    					cn.setCreator(Context.getAuthenticatedUser());
+    					cn.setDateCreated(new Date());
+    					cn.setLocale(Locale.ENGLISH);
+    					cn.setLocalePreferred(true);
+    					cn.setName("Placeholder name for piece of shit 1.9 concept validator for a dead concept" + c.getId());
+    					cn.setVoided(false);
+    					c.addName(cn);
+    					for (ConceptName cnTmp : c.getNames(true)){
+    						cnTmp.getTags();
+    					}
+    					System.out.println("Saving Concept with new ConceptName for " + c.getId());
+    					Context.getConceptService().updateConceptIndex(c);
+    					c = Context.getConceptService().saveConcept(c);
+    				}
+    			} else {
+    				System.out.println("Saving Concept " + c.getId());
+    				Context.getConceptService().updateConceptIndex(c);
+    				c = Context.getConceptService().saveConcept(c);
+    			}	
+    		}	
+    		
+    		
+    	}	
+    	
+    	
     	Concept ctopurge = Context.getConceptService().getConcept(347);
     	Context.getConceptService().purgeConcept(ctopurge);
     	
@@ -539,30 +597,7 @@ public class DiagnosisHomepageController {
     			}
     		}
     		
-    		
-    		
-    		
-    		//activating voided fully specified names when there are no non-voided fully specified names
-    		boolean foundFullySpecified = false;
-    		for (ConceptName cn : c.getNames()){
-    			if (cn.isFullySpecifiedName()){
-    				foundFullySpecified = true;
-    				break;
-    			}
-    		}
-    		if (!foundFullySpecified){
-    			for (ConceptName cn : c.getNames(true)){
-        			if (cn.isFullySpecifiedName() && cn.isVoided()){
-        				cn.setVoided(false);
-        				cn.setVoidedBy(null);
-        				cn.setVoidReason(null);
-        				cn.setDateVoided(null);
-        				System.out.println("Updating " + c.getId() + " to have at least one fully specified name");
-        				needsUpdate = true;
-        				break;
-        			}
-        		}
-    		}
+    	
     		
     		//removing duplicate concept maps
     		Set<ConceptMap> newList = new HashSet<ConceptMap>();
