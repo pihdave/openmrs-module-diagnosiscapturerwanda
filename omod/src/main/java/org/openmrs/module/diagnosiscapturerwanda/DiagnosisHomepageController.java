@@ -167,6 +167,8 @@ public class DiagnosisHomepageController {
     	Context.getConceptService().getAllConceptNameTags();
     	
     	
+    	
+    	
     	Concept cTmp = Context.getConceptService().getConceptByUuid("3cd9cede-26fe-102b-80cb-0017a47871b2");
     	Iterator<ConceptName> iterTmp = cTmp.getNames(true).iterator();
 		while (iterTmp.hasNext()) {
@@ -308,6 +310,18 @@ public class DiagnosisHomepageController {
 			}	
 		}
 		
+		Concept c99 = Context.getConceptService().getConceptByUuid("3cd6b85c-26fe-102b-80cb-0017a47871b2");
+    	Iterator<ConceptName> iter99 = c99.getNames(true).iterator();
+		while (iter99.hasNext()) {
+			ConceptName cn = iter99.next();
+			if (cn.getUuid().equals("f5c43f90-d5db-102d-ad2a-000c29c2a5d7")){
+				cn.setName("AMPLIFICATION EN CHAÎNE POLYMÉRASE DE CHLAMYDIA TRACHOMATIS, QUALITATIF");
+				Context.getConceptService().updateConceptIndex(c99);
+				Context.getConceptService().saveConcept(c99);
+				break;
+			}	
+		}
+		
 		
 		Concept c11 = Context.getConceptService().getConceptByUuid("3ce43b3a-26fe-102b-80cb-0017a47871b2");
     	Iterator<ConceptName> iter11 = c11.getNames(true).iterator();
@@ -318,6 +332,32 @@ public class DiagnosisHomepageController {
 				Context.getConceptService().updateConceptIndex(c11);
 				Context.getConceptService().saveConcept(c11);
 				break;
+			}	
+		}
+		
+		
+		Concept c12 = Context.getConceptService().getConceptByUuid("da36e0f6-81b3-4e82-9df9-43cff48a0e03");
+    	Iterator<ConceptName> iter12 = c12.getNames(true).iterator();
+		while (iter12.hasNext()) {
+			ConceptName cn = iter12.next();
+			if (cn.getUuid().equals("0b8feaa6-15f5-102d-96e4-000c29c2a5d7")){
+				iter12.remove();
+				c12.removeName(cn);
+				Context.getConceptService().updateConceptIndex(c12);
+				Context.getConceptService().saveConcept(c12);
+			}	
+		}
+		
+		
+		Concept c13 = Context.getConceptService().getConceptByUuid("3cdc01a4-26fe-102b-80cb-0017a47871b2");
+    	Iterator<ConceptName> iter13 = c13.getNames(true).iterator();
+		while (iter13.hasNext()) {
+			ConceptName cn = iter13.next();
+			if (cn.getUuid().equals("3e1b8b84-26fe-102b-80cb-0017a47871b2")){
+				iter13.remove();
+				c13.removeName(cn);
+				Context.getConceptService().updateConceptIndex(c13);
+				Context.getConceptService().saveConcept(c13);
 			}	
 		}
 		
@@ -409,6 +449,16 @@ public class DiagnosisHomepageController {
     				iter.remove();
     				c.removeName(cn);
     				needsUpdate = true; 
+    			}	else if (cn.getUuid().equals("f6ec9124-d5db-102d-ad2a-000c29c2a5d7")){
+    				cn.setName("POST-OPÉRATOIRE");
+    				needsUpdate = true;
+    			}	else if (cn.getUuid().equals("3e1aa124-26fe-102b-80cb-0017a47871b2")){
+    				iter.remove();
+    				c.removeName(cn);
+    				needsUpdate = true; 
+    			}	else if (cn.getUuid().equals("3e1616ae-26fe-102b-80cb-0017a47871b2")){
+    				cn.setName("IS THIS PERSON AN ORPHAN");
+    				needsUpdate = true;
     			}	
     		}
     		
