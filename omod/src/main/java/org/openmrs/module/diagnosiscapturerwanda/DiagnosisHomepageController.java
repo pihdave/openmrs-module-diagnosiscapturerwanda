@@ -167,8 +167,20 @@ public class DiagnosisHomepageController {
     	Context.getConceptService().getAllConceptNameTags();
     	
     	
+    	Concept ctopurge = Context.getConceptService().getConcept(347);
+    	Context.getConceptService().purgeConcept(ctopurge);
     	
     	Concept x = Context.getConceptService().getConceptByUuid("de8e7a2a-32f6-41d5-aa34-65a1b2a51b40");
+    	for (ConceptName cn : x.getNames(true)){
+    		cn.setVoided(false);
+    		cn.setVoidedBy(null);
+    		cn.setVoidReason(null);
+    		cn.setDateVoided(null);
+    		cn.setConceptNameType(ConceptNameType.FULLY_SPECIFIED);
+    	}
+    	Context.getConceptService().saveConcept(x);
+    	
+    	x = Context.getConceptService().getConceptByUuid("6ad967da-6e9a-48d0-844f-690bc30919cc");
     	for (ConceptName cn : x.getNames(true)){
     		cn.setVoided(false);
     		cn.setVoidedBy(null);
