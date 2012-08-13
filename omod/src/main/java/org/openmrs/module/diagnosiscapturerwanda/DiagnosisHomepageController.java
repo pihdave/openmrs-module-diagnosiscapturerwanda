@@ -168,6 +168,18 @@ public class DiagnosisHomepageController {
     	
     	
     	
+    	Concept x = Context.getConceptService().getConceptByUuid("de8e7a2a-32f6-41d5-aa34-65a1b2a51b40");
+    	for (ConceptName cn : x.getNames()){
+    		cn.setVoided(false);
+    		cn.setVoidedBy(null);
+    		cn.setVoidReason(null);
+    		cn.setDateVoided(null);
+    		cn.setConceptNameType(ConceptNameType.FULLY_SPECIFIED);
+    	}
+    	Context.getConceptService().saveConcept(x);
+    	
+    	
+    	
     	
     	Concept cTmp = Context.getConceptService().getConceptByUuid("3cd9cede-26fe-102b-80cb-0017a47871b2");
     	Iterator<ConceptName> iterTmp = cTmp.getNames(true).iterator();
@@ -361,6 +373,18 @@ public class DiagnosisHomepageController {
 			}	
 		}
 		
+		Concept c14 = Context.getConceptService().getConceptByUuid("edd2cae1-99e7-4219-b5f9-fa512a69fed2");
+    	Iterator<ConceptName> iter14 = c14.getNames(true).iterator();
+		while (iter14.hasNext()) {
+			ConceptName cn = iter14.next();
+			if (cn.getUuid().equals("f733a942-d5db-102d-ad2a-000c29c2a5d7")){
+				cn.setName("RS. DE L'EXAMEN NEUROLOGIQUE");
+				Context.getConceptService().updateConceptIndex(c14);
+				Context.getConceptService().saveConcept(c14);
+				break;
+			}	
+		}
+		
     	//remove empty names
     	for (Concept c : cList){
     		boolean needsUpdate = false;
@@ -458,6 +482,12 @@ public class DiagnosisHomepageController {
     				needsUpdate = true; 
     			}	else if (cn.getUuid().equals("3e1616ae-26fe-102b-80cb-0017a47871b2")){
     				cn.setName("IS THIS PERSON AN ORPHAN");
+    				needsUpdate = true;
+    			}	else if (cn.getUuid().equals("3e177df0-26fe-102b-80cb-0017a47871b2")){
+    				cn.setName("TO WHERE WAS THE PATIENT HOSPITALIZED");
+    				needsUpdate = true;
+    			}	else if (cn.getUuid().equals("f560a62e-d5db-102d-ad2a-000c29c2a5d7")){
+    				cn.setName("RADIOGRAPHIE-PULMONAIRE");
     				needsUpdate = true;
     			}	
     		}
