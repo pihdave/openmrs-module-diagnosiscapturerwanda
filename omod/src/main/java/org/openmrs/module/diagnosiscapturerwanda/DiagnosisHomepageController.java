@@ -169,7 +169,7 @@ public class DiagnosisHomepageController {
     	
     	
     	Concept x = Context.getConceptService().getConceptByUuid("de8e7a2a-32f6-41d5-aa34-65a1b2a51b40");
-    	for (ConceptName cn : x.getNames()){
+    	for (ConceptName cn : x.getNames(true)){
     		cn.setVoided(false);
     		cn.setVoidedBy(null);
     		cn.setVoidReason(null);
