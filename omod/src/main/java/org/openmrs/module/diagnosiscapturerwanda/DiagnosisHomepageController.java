@@ -637,9 +637,6 @@ public class DiagnosisHomepageController {
     			}	else if (cn.getUuid().equals("f67bd736-d5db-102d-ad2a-000c29c2a5d7")){
     				cn.setName("quelquefois");
     				needsUpdate = true;   
-    			}	else if (cn.getUuid().equals("f6a84a50-d5db-102d-ad2a-000c29c2a5d7")){
-    				cn.setName("affaissement du poumon");
-    				needsUpdate = true;
     			}	else if (cn.getUuid().equals("f7695aa6-d5db-102d-ad2a-000c29c2a5d7")){
     				cn.setName("PARTENAIRES SEXUELS MULTIPLES PARTENAIRE");
     				needsUpdate = true;
