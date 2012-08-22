@@ -190,7 +190,7 @@
 			<div id="labsDiv">
 					<script>
 					$j(document).ready(function() {
-						 $j('#labsDiv').load('http://localhost:8088/openmrs19/module/diagnosiscapturerwanda/labs.form?visitId=${visit.visitId}&patientId=${patient.patientId}&readOnly=true');
+						 $j('#labsDiv').load('${pageContext.request.contextPath}/module/diagnosiscapturerwanda/labs.form?visitId=${visit.visitId}&patientId=${patient.patientId}&readOnly=true');
 					});
 					
 					</script>
