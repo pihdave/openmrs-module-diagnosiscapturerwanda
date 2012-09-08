@@ -16,9 +16,7 @@
 
 <openmrs:htmlInclude file="/scripts/calendar/calendar.js" />
 
-<style>
-<%@ include file="resources/diagnosiscapturerwanda.css" %>
-</style>
+<openmrs:htmlInclude file="/moduleResources/diagnosiscapturerwanda/diagnosiscapturerwanda.css" />
 
 <c:set var="enc" value="" />
 <c:forEach items="${visit.encounters}" var="encTmp">

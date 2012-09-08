@@ -4,9 +4,7 @@
 <%@ include file="/WEB-INF/template/header.jsp"%>
 <%@ include file="resources/localHeader.jsp" %>
     
-<style>
-	<%@ include file="resources/diagnosiscapturerwanda.css" %>
-</style>
+<openmrs:htmlInclude file="/moduleResources/diagnosiscapturerwanda/diagnosiscapturerwanda.css" />
 
 <br/>
 <b class="boxHeader">
@@ -15,7 +13,7 @@
 <div class="boxInner">
 
     <openmrs:globalProperty var="displayDrugSetIds" key="dashboard.regimen.displayDrugSetIds" defaultValue="ANTIRETROVIRAL DRUGS,TUBERCULOSIS TREATMENT DRUGS" />
-    <openmrs:portlet url="patientRegimen" id="patientDashboardRegimen" patientId="${param.patientId}" parameters="displayDrugSetIds=${displayDrugSetIds}" />
+    <openmrs:portlet url="patientRegimen" id="patientDashboardRegimen" patientId="${param.patientId}" parameters="returnUrl=/module/diagnosiscapturerwanda/treatment.form?visitId=${visit.visitId}" />
 
 </div>
 <br/>

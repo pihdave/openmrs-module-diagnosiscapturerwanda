@@ -9,9 +9,7 @@
 </script>
 
 <openmrs:htmlInclude file="/scripts/jquery-ui/js/jquery-ui.custom.min.js" />
-<style>
-	<%@ include file="resources/diagnosiscapturerwanda.css" %>
-</style>
+<openmrs:htmlInclude file="/moduleResources/diagnosiscapturerwanda/diagnosiscapturerwanda.css" />
 
 
 <br/>

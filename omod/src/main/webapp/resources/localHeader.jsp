@@ -11,6 +11,7 @@
 <c:if test="${not empty patientReasonForExit}">
 	<div id="patientHeader" class="boxHeaderRed">
 </c:if>
+
 <div id="patientHeaderPatientName">${patient.personName}</div>
 <div id="patientHeaderPreferredIdentifier">
 	<c:if test="${fn:length(patient.activeIdentifiers) > 0}">
@@ -100,9 +101,8 @@
 </div>
 
 
-<div>
-	<br/>
-	<button class="genericButton" onClick="document.location='${pageContext.request.contextPath}/module/diagnosiscapturerwanda/diagnosisHomepage.list'"><spring:message code="diagnosiscapturerwanda.title"/> <spring:message code="diagnosiscapturerwanda.home"/></button>
+<div class="home">
+	<input type="button" onClick="document.location='${pageContext.request.contextPath}/module/diagnosiscapturerwanda/diagnosisHomepage.list'" value='<spring:message code="diagnosiscapturerwanda.title"/> <spring:message code="diagnosiscapturerwanda.home"/>'/>
 </div>
 <br/>
 

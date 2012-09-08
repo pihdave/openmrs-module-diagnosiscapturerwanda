@@ -35,6 +35,7 @@ import org.openmrs.ConceptName;
 import org.openmrs.ConceptNameTag;
 import org.openmrs.Location;
 import org.openmrs.User;
+import org.openmrs.Visit;
 import org.openmrs.api.ConceptNameType;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.diagnosiscapturerwanda.queue.DiagnosisCaptureQueueService;
@@ -56,7 +57,20 @@ public class DiagnosisHomepageController {
 
 	//TODO:
 	@RequestMapping(value="/module/diagnosiscapturerwanda/diagnosisHomepage",method=RequestMethod.GET)
-    public void processHomePageGet(HttpSession session, ModelMap map){
+    public void processHomePageGet(HttpSession session, ModelMap map,
+                                @RequestParam(required=false, value="visitIds") String visitIds){
+		
+		if(visitIds != null)
+		{
+			String[] recentVisitsIds = visitIds.split(",");
+			List<Visit> recentVisits = new ArrayList<Visit>();
+			for(String id: recentVisitsIds)
+			{
+				recentVisits.add(Context.getVisitService().getVisit(Integer.parseInt(id)));
+			}
+			map.put("recentVisits", recentVisits);
+		}
+		
 		map.put("locations", Context.getLocationService().getAllLocations(false));
 		map.put("user", Context.getAuthenticatedUser());
 		
@@ -98,7 +112,7 @@ public class DiagnosisHomepageController {
                  user.setUserProperty(OpenmrsConstants.USER_PROPERTY_DEFAULT_LOCATION, location.getLocationId().toString());
                  Context.getUserService().saveUser(user, null);
              }
-         }    
+         } 
     }
     
     /**

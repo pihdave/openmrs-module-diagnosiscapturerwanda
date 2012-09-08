@@ -14,6 +14,8 @@
 package org.openmrs.module.diagnosiscapturerwanda;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 import javax.servlet.http.HttpSession;
@@ -74,7 +76,7 @@ public class DiagnosisPatientDashboardController {
 		}
 		if (visit != null && !visit.getPatient().equals(patient))	
 			throw new RuntimeException("visit passed into DiagnosisPatientDashboardController doesn't belong to patient passed into this controller.");
-		if (registrationEnc == null)
+		if (registrationEnc == null && visit != null)
 			registrationEnc = DiagnosisUtil.findEncounterByTypeInVisit(visit, MetadataDictionary.ENCOUNTER_TYPE_REGISTRATION);
 
 		//add previous primary care visits:
@@ -85,9 +87,40 @@ public class DiagnosisPatientDashboardController {
 			if (vTmp.getVisitType().equals(MetadataDictionary.VISIT_TYPE_OUTPATIENT))
 				v.add(vTmp);
 		}
+		
+		//redirect to patient dashboard and show previous visits if 
+		if(visit == null)
+		{
+			int backEntryLimit = Integer.parseInt(Context.getAdministrationService().getGlobalProperty("diagnosisCaptureRwanda.backEntryLimit"));
+			if(backEntryLimit > 0)
+			{
+				
+				StringBuilder visitIds = new StringBuilder();
+				for(Visit v1: vListAll)
+				{
+					if(calculateDaysDifference(v1.getStartDatetime()) <= backEntryLimit)
+					{
+						if(visitIds.length() > 0)
+						{
+							visitIds.append(",");
+						}
+						visitIds.append(v1.getId());
+					}
+				}
+				
+				if(visitIds.length() > 0)
+				{
+					return "redirect:/module/diagnosiscapturerwanda/diagnosisHomepage.list?visitIds=" + visitIds.toString();
+				}
+			}
+		}
 		map.put("visitList", v);
 		
 		map.put("visit", visit);
+		if(visit != null && calculateDaysDifference(visit.getStartDatetime()) == 0)
+		{
+			map.put("visitToday", true);
+		}
 		map.put("encounter_type_vitals", MetadataDictionary.ENCOUNTER_TYPE_VITALS);
 		map.put("encounter_type_lab", MetadataDictionary.ENCOUNTER_TYPE_LABS);
 		map.put("encounter_type_registration", MetadataDictionary.ENCOUNTER_TYPE_REGISTRATION);
@@ -143,5 +176,18 @@ public class DiagnosisPatientDashboardController {
     public String processDashboardSubmit(){
     	return null;
     }
+    
+    private int calculateDaysDifference(Date visitDate)
+	{
+    	Date todaysDate = Calendar.getInstance().getTime();
+    	long milis1 = visitDate.getTime();
+		long milis2 = todaysDate.getTime();
+		
+		long diff = milis2 - milis1;
+		
+		long diffDays = diff / (24 * 60 * 60 * 1000);
+	
+		return (int)diffDays;
+	}
 
 }

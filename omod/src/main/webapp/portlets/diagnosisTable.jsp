@@ -1,13 +1,15 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
 <%@ include file="/WEB-INF/template/include.jsp"%>
-<table>
+<table width="100%">
+	<thead>
 		<tr class="gradient">
-			<th><spring:message code="diagnosiscapturerwanda.primaryDiagnosis"/></th>
-			<th><spring:message code="diagnosiscapturerwanda.diagnosis"/></th>
-			<th><spring:message code="diagnosiscapturerwanda.otherDiagnosis"/></th>
-			<th><spring:message code="diagnosiscapturerwanda.confirmedSusptected"/></th>
+			<th width="15%"><spring:message code="diagnosiscapturerwanda.primaryDiagnosis"/></th>
+			<th width="30%"><spring:message code="diagnosiscapturerwanda.diagnosis"/></th>
+			<th width="35%"><spring:message code="diagnosiscapturerwanda.otherDiagnosis"/></th>
+			<th width="20%"><spring:message code="diagnosiscapturerwanda.confirmedSusptected"/></th>
 		</tr>
+	</thead>
 		
 		<c:set var="enc" value=""/>
 		<!-- primary diagnosis -->

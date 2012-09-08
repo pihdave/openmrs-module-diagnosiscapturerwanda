@@ -27,6 +27,11 @@
 		<class>org.openmrs.module.diagnosiscapturerwanda.extension.html.AdminList</class>
 	</extension>
 	
+	<privilege>
+		<name>Diagnosis Capture</name>
+		<description>Allows user to access diagnosis capture pages/functions</description>
+	</privilege>
+	
 	<!-- Maps hibernate file's, if present 
 	<mappingFiles>
 				
@@ -103,9 +108,21 @@ CONCEPT_FINDINGS=36ac5020-30ab-476b-b94b-3e7b905e22c4
 	</globalProperty>
 	
 	<globalProperty>
-	    <property>diagnosiscapturerwanda.registrationSystemUrl</property>
+	    <property>diagnosisCaptureRwanda.registrationSystemUrl</property>
 	    <defaultValue>module/rwandaprimarycare/homepage.form</defaultValue>
 		<description>This should be the url pointing to your registration system.  Start with module name, for example: module/rwandaprimarycare/homepage.form</description>	
+	</globalProperty>
+	
+	<globalProperty>
+	    <property>diagnosisCaptureRwanda.searchByNameSystemUrl</property>
+	    <defaultValue>module/rwandaprimarycare/findPatientByName.form</defaultValue>
+		<description>This should be the url pointing to the search patient by name screen in the registration system or other module.  Start with module name, for example: module/rwandaprimarycare/findPatientByName.form</description>	
+	</globalProperty>
+	
+	<globalProperty>
+	    <property>diagnosisCaptureRwanda.backEntryLimit</property>
+	    <defaultValue>14</defaultValue>
+		<description>The number of days after a visit when it will show up on the patient dashboard to allow back entry</description>	
 	</globalProperty>
 
 

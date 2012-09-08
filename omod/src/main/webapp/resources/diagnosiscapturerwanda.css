@@ -156,58 +156,179 @@
 	margin:5px 5px;
 }
 
-
-.boxInner {
-padding: 8px;
-background-color: white; 
-
-/* outer shadows  (note the rgba is red, green, blue, alpha) */
--webkit-box-shadow: 0px 0px 6px rgba(0, 0, 0, 0.4); 
--moz-box-shadow: 0px 1px 3px rgba(23, 69, 88, .5);
-
-/* rounded corners */
--webkit-border-radius: 12px;
--moz-border-radius: 7px; 
-border-radius: 7px;
-	
+.locationTable td {
+	font-size: 0.9em;
+    padding-left: 6px;
+    padding-top: 8px;
 }
 
-.gradient {
-/* gradients */
-background: -webkit-gradient(linear, left top, left bottom, 
-color-stop(0%, white), color-stop(15%, white), color-stop(100%, #FAFAFA)); 
-background: -moz-linear-gradient(top, white 0%, white 55%, #FAFAFA 130%); 	
+.locationTable td select {
+	font-size: 1.0em;
 }
 
-.genericButton {
-	-moz-box-shadow:inset 0px 1px 0px 0px #ffffff;
-	-webkit-box-shadow:inset 0px 1px 0px 0px #ffffff;
-	box-shadow:inset 0px 1px 0px 0px #ffffff;
-	background:-webkit-gradient( linear, left top, left bottom, color-stop(0.05, #ededed), color-stop(1, #dfdfdf) );
-	background:-moz-linear-gradient( center top, #ededed 5%, #dfdfdf 100% );
-	filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#ededed', endColorstr='#dfdfdf');
-	background-color:#ededed;
-	-moz-border-radius:23px;
-	-webkit-border-radius:23px;
-	border-radius:23px;
-	border:1px solid #dcdcdc;
-	display:inline-block;
-	color:#333333;
-	font-family:arial;
-	font-size:15px;
-	font-weight:bold;
-	padding:6px 10px;
-	text-decoration:none;
-	text-shadow:1px 1px 0px #ffffff;
-}.genericButton:hover {
-	background:-webkit-gradient( linear, left top, left bottom, color-stop(0.05, #dfdfdf), color-stop(1, #ededed) );
-	background:-moz-linear-gradient( center top, #dfdfdf 5%, #ededed 100% );
-	filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#dfdfdf', endColorstr='#ededed');
-	background-color:#dfdfdf;
-}.genericButton:active {
-	position:relative;
-	top:1px;
+button, button.blue { 
+  background:url(images/btn_right_blue.png) right no-repeat; 
+  font-size:0.9em; 
+  line-height:60px;
+  min-width:66px;
+  margin: -4px;
 }
-	
+button span, button.blue span { 
+  background:url(images/btn_left_blue.png) left no-repeat;
+  height:63px; 
+  line-height:63px;
+  color:#fff; 
+  margin-left: -4px;
+}
 
+button span {
+}
 
+button { 
+  color: white;
+  -moz-user-select:none;
+  -moz-user-focus:disabled;
+  border:0; 
+  cursor:pointer; 
+  font-weight:bold; 
+  padding:0 6px 0 0; 
+  text-align:center; 
+}
+
+button span { 
+  -moz-user-select:none;
+  -moz-user-focus:disabled;
+  position:relative; 
+  display:block; 
+  white-space:nowrap; 
+  padding:0 0 0 8px; 
+}
+
+button:hover, button:hover.blue {
+	background:url(images/btn_right_hover_blue.png) right no-repeat; 
+}
+button:hover span, button:hover.blue span {
+	background:url(images/btn_left_hover_blue.png) left no-repeat; 
+}
+
+#searchByName {
+	padding-right: 8px;	
+	float: right;
+}
+
+#findPatients {
+	padding-top: 16px;
+	padding-bottom: 16px;
+}
+
+.previousVisit {
+	font-size: 1.0em;
+	margin-bottom: 5px;
+}
+
+#previousVisitTitle {
+	font-weight:bold; 
+}
+
+#registrationTable td{
+	vertical-align: top;
+	padding-right: 12px;
+}
+
+#registrationButton {
+	margin-top: -4px;
+}
+
+.home {
+	float: right;	
+	margin-top: 8px;
+	margin-right: 2px;
+}
+
+#frameTable {
+	width: 100%;
+}
+
+#frameTable td{
+	width: 70%;
+}
+
+.inputButton {
+	float: right;
+	margin:2px;
+}
+
+.pastVisit .box {
+	border: 1px solid #666666;
+}
+
+.pastVisit .boxHeader {
+	background-color: #666666;
+	border: 1px solid #666666;
+}
+
+.dashboardTable {
+	width: 100%;
+}
+
+.dashboardTable tr {
+
+}	
+
+.dashboardHeading {
+	width: 15%;
+	vertical-align: top;
+	font-weight:bold; 
+}
+
+.dashboardValue {
+	width: 70%;
+}
+
+.dashboardValue  div.box{
+	border: 0px;
+}
+
+.past .dashboardValue  div.box{
+	border: 0px;
+}
+
+.past .dashboardValue  div.boxHeader{
+	background-color: #1AAC9B;
+	border: 1px solid #1AAC9B;
+}
+
+.dashboardValue  thead.regimenTable{
+	border-collapse: separate;
+}
+
+.dashboardInput {
+	width: 15%;
+	vertical-align: top;
+}
+
+.boxInnerDiagnosis {
+	border: 1px solid #1AAC9B;
+	margin: 12px;
+}
+
+.boxInnerDiagnosis box {
+	border: 1px solid black;
+}
+
+.dashboardTable thead th {
+	background-color: #CCCCCC
+}
+
+.past div.boxHeader{
+	background-color: #666666;
+	border: 1px solid #666666;
+}
+
+.past div.box{
+	border: 1px solid #666666;
+}
+
+.past .boxInnerDiagnosis{
+	border: 1px solid #666666;
+}

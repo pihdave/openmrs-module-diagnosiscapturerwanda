@@ -14,10 +14,12 @@
 			<openmrs:htmlInclude file="/scripts/jquery/dataTables/css/dataTables_jui.css"/>
 			<openmrs:htmlInclude file="/scripts/jquery/dataTables/js/jquery.dataTables.min.js"/>
 			<openmrs:htmlInclude file="/scripts/jquery-ui/js/openmrsSearch.js" />
+			<openmrs:htmlInclude file="/moduleResources/diagnosiscapturerwanda/diagnosiscapturerwanda.css" />
 
 			<script type="text/javascript">
 				var lastSearch;
 				$j(document).ready(function() {
+					jQuery("#searchError").hide();
 					new OpenmrsSearch("findPatients", false, doPatientSearch, doSelectionHandler,
 						[	{fieldName:"identifier", header:omsgs.identifier},
 							{fieldName:"givenName", header:omsgs.givenName},
@@ -30,7 +32,7 @@
 						{
                             searchLabel: '<spring:message code="diagnosiscapturerwanda.patientIdentifier" javaScriptEscape="true"/> ',
                             resultsHandler: doHandleResults,
-                            searchPlaceholder:'<spring:message code="Patient.searchBox.placeholder" javaScriptEscape="true"/>'
+                            searchPlaceholder:'<spring:message code="diagnosiscapturerwanda.searchPlaceHolder" javaScriptEscape="true"/>'
                             <c:if test="${not empty param.phrase}">
                                 , searchPhrase: '<spring:message text="${ param.phrase }" javaScriptEscape="true"/>'
                             </c:if>
@@ -45,10 +47,22 @@
 				
 				//this will only return a patient to the user if the patient's identifier is equal to the search string.  In which case, there's a redirect to the patient dashboard.
 				function doHandleResults(results){
+					var notFound = true;
 					for(var r in results) {
+						notFound = false;
 						if (results.length == 1 && results[r].identifier == lastSearch) {
 							document.location = "${model.postURL}?patientId=" + results[r].patientId + "&phrase=" + lastSearch;
 						} 
+						else {
+							
+							jQuery("#searchError").html('<spring:message code="diagnosiscapturerwanda.identifierError" javaScriptEscape="true"/>');
+							jQuery("#searchError").show();
+							jQuery("#searchErrorRecent").hide();
+							jQuery("#recentVisitDiv").html('');
+						}
+					}
+					if(notFound){
+						alert('<spring:message code="diagnosiscapturerwanda.searchError" javaScriptEscape="true"/><br/>');
 					}
 				}
 						
@@ -64,17 +78,24 @@
 
 			</script>
 
-			<div class="boxInner">
-					<div style="background-color:white">
-					<b class="boxHeader"><spring:message code="Patient.find"/></b>
-					<div class="searchWidgetContainer" id="findPatients"></div>
-					<openmrs:globalProperty var="registrationUrl" key="diagnosiscapturerwanda.registrationSystemUrl" defaultValue=""/>
-					<c:if test="${!empty registrationUrl}">
-						<div>&nbsp;<a href="${pageContext.request.contextPath}/${registrationUrl}"><spring:message code="diagnosiscapturerwanda.registrationSystem"/></a></div>
-					</c:if>
-					<br/>
+			
+			<openmrs:globalProperty var="searchByNameUrl" key="diagnosiscapturerwanda.searchByNameSystemUrl" defaultValue=""/>
+			<div class="boxHeader"><spring:message code="Patient.find"/></div>
+			<div class="box">
+				<c:if test="${!empty searchByNameUrl}">
+					<div id="searchByName">
+						<button class="blue" onclick="window.location = '${pageContext.request.contextPath}/${searchByNameUrl}'" type="button">
+							<span><spring:message code="diagnosiscapturerwanda.searchByName" /></span>
+						</button>
 					</div>
+				</c:if>
+				<div class="searchWidgetContainer" id="findPatients"></div>
+			</div>		
+			<br/>	
+			
+			<div class="error" id="searchError">
 			</div>
+			
 			
 			<c:if test="${empty model.hideAddNewPatient}">
 				<openmrs:hasPrivilege privilege="Add Patients">
@@ -82,4 +103,5 @@
 					<openmrs:portlet id="addPersonForm" url="addPersonForm" parameters="personType=patient|postURL=admin/person/addPerson.htm|viewType=${model.viewType}" />
 				</openmrs:hasPrivilege>
 			</c:if>
+			
 </c:if>
