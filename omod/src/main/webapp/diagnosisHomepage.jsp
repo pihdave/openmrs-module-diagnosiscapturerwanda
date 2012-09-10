@@ -67,9 +67,8 @@
 <c:if test="${!empty recentVisits}">
 	<div class="error" id="searchErrorRecent">
 		<spring:message code="diagnosiscapturerwanda.recentVisitError" />
-		<br/>
-		<br/>
 	</div>
+	<br/>
 </c:if>
 
 

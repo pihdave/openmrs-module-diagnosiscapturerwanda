@@ -24,6 +24,7 @@ import java.util.StringTokenizer;
 import javax.servlet.http.HttpSession;
 
 import org.openmrs.Concept;
+import org.openmrs.ConceptName;
 import org.openmrs.ConceptNumeric;
 import org.openmrs.Encounter;
 import org.openmrs.EncounterType;
@@ -82,10 +83,13 @@ public class DiagnosisUtil {
 		List<AutoCompleteObj> ret = new ArrayList<AutoCompleteObj>();
 		if (cList != null){
 			for (Concept c: cList){
-				AutoCompleteObj o = new AutoCompleteObj();
-				o.setValue(c.getConceptId());
-				o.setLabel(c.getName().getName().toUpperCase());
-				ret.add(o);
+				for(ConceptName cn: c.getNames())
+				{
+					AutoCompleteObj o = new AutoCompleteObj();
+					o.setValue(c.getConceptId());
+					o.setLabel(cn.getName());
+					ret.add(o);
+				}
 			}
 		}
 		return bu.toJson(ret);

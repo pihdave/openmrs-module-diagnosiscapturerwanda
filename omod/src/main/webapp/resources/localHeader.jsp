@@ -5,12 +5,22 @@
 <openmrs:globalProperty key="visits.enabled" var="visitsEnabled" />
 
 <%-- Header showing preferred name, id, and treatment status --%>
+<c:choose>
+	<c:when test="${visitToday }">
+		<div>
+	</c:when>
+	<c:otherwise>
+		<div class="past">
+	</c:otherwise>
+</c:choose>
+
 <c:if test="${empty patientReasonForExit}">
 	<div id="patientHeader" class="boxHeader">
 </c:if>
 <c:if test="${not empty patientReasonForExit}">
 	<div id="patientHeader" class="boxHeaderRed">
 </c:if>
+
 
 <div id="patientHeaderPatientName">${patient.personName}</div>
 <div id="patientHeaderPreferredIdentifier">
@@ -97,6 +107,11 @@
 			</td>
 		</c:if>
 	</tr>
+	<tr>
+		<td colspan="3">
+			<div id="visitInformation"><spring:message code="diagnosiscapturerwanda.visitDate"/> &nbsp; <openmrs:formatDate date="${visit.startDatetime}" type="medium" /></div>
+		</td>
+	</tr>
 </table>
 </div>
 
@@ -104,7 +119,7 @@
 <div class="home">
 	<input type="button" onClick="document.location='${pageContext.request.contextPath}/module/diagnosiscapturerwanda/diagnosisHomepage.list'" value='<spring:message code="diagnosiscapturerwanda.title"/> <spring:message code="diagnosiscapturerwanda.home"/>'/>
 </div>
-<br/>
+
 
 
 <openmrs:globalProperty var="programIdsToShow"

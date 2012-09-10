@@ -24,22 +24,9 @@
 <c:if test="${!empty visit}">
 	
 	<br/>
-	<c:choose>
-		<c:when test="${visitToday }">
-			<div>
-		</c:when>
-		<c:otherwise>
-			<div class="past">
-		</c:otherwise>
-	</c:choose>
-	<c:choose>
-		<c:when test="${visitToday }">
-			<div class="boxHeader"><spring:message code="diagnosiscapturerwanda.visitDate"/> &nbsp; <openmrs:formatDate date="${visit.startDatetime}" type="short" /></div>
-		</c:when>
-		<c:otherwise>
-			<div class="boxHeader past"><spring:message code="diagnosiscapturerwanda.visitDate"/> &nbsp; <openmrs:formatDate date="${visit.startDatetime}" type="short" /></div>
-		</c:otherwise>
-	</c:choose>
+	<br/>
+	
+	<div class="boxHeader"><spring:message code="diagnosiscapturerwanda.patientSummary"/></div>
 		
 	
 	<div class="box">
@@ -98,11 +85,11 @@
 										</c:if>			
 									</c:forEach>
 									<tr>
-										<td>${tempObs.valueNumeric}</td>
-										<td>${heightObs.valueNumeric}</td>
-										<td>${weightObs.valueNumeric}</td>
-										<td>${currentBMI}</td>
-										<td>${systolicObs.valueNumeric}/${diastolicObs.valueNumeric}</td>
+										<td align="center"><c:if test="${!empty tempObs}">${tempObs.valueNumeric} <spring:message code="diagnosiscapturerwanda.temperatureUnits"/></c:if></td>
+										<td align="center"><c:if test="${!empty heightObs}">${heightObs.valueNumeric} <spring:message code="diagnosiscapturerwanda.heightUnits"/></c:if></td>
+										<td align="center"><c:if test="${!empty weightObs}">${weightObs.valueNumeric} <spring:message code="diagnosiscapturerwanda.weightUnits"/></c:if></td>
+										<td align="center">${currentBMI}</td>
+										<td align="center"><c:if test="${!empty systolicObs}">${systolicObs.valueNumeric}</c:if>/<c:if test="${!empty diastolicObs}">${diastolicObs.valueNumeric} <spring:message code="diagnosiscapturerwanda.bloodPressureUnits"/></c:if></td>
 									</tr>
 								</c:if>
 							</table>
@@ -111,7 +98,7 @@
 					
 					<td class="dashboardInput">
 						<div class="inputButton">
-							<input type="button" onclick="document.location='./vitals.form?visitId=${visit.visitId}'" value='<spring:message code="diagnosiscapturerwanda.changeVitals"/>'/>
+							<input type="button" onclick="document.location='./vitals.form?visitId=${visit.visitId}&visitToday=${visitToday}&patientId=${patient.patientId}'" value='<spring:message code="diagnosiscapturerwanda.changeVitals"/>'/>
 						</div>
 					</td>
 				</tr>
@@ -227,7 +214,7 @@
 					
 					<td class="dashboardInput">	
 						<div class="inputButton">	
-							<input type="button" onclick="document.location='./diagnosisCapture.form?visitId=${visit.visitId}&patientId=${patient.patientId}'" value='<spring:message code="diagnosiscapturerwanda.changeDiagnosis"/>'/>
+							<input type="button" onclick="document.location='./diagnosisCapture.form?visitId=${visit.visitId}&visitToday=${visitToday}&patientId=${patient.patientId}'" value='<spring:message code="diagnosiscapturerwanda.changeDiagnosis"/>'/>
 						</div>
 					</td>
 				</tr>
@@ -274,5 +261,6 @@
 	</div>
 	</div>
 </c:if>
+</div>
     
 <%@ include file="/WEB-INF/template/footer.jsp"%>  

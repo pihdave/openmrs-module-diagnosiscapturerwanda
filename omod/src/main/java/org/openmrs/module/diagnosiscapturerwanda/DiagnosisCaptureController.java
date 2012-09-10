@@ -55,6 +55,7 @@ public class DiagnosisCaptureController {
     public String processDiagnosisCapturePageGet(@RequestParam(value="patientId") Integer patientId,
     		@RequestParam(value="visitId") Integer visitId,
     		@RequestParam(required=false, value="obsGroupId") Integer obsGroupId,
+    		@RequestParam(value="visitToday", required=false) String visitToday,
     		HttpSession session, 
     		ModelMap map){
 		
@@ -63,6 +64,8 @@ public class DiagnosisCaptureController {
 		if (patient == null)
 			return null;
 		map.put("patient", patient);
+		
+		map.put("visitToday", visitToday);
 		
 		Visit visit = Context.getVisitService().getVisit(visitId);
 		if (visit == null)
@@ -273,7 +276,7 @@ public class DiagnosisCaptureController {
 			HttpSession session, 
 			ModelMap model){
     	List<Concept> cList = new ArrayList<Concept>();
-    	for (ConceptSearchResult csr : Context.getConceptService().findConceptAnswers(searchPhrase, Context.getLocale(), MetadataDictionary.CONCEPT_PRIMARY_CARE_DIAGNOSIS)){
+    	for (ConceptSearchResult csr : Context.getConceptService().getConcepts(searchPhrase, Context.getAdministrationService().getAllowedLocales(), false, null, null, null, null, MetadataDictionary.CONCEPT_PRIMARY_CARE_DIAGNOSIS, null, null)){
     		if (restrictBySymptom && MetadataDictionary.CONCEPT_CLASSIFICATION_SYMPTOM.getSetMembers().contains(csr.getConcept())){
     				cList.add(csr.getConcept());
     		} else {

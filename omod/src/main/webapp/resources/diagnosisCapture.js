@@ -41,46 +41,62 @@ function deleteDiagnosis(obsGroupId) {
  * this is the method that looks up and creates the icpc buttons
  */
 function filterByCategory(id, restrictBySymptom){
-	$j.getJSON('getDiagnosesByIcpcSystemJSON.list?groupingId=' + id + "&restrictBySymptom=" + restrictBySymptom, function(json) {
-		 
-		 //build a little legend
-		 var ret = "<br/><span>  <span class='symptom_color'>&nbsp;&nbsp&nbsp;&nbsp</span> <spring:message code='diagnosiscapturerwanda.symptom'/> </span>";
-		 if (!restrictBySymptom){
-			 ret += "<span> <span class='infection_color'>&nbsp;&nbsp&nbsp;&nbsp</span> <spring:message code='diagnosiscapturerwanda.infection'/> </span>";
-			 ret += "<span> <span class='injury_color'>&nbsp;&nbsp&nbsp;&nbsp</span> <spring:message code='diagnosiscapturerwanda.injury'/>  </span>";
-			 ret += "<span> <span class='diagnosis_color'>&nbsp;&nbsp&nbsp;&nbsp</span> <spring:message code='diagnosiscapturerwanda.diagnosis'/> </span><br/><br/>";
-		 }
-	 	 ret += "<table class='icpcResults'><tr valign=top><td>";
-
-	 	 //TODO: reduce this, using an array?
-		 $j.each(json, function(item) {
-		 	 if (json[item].category == _symptom){
-		 		 ret+="<button class='symptom' onclick=\"javascript: setNewDiagnosis(" + json[item].id + ", \'" + json[item].name + "\');\"  >" + json[item].name + "</button><br/>";
-		 	 }
-	     });
-		 if (!restrictBySymptom){
-			 ret+="</td><td>";
+	
+	var categoryDiv = "#conceptCategory" + id;
+	
+	if( $j(categoryDiv).is(':visible') ) {
+		$j(categoryDiv).hide();
+		$j(".selected").removeClass("selected");
+	}
+	else {
+		$j.getJSON('getDiagnosesByIcpcSystemJSON.list?groupingId=' + id + "&restrictBySymptom=" + restrictBySymptom, function(json) {
+			 
+			 //build a little legend
+			 var ret = "<div class='categoryBox'>";
+			 //if (!restrictBySymptom){
+			 //	 ret += "<span> <span class='infection_color'>&nbsp;&nbsp&nbsp;&nbsp</span> <spring:message code='diagnosiscapturerwanda.infection'/> </span>";
+			 //	 ret += "<span> <span class='injury_color'>&nbsp;&nbsp&nbsp;&nbsp</span> <spring:message code='diagnosiscapturerwanda.injury'/>  </span>";
+			 //	 ret += "<span> <span class='diagnosis_color'>&nbsp;&nbsp&nbsp;&nbsp</span> <spring:message code='diagnosiscapturerwanda.diagnosis'/> </span><br/><br/>";
+			 // }
+		 	 // ret += "<table class='icpcResults'><tr valign=top><td>";
+	
+		 	 //TODO: reduce this, using an array?
 			 $j.each(json, function(item) {
-			 	 if (json[item].category == _infection){
-			 		 ret+="<button class='infection' onclick=\"javascript: setNewDiagnosis(" + json[item].id + ", \'" + json[item].name + "\');\" >" + json[item].name + "</button><br/>";
+			 	 if (json[item].category == _symptom){
+			 		 ret+="<input type='button' class='symptom' onclick=\"javascript: setNewDiagnosis(" + json[item].id + ", \'" + json[item].name + "\');\"  value='" + json[item].name + "'/><br/>";
 			 	 }
 		     });
-			 ret+="</td><td>";
-			 $j.each(json, function(item) {
-			 	 if (json[item].category == _injury){
-			 		 ret+="<button class='injury' onclick=\"javascript: setNewDiagnosis(" + json[item].id + ", \'" + json[item].name + "\');\" >" + json[item].name + "</button><br/>";
-			 	 }
-		     });
-			 ret+="</td><td>";
-			 $j.each(json, function(item) {
-			 	 if (json[item].category == _diagnosis){
-			 		 ret+="<button class='diagnosis' onclick=\"javascript: setNewDiagnosis(" + json[item].id + ", \'" + json[item].name + "\');\" >" + json[item].name + "</button><br/>";
-			 	 }
-		     });
-		 }
-		 ret+="</td></tr></table>";
-		 $j("#categorySearchResults").html(ret);
-	});
+			 if (!restrictBySymptom){
+			 //	 ret+="</td><td>";
+				 $j.each(json, function(item) {
+				 	 if (json[item].category == _infection){
+				 		 ret+="<input type='button' class='infection' onclick=\"javascript: setNewDiagnosis(" + json[item].id + ", \'" + json[item].name + "\');\" value='" + json[item].name + "'/><br/>";
+				 	 }
+			     });
+			 //	 ret+="</td><td>";
+				 $j.each(json, function(item) {
+				 	 if (json[item].category == _injury){
+				 		 ret+="<input type='button' class='injury' onclick=\"javascript: setNewDiagnosis(" + json[item].id + ", \'" + json[item].name + "\');\" value='" + json[item].name + "'/><br/>";
+				 	 }
+			     });
+			 //	 ret+="</td><td>";
+				 $j.each(json, function(item) {
+				 	 if (json[item].category == _diagnosis){
+				 		 ret+="<input type='button' class='diagnosis' onclick=\"javascript: setNewDiagnosis(" + json[item].id + ", \'" + json[item].name + "\');\" value='" + json[item].name + "'/><br/>";
+				 	 }
+			     });
+			 }
+			 ret+="</div>";
+			 $j(".conceptCategory").hide();
+			
+			 $j(".selected").removeClass("selected");
+			 var categoryInput = "#" + id;
+			 $j(categoryInput).addClass("selected");
+			 
+			 $j(categoryDiv).html(ret);
+			 $j(categoryDiv).show();
+		});
+	}
 }
 
 
@@ -88,8 +104,9 @@ function filterByCategory(id, restrictBySymptom){
  * this looks up diagnoses by name; only return symptoms if restrictBySymptom = true
  */
 function ajaxLookup(item, restrictBySymptom){
+	$j("#conceptId").val("");
 	if (item.value.length > 2){
-		
+		$j("#spinner").show();
 		$j.getJSON('getDiagnosisByNameJSON.list?searchPhrase=' + item.value + '&restrictBySymptom=' + restrictBySymptom, function(json){
 			
 			$j("input#ajaxDiagnosisLookup").autocomplete({
@@ -101,8 +118,10 @@ function ajaxLookup(item, restrictBySymptom){
 			    			return false;
 			    		}
 			});
+			$j("#spinner").hide();
 		});
 	}
+	
 }
 
 
@@ -111,6 +130,6 @@ function ajaxLookup(item, restrictBySymptom){
  * use this method to 'choose' the diagnosis from the ajax lookup or the icpc buttons
  */
 function setNewDiagnosis(diagnosisId, diagnosisName){
-	$j("#diagnosisName").html("<span style='color:blue'>" + diagnosisName + "</span>");
-	$j("#diagnosisId").val(diagnosisId);
+	$j("#ajaxDiagnosisLookup").html(diagnosisName);
+	$j("#conceptId").val(diagnosisId);
 }
