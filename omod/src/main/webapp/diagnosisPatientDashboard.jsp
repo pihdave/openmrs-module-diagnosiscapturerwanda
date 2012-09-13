@@ -117,54 +117,54 @@
 					<td class="dashboardValue">
 						<div id="findingsDiv">
 							<table width="100%">
-								<thead>
-									<tr>
-										<th width="40%"><spring:message code="diagnosiscapturerwanda.finding"/></th>
-										<th width="60%"><spring:message code="diagnosiscapturerwanda.otherFindings"/></th>
-									</tr>
-								</thead>
+							<thead>
+								<tr class="gradient">
+									<th width="90%"><spring:message code="diagnosiscapturerwanda.finding"/></th>
+									<th width="10%"></th>
+								</tr>
+							</thead>
+								
 								<c:set var="encTest" value=""/>
+								<!-- primary diagnosis -->
 								<c:forEach items="${visit.encounters}" var="enc" varStatus="pos">
-									<c:if test="${enc.encounterType == encounter_type_findings && enc.voided == false}">
-										<c:set var="encTest" value="${enc}"/>
-										
-										<c:forEach items="${enc.allObs}" var="obs">
-											<c:if test="${obs.concept == concept_set_findings}"><!-- the findings conceptSet -->	
-												<c:set var="finding" value=""/>
-												<c:set var="findingText" value=""/>
-												<c:forEach items="${obs.groupMembers}" var="groupObs">
-													<c:if test="${groupObs.concept == concept_findings}">
-														<c:set var="finding" value="${groupObs}"/>
-													</c:if>
-													<c:if test="${groupObs.concept == concept_findings_other}">
-														<c:set var="findingText" value="${groupObs}"/>
-													</c:if>
-												</c:forEach>
-												<c:if test="${!empty finding || !empty findingText }">
-													<tr>
-														<td><c:if test="${!empty finding }"><openmrs:format concept="${finding.valueCoded}"/></c:if></td>
-														<td><c:if test="${!empty findingText}">${findingText.valueText}</c:if></td>
-														<td>
-														&nbsp; <a href="#" onclick="editDiagnosis(${obs.id}, 'findings',${visit.patient.id},${visit.id});"><img src='<%= request.getContextPath() %>/images/edit.gif' alt="edit"/></a>
-														&nbsp; <a href="#" onclick="deleteDiagnosis(${obs.id});"><img src='<%= request.getContextPath() %>/images/delete.gif' alt="delete" /></a>
-													</td>
-													</tr>
+								
+								<c:if test="${enc.encounterType == encounter_type_findings && enc.voided == false}">
+									<c:set var="encTest" value="${enc}"/>
+									<c:forEach items="${enc.allObs}" var="obs">
+										<c:if test="${obs.concept == concept_set_findings}"><!-- the findings conceptSet -->	
+											<c:set var="finding" value=""/>
+											<c:set var="findingText" value=""/>
+											<c:forEach items="${obs.groupMembers}" var="groupObs">
+												<c:if test="${groupObs.concept == concept_findings}">
+													<c:set var="finding" value="${groupObs}"/>
 												</c:if>
+												<c:if test="${groupObs.concept == concept_findings_other}">
+													<c:set var="findingText" value="${groupObs}"/>
+												</c:if>
+											</c:forEach>
+											<c:if test="${!empty finding || !empty findingText }">
+												<tr>
+													<td><c:if test="${!empty finding}"><openmrs:format concept="${finding.valueCoded}"/></c:if>
+													    <c:if test="${!empty findingText}"><i>${findingText.valueText}</i></c:if></td>
+													<td align="center">
+													<a href="#" onclick="deleteDiagnosis(${obs.id});"><img src='<%= request.getContextPath() %>/images/delete.gif' alt="delete" /></a>
+												</td>
+												</tr>
 											</c:if>
-										</c:forEach>
-										
-									</c:if>
-								</c:forEach>
-								<c:if test="${empty encTest}">
-									<tr><td colspan="2"><spring:message code="diagnosiscapturerwanda.noFindingsInThisVisit"/></td></tr>
+										</c:if>
+									</c:forEach>
 								</c:if>
-							</table>
+							</c:forEach>
+							<c:if test="${empty encTest}">
+								<tr><td colspan="2"><spring:message code="diagnosiscapturerwanda.noFindingsInThisVisit"/></td></tr>
+							</c:if>
+						</table>
 						</div>
 					</td>
 		
 					<td class="dashboardInput">
 						<div class="inputButton">
-							<input type="button" onclick="document.location='./findings.form?visitId=${visit.visitId}&patientId=${patient.patientId}'" value='<spring:message code="diagnosiscapturerwanda.changeFindings"/>'/>
+							<input type="button" onclick="document.location='./findings.form?visitId=${visit.visitId}&patientId=${patient.patientId}&visitToday=${visitToday}'" value='<spring:message code="diagnosiscapturerwanda.changeFindings"/>'/>
 						</div>
 					</td>
 				</tr>

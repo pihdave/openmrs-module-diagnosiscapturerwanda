@@ -13,11 +13,14 @@
  */
 package org.openmrs.module.diagnosiscapturerwanda;
 
+import java.util.List;
+
 import javax.servlet.http.HttpSession;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.Concept;
+import org.openmrs.ConceptSearchResult;
 import org.openmrs.Encounter;
 import org.openmrs.Obs;
 import org.openmrs.Patient;
@@ -49,6 +52,7 @@ public class FindingsController {
     public String processDiagnosisCapturePageGet(@RequestParam(value="patientId") Integer patientId,
     		@RequestParam(value="visitId") Integer visitId,
     		@RequestParam(required=false, value="obsGroupId") Integer obsGroupId,
+    		@RequestParam(value="visitToday", required=false) String visitToday,
     		HttpSession session, 
     		ModelMap map){
 		
@@ -57,6 +61,7 @@ public class FindingsController {
 		if (patient == null)
 			return null;
 		map.put("patient", patient);
+		map.put("visitToday", visitToday);
 		
 		Visit visit = Context.getVisitService().getVisit(visitId);
 		if (visit == null)
@@ -84,7 +89,7 @@ public class FindingsController {
 	 */
     private static ModelMap loadMetadata(ModelMap map){
     	map.put("encounter_type_findings", MetadataDictionary.ENCOUNTER_TYPE_FINDINGS);
-		map.put("concept_set_findings", MetadataDictionary.CONCEPT_SET_PRIMARY_CARE_FINDINGS_CONSTRUCT);
+    	map.put("concept_set_findings", MetadataDictionary.CONCEPT_SET_PRIMARY_CARE_FINDINGS_CONSTRUCT);
 		map.put("concept_primary_care_diagnosis", MetadataDictionary.CONCEPT_PRIMARY_CARE_DIAGNOSIS);
 		map.put("concept_confirmed_suspected", MetadataDictionary.CONCEPT_DIAGNOSIS_CONFIRMED_SUSPECTED);
 		map.put("concept_diagnosis_other", MetadataDictionary.CONCEPT_DIAGNOSIS_NON_CODED);
@@ -98,6 +103,11 @@ public class FindingsController {
 		map.put("concept_diagnosis", MetadataDictionary.CONCEPT_CLASSIFICATION_DIAGNOSIS);
 		map.put("concept_findings_other", MetadataDictionary.CONCEPT_FINDINGS_OTHER);
 		map.put("concept_findings", MetadataDictionary.CONCEPT_FINDINGS);
+		
+		List<Concept> findingsConcepts = MetadataDictionary.CONCEPT_CLASSIFICATION_SYMPTOM.getSetMembers();
+		 
+		map.put("findingsConcepts", DiagnosisUtil.convertConceptToAutoCompleteObj(findingsConcepts));
+		
 		return map;
     }
 
@@ -118,8 +128,9 @@ public class FindingsController {
     public String processDiagnosisCaptureSubmit(
     		@RequestParam(value="hiddenVisitId") Integer visitId,
     		@RequestParam(required=false, value="hiddenObsGroupId") Integer hiddenObsGroupId,
-    		@RequestParam(value="diagnosisId") Integer diagnosisId,
-    		@RequestParam(value="diagnosisOther") String diagnosisOther,
+    		@RequestParam(value="findingsId") Integer diagnosisId,
+    		@RequestParam(required=false, value="findingsOther") String diagnosisOther,
+    		@RequestParam(value="visitToday", required=false) String visitToday,
     		HttpSession session, 
     		ModelMap map){
     	
@@ -129,6 +140,7 @@ public class FindingsController {
    
     	map.put("patient", visit.getPatient());
     	map.put("visit", visit);
+    	map.put("visitToday", visitToday);
     	FindingsController.loadMetadata(map);
     	
     	boolean hasValidationError = false;

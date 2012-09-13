@@ -37,6 +37,7 @@ public class TreatmentController {
 	@RequestMapping(value="/module/diagnosiscapturerwanda/treatment", method=RequestMethod.GET)
     public void processTreatmentPageGet(@RequestParam(value="patientId") Integer patientId,  
     		@RequestParam(value="visitId") Integer visitId,
+    		@RequestParam(value="visitToday", required=false) String visitToday,
     		HttpSession session, ModelMap map){
 		Patient patient = Context.getPatientService().getPatient(patientId);
 		if (patient == null)

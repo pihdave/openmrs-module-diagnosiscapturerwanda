@@ -39,7 +39,7 @@ jQuery(document).ready(function() {
 			height: 280,
 			width: '50%',
 			zIndex: 100,
-			buttons: { '<spring:message code="diagnosiscapturerwanda.submit"/>': function() { jQuery('#diagnosisForm').submit(); },
+			buttons: { '<spring:message code="diagnosiscapturerwanda.submit"/>': function() { submitDiagnosis(); },
 					   '<spring:message code="general.cancel"/>': function() { jQuery(this).dialog("close"); }
 			}
 		});	
@@ -53,18 +53,6 @@ jQuery(document).ready(function() {
 			width: '50%',
 			zIndex: 100,
 			buttons: { '<spring:message code="diagnosiscapturerwanda.submit"/>': function() { sumbitOtherDiagnosis() },
-					   '<spring:message code="general.cancel"/>': function() { jQuery(this).dialog("close"); }
-			}
-		});	
-			
-		jQuery('#editDiagnosisDialog').dialog({
-			position: 'middle',
-			autoOpen: false,
-			modal: true,
-			title: '<spring:message code="diagnosiscapturerwanda.editDiagnosis" javaScriptEscape="true"/>',
-			height: 280,
-			width: '50%',
-			buttons: { '<spring:message code="diagnosiscapturerwanda.submit"/>': function() { jQuery("#editDiagnosisForm").submit(); },
 					   '<spring:message code="general.cancel"/>': function() { jQuery(this).dialog("close"); }
 			}
 		});	
@@ -135,12 +123,13 @@ jQuery(document).ready(function() {
 		<span class="diagnosisSubmitSpan"><input name="action" id="otherDiagnosisSumbit" class="genericButton" type="submit" value='<spring:message code="diagnosiscapturerwanda.submit"/>'/></span></div>
 	</div> 
 	</br>
-	<div><input type="button" class="genericButton" value='<spring:message code="general.cancel"/>' onClick="document.location.href='diagnosisCapture.list?patientId=${visit.patient.patientId}&visitId=${visit.visitId}';"/></div>
+	<div><input type="button" class="genericButton" value='<spring:message code="general.cancel"/>' onclick="document.location.href='diagnosisPatientDashboard.form?patientId=${patient.patientId}&visitId=${visit.visitId}';"/></div>
 </div>
 
 <div id="diagnosisDialog">	
-	<div class="box">
 	<div id="openmrs_error" class="openmrs_error"></div>
+	<br/>
+	<div class="box">
 		<form id="diagnosisForm" name="diagnosisForm" method="post">
 			<input type="hidden" id="diagnosisId" name="diagnosisId" value="-1" />
 			<input type="hidden" name="hiddenVisitId" value="${visit.id}" />
@@ -171,6 +160,7 @@ jQuery(document).ready(function() {
 
 <div id="otherDiagnosisDialog">	
 	<div id="openmrs_error_other" class="openmrs_error"></div>
+	</br>
 	<div class="box">
 		<form id="otherDiagnosisForm" name="diagnosisForm" method="post">
 			<input type="hidden" id="otherDiagnosisId" name="diagnosisId" value="-1" />

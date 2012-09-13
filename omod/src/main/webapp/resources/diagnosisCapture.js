@@ -5,9 +5,27 @@
 /**
  * re-loads the page with a specific diagnosis obsGroup selected
  */
-function editDiagnosis(obsGroupId) {
+function editDiagnosis(obsGroupId, primary, confirmed) {
 	
 	$j("#obsGroupId").val(obsGroupId);
+	if(!primary)
+	{
+		$j("#primarySecondarySelectEdit").attr("selectedIndex", 1);
+	}
+	else {
+		$j("#primarySecondarySelectEdit").attr("selectedIndex", 0);
+		$j("#primary").val(1);
+	}
+	
+	if(confirmed == ${concept_confirmed.id})
+	{
+		$j("#confirmedSuspectedSelectEdit").attr("selectedIndex", 1);
+	}
+	else {
+		$j("#confirmedSuspectedSelectEdit").attr("selectedIndex", 0);
+	}
+	
+	$j(".openmrs_error").hide();
 	$j('#editDiagnosisDialog').dialog('open');
 }
 
@@ -21,11 +39,11 @@ function deleteDiagnosis(obsGroupId) {
 			  type: "POST",
 			  url: "deleteDiagnosis.list",
 			  dataType: 'json',
-			  data: { "obsGroupId": obsGroupId },
+			  data: { "obsGroupId": obsGroupId},
 			  success: function(ret) {
 				    var json = $j.parseJSON(ret);
 				    if (json.result == 'success' ){
-				    	document.location.href=window.location.pathname + '?patientId=${visit.patient.patientId}&visitId=${visit.visitId}';
+				    	document.location.href=window.location.pathname + '?patientId=${visit.patient.patientId}&visitId=${visit.visitId}&visitToday=${visitToday}';
 						return;
 				    } else {
 						alert('<spring:message code="diagnosiscapturerwanda.deleteFailed" />');
@@ -60,13 +78,14 @@ function filterByCategory(id, restrictBySymptom){
 		 	 // ret += "<table class='icpcResults'><tr valign=top><td>";
 	
 		 	 //TODO: reduce this, using an array?
-			 $j.each(json, function(item) {
-			 	 if (json[item].category == _symptom){
-			 		 ret+="<input type='button' class='symptom' onclick=\"javascript: setNewDiagnosis(" + json[item].id + ", \'" + json[item].name + "\');\"  value='" + json[item].name + "'/><br/>";
-			 	 }
-		     });
+			
 			 if (!restrictBySymptom){
-			 //	 ret+="</td><td>";
+				 $j.each(json, function(item) {
+				 	 if (json[item].category == _symptom){
+				 		 ret+="<input type='button' class='symptom' onclick=\"javascript: setNewDiagnosis(" + json[item].id + ", \'" + json[item].name + "\');\"  value='" + json[item].name + "'/><br/>";
+				 	 }
+			     });
+				 //	 ret+="</td><td>";
 				 $j.each(json, function(item) {
 				 	 if (json[item].category == _infection){
 				 		 ret+="<input type='button' class='infection' onclick=\"javascript: setNewDiagnosis(" + json[item].id + ", \'" + json[item].name + "\');\" value='" + json[item].name + "'/><br/>";
@@ -82,6 +101,13 @@ function filterByCategory(id, restrictBySymptom){
 				 $j.each(json, function(item) {
 				 	 if (json[item].category == _diagnosis){
 				 		 ret+="<input type='button' class='diagnosis' onclick=\"javascript: setNewDiagnosis(" + json[item].id + ", \'" + json[item].name + "\');\" value='" + json[item].name + "'/><br/>";
+				 	 }
+			     });
+			 }
+			 else {
+				 $j.each(json, function(item) {
+				 	 if (json[item].category == _symptom){
+				 		 ret+="<input type='button' class='symptom' onclick=\"javascript: setNewFinding(" + json[item].id + ");\"  value='" + json[item].name + "'/><br/>";
 				 	 }
 			     });
 			 }
@@ -162,6 +188,23 @@ function highlightSubmit(){
 	}
 }
 
+/**
+ * this determines if the submit button should be enabled for the symptoms drop down box.
+ */
+function highlightFindingsSubmit(){
+	
+	$j("#findingsId").val($j("#findingsSelect").val());
+	
+	if($j("#findingsSelect").attr("selectedIndex") > 0)
+	{
+		$j("#conceptSearchSumbit").removeAttr("disabled");
+	}
+	else
+	{
+		$j("#conceptSearchSumbit").attr("disabled", "disabled");
+	}
+}
+
 
 /**
  * use this method to 'choose' the diagnosis from the ajax lookup or the icpc buttons
@@ -169,6 +212,11 @@ function highlightSubmit(){
 function setNewDiagnosis(diagnosisId, diagnosisName){
 	$j("#diagnosisId").val(diagnosisId);
 	$j('#diagnosisDialog').dialog('open');
+}
+
+function setNewFinding(findingsId){
+	$j("#findingsId").val(findingsId);
+	$j('#findingsForm').submit();
 }
 
 
@@ -181,12 +229,28 @@ function sumbitOtherDiagnosis() {
 		var submit = checkForPrimaryDiagnosis("#openmrs_error_other");
 		if(submit)
 		{
-			$j('#otherDiagnosisForm').submit();
+			$j('#diagnosisForm').submit();
 		}
 	}
 	else
 	{
-		$j('#otherDiagnosisForm').submit();
+		$j('#diagnosisForm').submit();
+	}
+}
+
+function submitDiagnosis(){
+	
+	if($j('#primarySecondarySelect').attr("selectedIndex") == 0)
+	{
+		var submit = checkForPrimaryDiagnosis("#openmrs_error");
+		if(submit)
+		{
+			$j('#diagnosisForm').submit();
+		}
+	}
+	else
+	{
+		$j('#diagnosisForm').submit();
 	}
 }
 

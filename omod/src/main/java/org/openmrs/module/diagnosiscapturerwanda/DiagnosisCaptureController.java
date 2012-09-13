@@ -110,7 +110,6 @@ public class DiagnosisCaptureController {
 		
 		List<ConceptSearchResult> diagnosisConcepts = Context.getConceptService().getConcepts(null, Context.getAdministrationService().getAllowedLocales(), false, null, null, null, null, MetadataDictionary.CONCEPT_PRIMARY_CARE_DIAGNOSIS, null, null);
 		 
-		//map.put("diagnosisConcepts", DiagnosisUtil.convertToAutoComplete(diagnosisConcepts));
 		map.put("diagnosisConcepts", DiagnosisUtil.convertToAutoCompleteObj(diagnosisConcepts));
 		
 		return map;
@@ -349,7 +348,6 @@ public class DiagnosisCaptureController {
     //to do this, you need the jsps to send obsGroupId, not encounterId
     @RequestMapping(value="/module/diagnosiscapturerwanda/deleteDiagnosis", method=RequestMethod.POST)
     public String deleteDiagnosis(@RequestParam("obsGroupId") Integer obsGroupId,
-                                  @RequestParam(value="visitToday", required=false) String visitToday,
 			HttpSession session, 
 			ModelMap model){
     	try {
@@ -361,7 +359,7 @@ public class DiagnosisCaptureController {
     		model.put("json", DiagnosisUtil.convertToJSON("{\"result\":\"failed\"}"));
     		ex.printStackTrace();
     	}
-    	model.put("visitToday", visitToday);
+    	
     	return "/module/diagnosiscapturerwanda/jsonAjaxResponse";
     }
     

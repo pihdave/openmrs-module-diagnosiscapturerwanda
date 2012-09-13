@@ -13,11 +13,33 @@ jQuery(document).ready(function() {
 			title: '<spring:message code="diagnosiscapturerwanda.editDiagnosis" javaScriptEscape="true"/>',
 			height: 280,
 			width: '50%',
-			buttons: { '<spring:message code="diagnosiscapturerwanda.submit"/>': function() { jQuery("#editDiagnosisForm").submit(); },
+			buttons: { '<spring:message code="diagnosiscapturerwanda.submit"/>': function() { sumbitEditDiagnosis(); },
 					   '<spring:message code="general.cancel"/>': function() { jQuery(this).dialog("close"); }
 			}
 		});	
 });
+
+function sumbitEditDiagnosis() {
+	
+	if($j('#primarySecondarySelectEdit').attr("selectedIndex") == 0)
+	{
+		if($j("#primary").val() == 1)
+		{
+			jQuery("#editDiagnosisForm").submit();
+		}
+		else {
+			var submit = checkForPrimaryDiagnosis("#openmrs_error_edit");
+			if(submit)
+			{
+				jQuery("#editDiagnosisForm").submit();
+			}
+		}
+	}
+	else
+	{
+		jQuery("#editDiagnosisForm").submit();
+	}
+}
 	
 </script>
 
@@ -60,7 +82,7 @@ jQuery(document).ready(function() {
 								</td>
 								<td><c:if test="${!empty confirmedSusptected}"><openmrs:format concept="${confirmedSusptected.valueCoded}" withConceptNameType="SHORT"/></c:if></td>
 								<td align="center">
-									<a href="#" onclick="editDiagnosis(${obs.id});"><img src='<%= request.getContextPath() %>/images/edit.gif' alt="edit"/></a>
+									<a href="#" onclick="editDiagnosis(${obs.id},true,${confirmedSusptected.valueCoded });"><img src='<%= request.getContextPath() %>/images/edit.gif' alt="edit"/></a>
 									<a href="#" onclick="deleteDiagnosis(${obs.id});"><img src='<%= request.getContextPath() %>/images/delete.gif' alt="delete" /></a>
 								</td>
 							</tr>
@@ -97,7 +119,7 @@ jQuery(document).ready(function() {
 								</td>
 								<td><c:if test="${!empty confirmedSusptected}"><openmrs:format concept="${confirmedSusptected.valueCoded}" withConceptNameType="SHORT"/></c:if></td>
 								<td align="center"> 
-									 <a href="#" onclick="editDiagnosis(${obs.id});"><img src='<%= request.getContextPath() %>/images/edit.gif' alt="edit"/></a>
+									 <a href="#" onclick="editDiagnosis(${obs.id},false,${confirmedSusptected.valueCoded });"><img src='<%= request.getContextPath() %>/images/edit.gif' alt="edit"/></a>
 									 <a href="#" onclick="deleteDiagnosis(${obs.id});"><img src='<%= request.getContextPath() %>/images/delete.gif' alt="delete" /></a>
 								</td>
 							</tr>
@@ -114,27 +136,29 @@ jQuery(document).ready(function() {
 </div>	
 
 <div id="editDiagnosisDialog">	
+	<div id="openmrs_error_edit" class="openmrs_error"></div>
+	<br/>
 	<div class="box">
-	<div id="openmrs_error" class="openmrs_error"></div>
 		<form id="editDiagnosisForm" name="editDiagnosisForm" method="post">
 			<input type="hidden" id="obsGroupId" name="hiddenObsGroupId" value="-1"/>
 			<input type="hidden" id="editDiagnosisId" name="diagnosisId" value="-1" />
-			<input type="hidden" id="diagnosisOtherTextArea" name="diagnosisOther" />
+			<input type="hidden" id="diagnosisTextArea" name="diagnosisOther" />
 			<input type="hidden" name="hiddenVisitId" value="${visit.id}" />
+			<input type="hidden" name="primary" id="primary" value="-1" />
 			<table>
 				<tr>
 					<td>
 						<spring:message code="diagnosiscapturerwanda.primarySecondary"/>:
-						<select name="primary_secondary" id="primarySecondarySelect">
-							<option value="0" SELECTED><spring:message code="diagnosiscapturerwanda.primary"/></option>
+						<select name="primary_secondary" id="primarySecondarySelectEdit">
+							<option value="0" ><spring:message code="diagnosiscapturerwanda.primary"/></option>
 							<option value="1"><spring:message code="diagnosiscapturerwanda.secondary"/></option>
 						</select>
 					</td>
 					<td>
 						<spring:message code="diagnosiscapturerwanda.confirmedSusptected"/>: 
-						<select name="confirmed_suspected" id="confirmedSuspectedSelect">
+						<select name="confirmed_suspected" id="confirmedSuspectedSelectEdit">
+							<option value="${concept_suspected.id}" ><spring:message code="diagnosiscapturerwanda.suspected"/></option>
 							<option value="${concept_confirmed.id}"><spring:message code="diagnosiscapturerwanda.confirmed"/></option>
-							<option value="${concept_suspected.id}" SELECTED><spring:message code="diagnosiscapturerwanda.suspected"/></option>
 						</select>
 					</td>
 				</tr>

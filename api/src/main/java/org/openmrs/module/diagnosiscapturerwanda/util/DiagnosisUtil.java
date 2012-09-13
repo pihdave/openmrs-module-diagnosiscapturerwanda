@@ -97,7 +97,7 @@ public class DiagnosisUtil {
 					}
 					else
 					{
-						String label = cn.getName() + "=>" + c.getName(currentLocale);
+						String label = cn.getName() + "<span class='otherHit'>  &rArr; " + c.getName(currentLocale) + "</span>";
 						o.setLabel(label);
 					}
 					
@@ -491,7 +491,7 @@ public class DiagnosisUtil {
      * @return
      */
     public static List<ConceptName> convertToAutoComplete(List<ConceptSearchResult> diagnosisConcepts) {
-    	BasicUiUtils bu = new BasicUiUtils();
+    	
 		List<ConceptName> ret = new ArrayList<ConceptName>();
 		if (diagnosisConcepts != null){
 			for (ConceptSearchResult c: diagnosisConcepts){
@@ -514,7 +514,7 @@ public class DiagnosisUtil {
     }
     
     public static List<AutoCompleteObj> convertToAutoCompleteObj(List<ConceptSearchResult> diagnosisConcepts) {
-    	BasicUiUtils bu = new BasicUiUtils();
+    	
     	List<AutoCompleteObj> ret = new ArrayList<AutoCompleteObj>();
 		Locale currentLocale = Context.getLocale();
 		if (diagnosisConcepts != null){
@@ -530,7 +530,7 @@ public class DiagnosisUtil {
 					}
 					else
 					{
-						String label = cn.getName() + " => " + c.getConcept().getName(currentLocale);
+						String label = cn.getName() + "<span class='otherHit'>  &rArr; " + c.getConcept().getName(currentLocale) + "</span>";
 						o.setLabel(label);
 					}
 					
@@ -539,6 +539,48 @@ public class DiagnosisUtil {
 			}
 		}
 		
+		Collections.sort(ret, new Comparator<AutoCompleteObj>() {
+
+			@Override
+            public int compare(AutoCompleteObj o1, AutoCompleteObj o2) {
+	            return o1.getLabel().compareTo(o2.getLabel());
+            }
+			
+		});
+		return ret;
+    }
+
+	/**
+     * Auto generated method comment
+     * 
+     * @param findingsConcepts
+     * @return
+     */
+    public static List<AutoCompleteObj> convertConceptToAutoCompleteObj(List<Concept> findingsConcepts) {
+   
+    	List<AutoCompleteObj> ret = new ArrayList<AutoCompleteObj>();
+		Locale currentLocale = Context.getLocale();
+		if (findingsConcepts != null){
+			for (Concept c: findingsConcepts){
+				for(ConceptName cn: c.getNames())
+				{
+					AutoCompleteObj o = new AutoCompleteObj();
+					o.setValue(c.getConceptId());
+					
+					if(cn.getLocale().equals(currentLocale))
+					{
+						o.setLabel(cn.getName());
+					}
+					else
+					{
+						String label = cn.getName() + "<span class='otherHit'>  &rArr; " + c.getName(currentLocale) + "</span>";
+						o.setLabel(label);
+					}
+					
+					ret.add(o);
+				}
+			}
+		}
 		Collections.sort(ret, new Comparator<AutoCompleteObj>() {
 
 			@Override
