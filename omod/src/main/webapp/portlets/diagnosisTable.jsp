@@ -1,13 +1,33 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
 <%@ include file="/WEB-INF/template/include.jsp"%>
+
+<script type="text/javascript">
+
+jQuery(document).ready(function() {
+		
+		jQuery('#editDiagnosisDialog').dialog({
+			position: 'middle',
+			autoOpen: false,
+			modal: true,
+			title: '<spring:message code="diagnosiscapturerwanda.editDiagnosis" javaScriptEscape="true"/>',
+			height: 280,
+			width: '50%',
+			buttons: { '<spring:message code="diagnosiscapturerwanda.submit"/>': function() { jQuery("#editDiagnosisForm").submit(); },
+					   '<spring:message code="general.cancel"/>': function() { jQuery(this).dialog("close"); }
+			}
+		});	
+});
+	
+</script>
+
 <table width="100%">
 	<thead>
 		<tr class="gradient">
 			<th width="15%"><spring:message code="diagnosiscapturerwanda.primaryDiagnosis"/></th>
-			<th width="30%"><spring:message code="diagnosiscapturerwanda.diagnosis"/></th>
-			<th width="35%"><spring:message code="diagnosiscapturerwanda.otherDiagnosis"/></th>
-			<th width="20%"><spring:message code="diagnosiscapturerwanda.confirmedSusptected"/></th>
+			<th width="45%"><spring:message code="diagnosiscapturerwanda.diagnosis"/></th>
+			<th width="30%"><spring:message code="diagnosiscapturerwanda.confirmedSusptected"/></th>
+			<th width="10%"></th>
 		</tr>
 	</thead>
 		
@@ -34,13 +54,14 @@
 						</c:forEach>
 						<c:if test="${!empty diagnosis || !empty diagnosisText }">
 							<tr id="diagnosisRow_${enc.encounterId}">
-								<td> &nbsp;&nbsp; <img src='<%= request.getContextPath() %>/images/checkmark.png' alt="X"/> </td>
-								<td><c:if test="${!empty diagnosis}"><openmrs:format concept="${diagnosis.valueCoded}"/></c:if></td>
-								<td><c:if test="${!empty diagnosisText}">${diagnosisText.valueText}</c:if></td>
+								<td align="center"><img src='<%= request.getContextPath() %>/images/checkmark.png' alt="X"/> </td>
+								<td><c:if test="${!empty diagnosis}"><openmrs:format concept="${diagnosis.valueCoded}"/></c:if>
+									<c:if test="${!empty diagnosisText}"><i>${diagnosisText.valueText}</i></c:if>
+								</td>
 								<td><c:if test="${!empty confirmedSusptected}"><openmrs:format concept="${confirmedSusptected.valueCoded}" withConceptNameType="SHORT"/></c:if></td>
-								<td>
-									&nbsp; <a href="#" onclick="editDiagnosis(${obs.id},'diagnosis',${visit.patient.id},${visit.id});"><img src='<%= request.getContextPath() %>/images/edit.gif' alt="edit"/></a>
-									&nbsp; <a href="#" onclick="deleteDiagnosis(${obs.id});"><img src='<%= request.getContextPath() %>/images/delete.gif' alt="delete" /></a>
+								<td align="center">
+									<a href="#" onclick="editDiagnosis(${obs.id});"><img src='<%= request.getContextPath() %>/images/edit.gif' alt="edit"/></a>
+									<a href="#" onclick="deleteDiagnosis(${obs.id});"><img src='<%= request.getContextPath() %>/images/delete.gif' alt="delete" /></a>
 								</td>
 							</tr>
 						</c:if>
@@ -70,13 +91,14 @@
 						</c:forEach>
 						<c:if test="${!empty diagnosis || !empty diagnosisText }">
 							<tr id="diagnosisRow_${encTmp.encounterId}">
-								<td> &nbsp; </td>
-								<td><c:if test="${!empty diagnosis}"><openmrs:format concept="${diagnosis.valueCoded}"/></c:if></td>
-								<td><c:if test="${!empty diagnosisText}">${diagnosisText.valueText}</c:if></td>
+								<td></td>
+								<td><c:if test="${!empty diagnosis}"><openmrs:format concept="${diagnosis.valueCoded}"/></c:if>
+									<c:if test="${!empty diagnosisText}"><i>${diagnosisText.valueText}</i></c:if>
+								</td>
 								<td><c:if test="${!empty confirmedSusptected}"><openmrs:format concept="${confirmedSusptected.valueCoded}" withConceptNameType="SHORT"/></c:if></td>
-								<td> 
-									&nbsp; <a href="#" onclick="editDiagnosis(${obs.id}, 'diagnosis',${visit.patient.id},${visit.id});"><img src='<%= request.getContextPath() %>/images/edit.gif' alt="edit"/></a>
-									&nbsp; <a href="#" onclick="deleteDiagnosis(${obs.id});"><img src='<%= request.getContextPath() %>/images/delete.gif' alt="delete" /></a>
+								<td align="center"> 
+									 <a href="#" onclick="editDiagnosis(${obs.id});"><img src='<%= request.getContextPath() %>/images/edit.gif' alt="edit"/></a>
+									 <a href="#" onclick="deleteDiagnosis(${obs.id});"><img src='<%= request.getContextPath() %>/images/delete.gif' alt="delete" /></a>
 								</td>
 							</tr>
 						</c:if>
@@ -89,3 +111,34 @@
 			<tr><td colspan="3"><spring:message code="diagnosiscapturerwanda.noDiagnosesInThisVisit"/></td></tr>
 		</c:if>
 	</table>
+</div>	
+
+<div id="editDiagnosisDialog">	
+	<div class="box">
+	<div id="openmrs_error" class="openmrs_error"></div>
+		<form id="editDiagnosisForm" name="editDiagnosisForm" method="post">
+			<input type="hidden" id="obsGroupId" name="hiddenObsGroupId" value="-1"/>
+			<input type="hidden" id="editDiagnosisId" name="diagnosisId" value="-1" />
+			<input type="hidden" id="diagnosisOtherTextArea" name="diagnosisOther" />
+			<input type="hidden" name="hiddenVisitId" value="${visit.id}" />
+			<table>
+				<tr>
+					<td>
+						<spring:message code="diagnosiscapturerwanda.primarySecondary"/>:
+						<select name="primary_secondary" id="primarySecondarySelect">
+							<option value="0" SELECTED><spring:message code="diagnosiscapturerwanda.primary"/></option>
+							<option value="1"><spring:message code="diagnosiscapturerwanda.secondary"/></option>
+						</select>
+					</td>
+					<td>
+						<spring:message code="diagnosiscapturerwanda.confirmedSusptected"/>: 
+						<select name="confirmed_suspected" id="confirmedSuspectedSelect">
+							<option value="${concept_confirmed.id}"><spring:message code="diagnosiscapturerwanda.confirmed"/></option>
+							<option value="${concept_suspected.id}" SELECTED><spring:message code="diagnosiscapturerwanda.suspected"/></option>
+						</select>
+					</td>
+				</tr>
+			</table>
+		</form>
+	</div>
+</div>

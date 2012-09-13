@@ -19,6 +19,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.StringTokenizer;
 
 import javax.servlet.http.HttpSession;
@@ -26,6 +27,7 @@ import javax.servlet.http.HttpSession;
 import org.openmrs.Concept;
 import org.openmrs.ConceptName;
 import org.openmrs.ConceptNumeric;
+import org.openmrs.ConceptSearchResult;
 import org.openmrs.Encounter;
 import org.openmrs.EncounterType;
 import org.openmrs.Location;
@@ -81,43 +83,29 @@ public class DiagnosisUtil {
 	public static String convertToJSONAutoComplete(List<Concept> cList){
 		BasicUiUtils bu = new BasicUiUtils();
 		List<AutoCompleteObj> ret = new ArrayList<AutoCompleteObj>();
+		Locale currentLocale = Context.getLocale();
 		if (cList != null){
 			for (Concept c: cList){
 				for(ConceptName cn: c.getNames())
 				{
 					AutoCompleteObj o = new AutoCompleteObj();
 					o.setValue(c.getConceptId());
-					o.setLabel(cn.getName());
+					
+					if(cn.getLocale().equals(currentLocale))
+					{
+						o.setLabel(cn.getName());
+					}
+					else
+					{
+						String label = cn.getName() + "=>" + c.getName(currentLocale);
+						o.setLabel(label);
+					}
+					
 					ret.add(o);
 				}
 			}
 		}
 		return bu.toJson(ret);
-	}
-	
-	/**
-	 * helper class for the autocomplete json function...
-	 * @author dthomas
-	 *
-	 */
-	public static class AutoCompleteObj {
-		
-		private String label;
-		private Integer value;
-		
-		public String getLabel() {
-			return label;
-		}
-		public void setLabel(String label) {
-			this.label = label;
-		}
-		public Integer getValue() {
-			return value;
-		}
-		public void setValue(Integer value) {
-			this.value = value;
-		}
-		
 	}
 	
 	/*
@@ -495,5 +483,70 @@ public class DiagnosisUtil {
     	});
     	return eList.get(eList.size()-1);
     }
+
+	/**
+     * Auto generated method comment
+     * 
+     * @param diagnosisConcepts
+     * @return
+     */
+    public static List<ConceptName> convertToAutoComplete(List<ConceptSearchResult> diagnosisConcepts) {
+    	BasicUiUtils bu = new BasicUiUtils();
+		List<ConceptName> ret = new ArrayList<ConceptName>();
+		if (diagnosisConcepts != null){
+			for (ConceptSearchResult c: diagnosisConcepts){
+				for(ConceptName cn: c.getConcept().getNames())
+				{
+					ret.add(cn);
+				}
+			}
+		}
+		
+		Collections.sort(ret, new Comparator<ConceptName>() {
+
+			@Override
+            public int compare(ConceptName o1, ConceptName o2) {
+	            return o1.getName().compareTo(o2.getName());
+            }
+			
+		});
+		return ret;
+    }
     
+    public static List<AutoCompleteObj> convertToAutoCompleteObj(List<ConceptSearchResult> diagnosisConcepts) {
+    	BasicUiUtils bu = new BasicUiUtils();
+    	List<AutoCompleteObj> ret = new ArrayList<AutoCompleteObj>();
+		Locale currentLocale = Context.getLocale();
+		if (diagnosisConcepts != null){
+			for (ConceptSearchResult c: diagnosisConcepts){
+				for(ConceptName cn: c.getConcept().getNames())
+				{
+					AutoCompleteObj o = new AutoCompleteObj();
+					o.setValue(c.getConcept().getConceptId());
+					
+					if(cn.getLocale().equals(currentLocale))
+					{
+						o.setLabel(cn.getName());
+					}
+					else
+					{
+						String label = cn.getName() + " => " + c.getConcept().getName(currentLocale);
+						o.setLabel(label);
+					}
+					
+					ret.add(o);
+				}
+			}
+		}
+		
+		Collections.sort(ret, new Comparator<AutoCompleteObj>() {
+
+			@Override
+            public int compare(AutoCompleteObj o1, AutoCompleteObj o2) {
+	            return o1.getLabel().compareTo(o2.getLabel());
+            }
+			
+		});
+		return ret;
+    }
 }

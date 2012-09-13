@@ -170,25 +170,12 @@
 	font-size: 1.0em;
 }
 
-button, button.blue { 
+button.blue { 
   background:url(images/btn_right_blue.png) right no-repeat; 
   font-size:0.9em; 
   line-height:60px;
   min-width:66px;
   margin: -4px;
-}
-button span, button.blue span { 
-  background:url(images/btn_left_blue.png) left no-repeat;
-  height:63px; 
-  line-height:63px;
-  color:#fff; 
-  margin-left: -4px;
-}
-
-button span {
-}
-
-button { 
   color: white;
   -moz-user-select:none;
   -moz-user-focus:disabled;
@@ -199,19 +186,25 @@ button {
   text-align:center; 
 }
 
-button span { 
+button.blue span { 
+  background:url(images/btn_left_blue.png) left no-repeat;
+  height:63px; 
+  line-height:63px;
+  color:#fff; 
+  margin-left: -4px;
   -moz-user-select:none;
   -moz-user-focus:disabled;
   position:relative; 
   display:block; 
   white-space:nowrap; 
-  padding:0 0 0 8px; 
+  padding:0 0 0 8px;
 }
 
-button:hover, button:hover.blue {
+
+button:hover.blue {
 	background:url(images/btn_right_hover_blue.png) right no-repeat; 
 }
-button:hover span, button:hover.blue span {
+button:hover.blue span {
 	background:url(images/btn_left_hover_blue.png) left no-repeat; 
 }
 
@@ -380,8 +373,14 @@ table.vitalsForm td {
     vertical-align: middle;
 }
 
-.plus {
-	float:
+.diagnosisSubmitSpan {
+	padding-bottom: 14px;
+	vertical-align: middle;
+}
+
+.openmrs_error {
+	background: url(images/error.gif) no-repeat center left;
+	background-color: lightpink;
 }
 
 

@@ -5,11 +5,10 @@
 /**
  * re-loads the page with a specific diagnosis obsGroup selected
  */
-function editDiagnosis(obsGroupId, type, patientId, visitId) {
-	if (type == 'findings')
-		document.location.href='findings.list?patientId=' + patientId + '&visitId=' + visitId + '&obsGroupId=' + obsGroupId; 
-	else	
-		document.location.href='diagnosisCapture.list?patientId=' + patientId + '&visitId=' + visitId + '&obsGroupId=' + obsGroupId; 
+function editDiagnosis(obsGroupId) {
+	
+	$j("#obsGroupId").val(obsGroupId);
+	$j('#editDiagnosisDialog').dialog('open');
 }
 
 /**
@@ -121,15 +120,73 @@ function ajaxLookup(item, restrictBySymptom){
 			$j("#spinner").hide();
 		});
 	}
-	
 }
 
+/**
+ * this checks to see if a primary diagnosis already exists
+ */
+function checkForPrimaryDiagnosis(id){
+	
+	$j.ajax({
+		  type: "POST",
+		  url: "checkPrimaryStatus.list",
+		  dataType: 'json',
+		  data: { "visitId": ${visit.visitId} },
+		  success: function(ret) {
+			    var json = $j.parseJSON(ret);
+			    if (json.result == 'true' ){
+			    	$j(id).html('<spring:message code="diagnosiscapturerwanda.onlyOnePrimaryDiagnosisError" />');
+					$j(id).show();
+					return false;
+			    } else {
+					return true;
+			 	}
+			  }
+	});
+}
+
+/**
+ * this determines if the submit button should be enabled for the diagnosis drop down box.
+ */
+function highlightSubmit(){
+	
+	$j("#diagnosisId").val($j("#diagnosisSelect").val());
+	
+	if($j("#diagnosisSelect").attr("selectedIndex") > 0)
+	{
+		$j("#conceptSearchSumbit").removeAttr("disabled");
+	}
+	else
+	{
+		$j("#conceptSearchSumbit").attr("disabled", "disabled");
+	}
+}
 
 
 /**
  * use this method to 'choose' the diagnosis from the ajax lookup or the icpc buttons
  */
 function setNewDiagnosis(diagnosisId, diagnosisName){
-	$j("#ajaxDiagnosisLookup").html(diagnosisName);
-	$j("#conceptId").val(diagnosisId);
+	$j("#diagnosisId").val(diagnosisId);
+	$j('#diagnosisDialog').dialog('open');
 }
+
+
+function sumbitOtherDiagnosis() {
+	
+	$j('#diagnosisOtherTextArea').val($j('#diagnosisOther').val());
+	
+	if($j('#primarySecondarySelectOther').attr("selectedIndex") == 0)
+	{
+		var submit = checkForPrimaryDiagnosis("#openmrs_error_other");
+		if(submit)
+		{
+			$j('#otherDiagnosisForm').submit();
+		}
+	}
+	else
+	{
+		$j('#otherDiagnosisForm').submit();
+	}
+}
+

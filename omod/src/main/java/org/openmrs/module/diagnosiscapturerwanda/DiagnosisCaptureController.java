@@ -107,6 +107,12 @@ public class DiagnosisCaptureController {
 		map.put("concept_infection", MetadataDictionary.CONCEPT_CLASSIFICATION_INFECTION);
 		map.put("concept_injury", MetadataDictionary.CONCEPT_CLASSIFICATION_INJURY);
 		map.put("concept_diagnosis", MetadataDictionary.CONCEPT_CLASSIFICATION_DIAGNOSIS);
+		
+		List<ConceptSearchResult> diagnosisConcepts = Context.getConceptService().getConcepts(null, Context.getAdministrationService().getAllowedLocales(), false, null, null, null, null, MetadataDictionary.CONCEPT_PRIMARY_CARE_DIAGNOSIS, null, null);
+		 
+		//map.put("diagnosisConcepts", DiagnosisUtil.convertToAutoComplete(diagnosisConcepts));
+		map.put("diagnosisConcepts", DiagnosisUtil.convertToAutoCompleteObj(diagnosisConcepts));
+		
 		return map;
     }
 	
@@ -128,13 +134,17 @@ public class DiagnosisCaptureController {
     		@RequestParam(value="diagnosisId") Integer diagnosisId,
     		@RequestParam(value="primary_secondary") Integer primarySecondary,
     		@RequestParam(value="confirmed_suspected") Integer confirmedSuspected,
-    		@RequestParam(value="diagnosisOther") String diagnosisOther,
+    		@RequestParam(required=false, value="diagnosisOther") String diagnosisOther,
+    		@RequestParam(value="visitToday", required=false) String visitToday,
     		HttpSession session, 
     		ModelMap map){
     	
     	Visit visit = Context.getVisitService().getVisit(visitId);
     	if (visit == null)
     		throw new RuntimeException("There is no visit for this patient on this day.  Please go to the diagnosis patient dashboard to figure out why...");
+    	
+    	
+    	map.put("visitToday", visitToday);
    
     	map.put("patient", visit.getPatient());
     	map.put("visit", visit);
@@ -176,15 +186,15 @@ public class DiagnosisCaptureController {
 				for (Obs o : oParent.getGroupMembers(false)){
 					//new diagnosis
 					Integer existingVal = o.getValueCoded()== null ? null : o.getValueCoded().getConceptId();
-					if (o.getConcept().equals(MetadataDictionary.CONCEPT_PRIMARY_CARE_DIAGNOSIS) && OpenmrsUtil.nullSafeEquals(diagnosisId, existingVal) == false){
-						o.setValueCoded(Context.getConceptService().getConcept(diagnosisId));
-						saveNeeded = true;
-					}
-					if (o.getConcept().equals(MetadataDictionary.CONCEPT_DIAGNOSIS_NON_CODED) && OpenmrsUtil.nullSafeEquals(diagnosisOther, o.getValueText()) == false){
-						o.setValueText(diagnosisOther);
-						saveNeeded = true;
-					}
-					existingVal = o.getValueCoded()== null ? null : o.getValueCoded().getConceptId();
+//					if (o.getConcept().equals(MetadataDictionary.CONCEPT_PRIMARY_CARE_DIAGNOSIS) && OpenmrsUtil.nullSafeEquals(diagnosisId, existingVal) == false){
+//						o.setValueCoded(Context.getConceptService().getConcept(diagnosisId));
+//						saveNeeded = true;
+//					}
+//					if (o.getConcept().equals(MetadataDictionary.CONCEPT_DIAGNOSIS_NON_CODED) && OpenmrsUtil.nullSafeEquals(diagnosisOther, o.getValueText()) == false){
+//						o.setValueText(diagnosisOther);
+//						saveNeeded = true;
+//					}
+//					existingVal = o.getValueCoded()== null ? null : o.getValueCoded().getConceptId();
 					if (o.getConcept().equals(MetadataDictionary.CONCEPT_DIAGNOSIS_CONFIRMED_SUSPECTED) && OpenmrsUtil.nullSafeEquals(confirmedSuspected, existingVal) == false){
 						o.setValueCoded(Context.getConceptService().getConcept(confirmedSuspected));
 						saveNeeded = true;
@@ -235,6 +245,7 @@ public class DiagnosisCaptureController {
     	return "redirect:/module/diagnosiscapturerwanda/diagnosisCapture.list?patientId=" + visit.getPatient().getPatientId() + "&visitId=" + visit.getVisitId();
     }
     
+    
     /**
      * validates diagnosis encounter creation.  there must be exactly one primary diagnosis.
      * doesn't add encounter to visit, if necessary
@@ -261,6 +272,51 @@ public class DiagnosisCaptureController {
     	if (remove)
     		visitEncs.remove(enc);
     	return (count <= 1? true : false);
+    }
+    
+    /**
+     * returns if the visit has already got one primary diagnosis
+     * @param v
+     * @return
+     */
+    private boolean hasOnePrimaryDiagnosis(Visit v){
+    	Set<Encounter> visitEncs = v.getEncounters();
+    	
+    	int count = 0;
+    	for (Encounter e : visitEncs){
+    		if (!e.isVoided() && e.getEncounterType().equals(MetadataDictionary.ENCOUNTER_TYPE_DIAGNOSIS)){
+    			for (Obs o : e.getObsAtTopLevel(false)){
+    				if (o.getConcept().equals(MetadataDictionary.CONCEPT_SET_PRIMARY_CARE_PRIMARY_DIAGNOSIS_CONSTRUCT))
+    					return true;
+    			}
+    		}
+    	}
+    	return false;
+    }
+    
+    /**
+     * the ajax method for checking to see if a primary diagnosis already exists
+     * @param visitId
+     * @param session, restrictBySymptoms, searchPharse
+     * @param model
+     * @return
+     */
+    @RequestMapping(value="/module/diagnosiscapturerwanda/checkPrimaryStatus", method=RequestMethod.POST)
+    public String getPrimaryStatusJSON(@RequestParam("visitId") Integer visitId,
+			HttpSession session, 
+			ModelMap model){
+    	
+    	Visit visit = Context.getVisitService().getVisit(visitId);
+    	
+    	if(hasOnePrimaryDiagnosis(visit))
+    	{
+    		model.put("json", DiagnosisUtil.convertToJSON("{\"result\":\"true\"}"));
+    	}
+    	else
+    	{
+    		model.put("json", DiagnosisUtil.convertToJSON("{\"result\":\"false\"}"));
+    	}
+    	return "/module/diagnosiscapturerwanda/jsonAjaxResponse";
     }
     
     /**
@@ -293,6 +349,7 @@ public class DiagnosisCaptureController {
     //to do this, you need the jsps to send obsGroupId, not encounterId
     @RequestMapping(value="/module/diagnosiscapturerwanda/deleteDiagnosis", method=RequestMethod.POST)
     public String deleteDiagnosis(@RequestParam("obsGroupId") Integer obsGroupId,
+                                  @RequestParam(value="visitToday", required=false) String visitToday,
 			HttpSession session, 
 			ModelMap model){
     	try {
@@ -304,6 +361,7 @@ public class DiagnosisCaptureController {
     		model.put("json", DiagnosisUtil.convertToJSON("{\"result\":\"failed\"}"));
     		ex.printStackTrace();
     	}
+    	model.put("visitToday", visitToday);
     	return "/module/diagnosiscapturerwanda/jsonAjaxResponse";
     }
     
