@@ -591,4 +591,26 @@ public class DiagnosisUtil {
 		});
 		return ret;
     }
+    
+    public static List<AutoCompleteObj> getCategories(){
+    	
+    	List<AutoCompleteObj> categories = new ArrayList<AutoCompleteObj>();
+    	
+    	Concept concept = MetadataDictionary.CONCEPT_SET_ICPC_DIAGNOSIS_GROUPING_CATEGORIES;
+    	
+    	for(Concept c: concept.getSetMembers())
+    	{
+    		AutoCompleteObj obj = new AutoCompleteObj();
+    		obj.setValue(c.getConceptId());
+    		
+    		ConceptName cn = c.getShortNameInLanguage(Context.getLocale().getLanguage());
+    		if(cn == null)
+    		{
+    			cn = c.getName();
+    		}
+    		obj.setLabel(cn.getName());
+    		categories.add(obj);
+    	}
+    	return categories;
+    }
 }

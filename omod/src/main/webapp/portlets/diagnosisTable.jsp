@@ -28,11 +28,7 @@ function sumbitEditDiagnosis() {
 			jQuery("#editDiagnosisForm").submit();
 		}
 		else {
-			var submit = checkForPrimaryDiagnosis("#openmrs_error_edit");
-			if(submit)
-			{
-				jQuery("#editDiagnosisForm").submit();
-			}
+			checkForPrimaryDiagnosis("#openmrs_error_edit", "#editDiagnosisForm");
 		}
 	}
 	else

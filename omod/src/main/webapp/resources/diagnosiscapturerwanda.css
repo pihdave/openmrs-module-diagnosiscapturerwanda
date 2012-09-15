@@ -382,4 +382,23 @@ table.vitalsForm td {
 	background-color: lightpink;
 }
 
+.regimenPortletFuture div.boxHeader {
+	background-color: #8FABC7;
+	border: 1px solid #8FABC7;
+}
+
+.regimenPortletFuture div.box {
+	border: 1px solid #8FABC7;
+}
+
+.regimenPortletCurrent div.boxHeader  {
+	background-color: #1AAC9B;
+	border: 1px solid #1AAC9B;
+}
+
+.regimenPortletCurrent div.box {
+	border: 1px solid #1AAC9B;
+}
+
+
 

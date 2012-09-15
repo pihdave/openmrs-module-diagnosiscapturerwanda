@@ -109,9 +109,9 @@ jQuery(document).ready(function() {
 			<table width="100%">
 				<tr>	
 					<td width="33%" valign="top">
-					<c:forEach items="${concept_set_body_system.setMembers}" var="member" varStatus="status">
-						<input type="button" onClick="filterByCategory(${member.id}, false)" class="ICPCButtonClass" id="${member.id}" value="${member.name}"/>
-						<div class="conceptCategory" id="conceptCategory${member.id}"></div>
+					<c:forEach items="${concept_set_body_system}" var="member" varStatus="status">
+						<input type="button" onClick="filterByCategory(${member.value}, false)" class="ICPCButtonClass" id="${member.value}" value="${member.label}"/>
+						<div class="conceptCategory" id="conceptCategory${member.value}"></div>
 						<c:if test="${status.index == 6 || status.index == 13}"></td><td width="33%" valign="top"></c:if>	
 					</c:forEach> 
 					</td>

@@ -151,7 +151,7 @@ function ajaxLookup(item, restrictBySymptom){
 /**
  * this checks to see if a primary diagnosis already exists
  */
-function checkForPrimaryDiagnosis(id){
+function checkForPrimaryDiagnosis(id, form){
 	
 	$j.ajax({
 		  type: "POST",
@@ -163,9 +163,8 @@ function checkForPrimaryDiagnosis(id){
 			    if (json.result == 'true' ){
 			    	$j(id).html('<spring:message code="diagnosiscapturerwanda.onlyOnePrimaryDiagnosisError" />');
 					$j(id).show();
-					return false;
 			    } else {
-					return true;
+			    	$j(form).submit();
 			 	}
 			  }
 	});
@@ -226,15 +225,11 @@ function sumbitOtherDiagnosis() {
 	
 	if($j('#primarySecondarySelectOther').attr("selectedIndex") == 0)
 	{
-		var submit = checkForPrimaryDiagnosis("#openmrs_error_other");
-		if(submit)
-		{
-			$j('#diagnosisForm').submit();
-		}
+		checkForPrimaryDiagnosis("#openmrs_error_other", '#otherDiagnosisForm');
 	}
 	else
 	{
-		$j('#diagnosisForm').submit();
+		$j('#otherDiagnosisForm').submit();
 	}
 }
 
@@ -242,11 +237,7 @@ function submitDiagnosis(){
 	
 	if($j('#primarySecondarySelect').attr("selectedIndex") == 0)
 	{
-		var submit = checkForPrimaryDiagnosis("#openmrs_error");
-		if(submit)
-		{
-			$j('#diagnosisForm').submit();
-		}
+		checkForPrimaryDiagnosis("#openmrs_error", '#diagnosisForm');
 	}
 	else
 	{

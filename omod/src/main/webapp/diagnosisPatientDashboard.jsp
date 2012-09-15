@@ -235,7 +235,7 @@
 					
 					<td class="dashboardInput">	
 						<div class="inputButton">
-							<input type="button" onclick="document.location='./treatment.form?visitId=${visit.visitId}&patientId=${patient.patientId}'" value='<spring:message code="diagnosiscapturerwanda.changeTreatment"/>'/>
+							<input type="button" onclick="document.location='./treatment.form?visitId=${visit.visitId}&visitToday=${visitToday}&patientId=${patient.patientId}'" value='<spring:message code="diagnosiscapturerwanda.changeTreatment"/>'/>
 						</div>	
 					</td>
 				</tr>	

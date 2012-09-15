@@ -29,6 +29,7 @@ import org.openmrs.Patient;
 import org.openmrs.Visit;
 import org.openmrs.api.ObsService;
 import org.openmrs.api.context.Context;
+import org.openmrs.module.diagnosiscapturerwanda.util.AutoCompleteObj;
 import org.openmrs.module.diagnosiscapturerwanda.util.DiagnosisUtil;
 import org.openmrs.util.OpenmrsUtil;
 import org.springframework.stereotype.Controller;
@@ -99,7 +100,7 @@ public class DiagnosisCaptureController {
 		map.put("concept_diagnosis_other", MetadataDictionary.CONCEPT_DIAGNOSIS_NON_CODED);
 		map.put("concept_confirmed", MetadataDictionary.CONCEPT_CONFIRMED);
 		map.put("concept_suspected", MetadataDictionary.CONCEPT_SUSPTECTED);
-		map.put("concept_set_body_system", MetadataDictionary.CONCEPT_SET_ICPC_DIAGNOSIS_GROUPING_CATEGORIES);
+		map.put("concept_set_body_system", DiagnosisUtil.getCategories());
 		map.put("concept_set_diagnosis_classification", MetadataDictionary.CONCEPT_SET_ICPC_SYMPTOM_INFECTION_INJURY_DIAGNOSIS);
 		map.put("encounter_type_diagnosis", MetadataDictionary.ENCOUNTER_TYPE_DIAGNOSIS);
 		map.put("encounter_type_findings", MetadataDictionary.ENCOUNTER_TYPE_FINDINGS);
@@ -406,4 +407,5 @@ public class DiagnosisCaptureController {
     		
     		return enc;
     }
+
 }

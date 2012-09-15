@@ -95,7 +95,7 @@ public class FindingsController {
 		map.put("concept_diagnosis_other", MetadataDictionary.CONCEPT_DIAGNOSIS_NON_CODED);
 		map.put("concept_confirmed", MetadataDictionary.CONCEPT_CONFIRMED);
 		map.put("concept_suspected", MetadataDictionary.CONCEPT_SUSPTECTED);
-		map.put("concept_set_body_system", MetadataDictionary.CONCEPT_SET_ICPC_DIAGNOSIS_GROUPING_CATEGORIES);
+		map.put("concept_set_body_system", DiagnosisUtil.getCategories());
 		map.put("concept_set_diagnosis_classification", MetadataDictionary.CONCEPT_SET_ICPC_SYMPTOM_INFECTION_INJURY_DIAGNOSIS);
 		map.put("concept_symptom", MetadataDictionary.CONCEPT_CLASSIFICATION_SYMPTOM);
 		map.put("concept_infection", MetadataDictionary.CONCEPT_CLASSIFICATION_INFECTION);
