@@ -243,7 +243,9 @@
 		</div>
 	</div>		
 	<br/>
-	
+	<c:if test="${!empty todaysVisit }">
+		<div id="todaysVisitReturn"><input type="button" onclick="javascript:document.location.href='diagnosisPatientDashboard.list?patientId=${todaysVisit.patient.id}&visitId=${todaysVisit.id}'" value='<spring:message code="diagnosiscapturerwanda.returnToTodaysVisit"/>'/></div>
+	</c:if>
 	<div class="pastVisit">
 		<div class="boxHeader"><spring:message code="diagnosiscapturerwanda.previousVisits"/></div>
 		<div id="vitalsDiv" class="box">

@@ -85,7 +85,16 @@ public class DiagnosisPatientDashboardController {
 		List<Visit> v = new ArrayList<Visit>(); //trim visits to only outpatient
 		for (Visit vTmp : vListAll){
 			if (vTmp.getVisitType().equals(MetadataDictionary.VISIT_TYPE_OUTPATIENT))
-				v.add(vTmp);
+			{
+				if(calculateDaysDifference(vTmp.getStartDatetime()) == 0)
+				{
+					map.put("todaysVisit", vTmp);
+				}
+				else
+				{
+					v.add(vTmp);
+				}
+			}
 		}
 		
 		//redirect to patient dashboard and show previous visits if 

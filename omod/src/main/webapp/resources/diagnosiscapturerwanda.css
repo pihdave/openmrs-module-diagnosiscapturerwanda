@@ -404,4 +404,9 @@ table.vitalsForm td {
 	float: right;
 }
 
+#todaysVisitReturn {
+	margin-top: -10px;
+	margin-bottom: 6px;
+}
+
 

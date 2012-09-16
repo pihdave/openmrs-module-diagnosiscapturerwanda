@@ -663,12 +663,12 @@ public class DiagnosisUtil {
     				{
     					for(Obs go: o.getGroupMembers())
     					{
-    						if(go.getConcept().equals(MetadataDictionary.CONCEPT_PRIMARY_CARE_DIAGNOSIS))
+    						if(go.getConcept().equals(MetadataDictionary.CONCEPT_PRIMARY_CARE_DIAGNOSIS) && go.getValueCoded() != null)
     						{
     							pojo.setDiagnosis(go.getValueCoded().getDisplayString());
     							break;
     						}
-    						if(go.getConcept().equals(MetadataDictionary.CONCEPT_DIAGNOSIS_NON_CODED))
+    						if(go.getConcept().equals(MetadataDictionary.CONCEPT_DIAGNOSIS_NON_CODED) && go.getValueText() != null && !go.getValueText().equals(""))
     						{
     							pojo.setDiagnosis(go.getValueText());
     							break;
