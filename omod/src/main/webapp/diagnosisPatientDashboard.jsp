@@ -247,14 +247,30 @@
 	<div class="pastVisit">
 		<div class="boxHeader"><spring:message code="diagnosiscapturerwanda.previousVisits"/></div>
 		<div id="vitalsDiv" class="box">
-			<table>
-				<tr>
-					<th class="gradient"><spring:message code="diagnosiscapturerwanda.visitDate"/></th>
-				</tr>
+			<table class="dashboardTable">
+				<thead>
+					<tr class="gradient">
+						<th width="20%"><spring:message code="diagnosiscapturerwanda.visitDate"/></th>
+						<th width="20%"><spring:message code="diagnosiscapturerwanda.provider"/></th>
+						<th width="25%"><spring:message code="diagnosiscapturerwanda.location"/></th>
+						<th width="25%"><spring:message code="diagnosiscapturerwanda.diagnosis"/></th>
+						<th width="10%"></th>
+					</tr>
+				</thead>
 				<c:forEach items="${visitList}" var="otherVisit">
-				<tr><td>
-					<a href="#" onclick="javascript:document.location.href='diagnosisPatientDashboard.list?patientId=${otherVisit.patient.id}&visitId=${otherVisit.id}'"><openmrs:formatDate date="${otherVisit.startDatetime}" type="short" />  :  ${visit.location}</a>
-				</td></tr>	
+				<tr>
+					<td><openmrs:formatDate date="${otherVisit.date}" type="short" />
+					</td>
+					<td><c:out value="${otherVisit.provider }"/>
+					</td>
+					<td><c:out value="${otherVisit.location }"/>
+					</td>
+					<td><c:out value="${otherVisit.diagnosis }"/>
+					</td>
+					<td>
+						<input type="button" onclick="javascript:document.location.href='diagnosisPatientDashboard.list?patientId=${otherVisit.patient.id}&visitId=${otherVisit.id}'" value='<spring:message code="diagnosiscapturerwanda.viewEdit"/>'/>
+					</td>
+				</tr>	
 				</c:forEach>
 			</table>
 		</div>

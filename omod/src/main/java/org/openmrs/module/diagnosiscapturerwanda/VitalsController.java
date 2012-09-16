@@ -146,7 +146,7 @@ public class VitalsController {
         encounter.setVisit(visit);
         Context.getEncounterService().saveEncounter(encounter);
 
-        return "redirect:/module/diagnosiscapturerwanda/diagnosisPatientDashboard.list?patientId=" + visit.getPatient().getPatientId();
+        return "redirect:/module/diagnosiscapturerwanda/diagnosisPatientDashboard.list?patientId=" + visit.getPatient().getPatientId() + "&visitId=" + visit.getId();
     }
 
     public class VitalsCommand {

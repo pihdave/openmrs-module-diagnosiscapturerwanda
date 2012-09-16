@@ -114,7 +114,7 @@ public class DiagnosisPatientDashboardController {
 				}
 			}
 		}
-		map.put("visitList", v);
+		map.put("visitList", DiagnosisUtil.getVisitPOJO(v));
 		
 		map.put("visit", visit);
 		if(visit != null && calculateDaysDifference(visit.getStartDatetime()) == 0)
@@ -159,11 +159,7 @@ public class DiagnosisPatientDashboardController {
 		
 		
 		//treatment
-		
-		
-		
-		
-		
+
 		//remove from queue
 		if (registrationEnc != null)
 			Context.getService(DiagnosisCaptureQueueService.class).selectQueueObjectByEncounterUuid(registrationEnc.getUuid());
