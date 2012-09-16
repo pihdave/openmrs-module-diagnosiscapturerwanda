@@ -400,5 +400,8 @@ table.vitalsForm td {
 	border: 1px solid #1AAC9B;
 }
 
+#legend {
+	float: right;
+}
 
 

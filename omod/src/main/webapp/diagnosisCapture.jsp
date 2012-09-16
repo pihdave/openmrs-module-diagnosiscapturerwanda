@@ -104,8 +104,14 @@ jQuery(document).ready(function() {
 		<span class="diagnosisSubmitSpan"><input id="conceptSearchSumbit" class="genericButton" type="submit" value='<spring:message code="diagnosiscapturerwanda.submit"/>'/></span>
 		</div>
 		<br/>
+		<div id="legend">
+		     <span> <span class='symptom_color'>&nbsp;&nbsp&nbsp;&nbsp</span> <spring:message code='diagnosiscapturerwanda.symptom'/> </span>
+		    <span> <span class='infection_color'>&nbsp;&nbsp&nbsp;&nbsp</span> <spring:message code='diagnosiscapturerwanda.infection'/> </span>
+			<span> <span class='injury_color'>&nbsp;&nbsp&nbsp;&nbsp</span> <spring:message code='diagnosiscapturerwanda.injury'/>  </span>
+			<span> <span class='diagnosis_color'>&nbsp;&nbsp&nbsp;&nbsp</span> <spring:message code='diagnosiscapturerwanda.diagnosis'/> </span></div>
 		<div><strong><spring:message code="diagnosiscapturerwanda.orDiagnosisLookupBy"/>:</strong></div>
 		<div>
+			
 			<table width="100%">
 				<tr>	
 					<td width="33%" valign="top">
