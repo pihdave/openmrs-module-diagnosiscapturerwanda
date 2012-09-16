@@ -20,6 +20,8 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
 import java.util.StringTokenizer;
 
 import javax.servlet.http.HttpSession;
@@ -29,6 +31,7 @@ import org.openmrs.ConceptName;
 import org.openmrs.ConceptNumeric;
 import org.openmrs.ConceptSearchResult;
 import org.openmrs.Encounter;
+import org.openmrs.EncounterRole;
 import org.openmrs.EncounterType;
 import org.openmrs.Location;
 import org.openmrs.Obs;
@@ -36,6 +39,7 @@ import org.openmrs.OpenmrsObject;
 import org.openmrs.Order;
 import org.openmrs.OrderType;
 import org.openmrs.Patient;
+import org.openmrs.Provider;
 import org.openmrs.Visit;
 import org.openmrs.api.AdministrationService;
 import org.openmrs.api.ConceptService;
@@ -612,5 +616,70 @@ public class DiagnosisUtil {
     		categories.add(obj);
     	}
     	return categories;
+    }
+
+	/**
+     * Auto generated method comment
+     * 
+     * @param v
+     * @return
+     */
+    public static List<VisitPOJO> getVisitPOJO(List<Visit> v) {
+	    
+    	List<VisitPOJO> visits = new ArrayList<VisitPOJO>();
+    	for(Visit visit: v)
+    	{
+    		VisitPOJO pojo = new VisitPOJO();
+    		pojo.setDate(visit.getStartDatetime());
+    		pojo.setLocation(visit.getLocation().getName());
+    		pojo.setPatient(visit.getPatient());
+    		pojo.setId(visit.getId());
+    		
+    		Set<Encounter> encounters = visit.getEncounters();
+    		Encounter diagnosis = null;
+    		for(Encounter e: encounters)
+    		{
+    			if(e.getEncounterType().equals(MetadataDictionary.ENCOUNTER_TYPE_DIAGNOSIS))
+    			{
+    				diagnosis = e;
+    				break;
+    			}	
+    		}
+    		
+    		if(diagnosis != null)
+    		{
+    			Map<EncounterRole, Set<Provider>> providers = diagnosis.getProvidersByRoles();
+    			for(EncounterRole er: providers.keySet())
+    			{
+    				for(Provider p: providers.get(er))
+    				{
+    					pojo.setProvider(p.getName());
+    				}
+    			}
+    			
+    			for(Obs o: diagnosis.getAllObs())
+    			{
+    				if(o.getConcept().equals(MetadataDictionary.CONCEPT_SET_PRIMARY_CARE_PRIMARY_DIAGNOSIS_CONSTRUCT))
+    				{
+    					for(Obs go: o.getGroupMembers())
+    					{
+    						if(go.getConcept().equals(MetadataDictionary.CONCEPT_PRIMARY_CARE_DIAGNOSIS))
+    						{
+    							pojo.setDiagnosis(go.getValueCoded().getDisplayString());
+    							break;
+    						}
+    						if(go.getConcept().equals(MetadataDictionary.CONCEPT_DIAGNOSIS_NON_CODED))
+    						{
+    							pojo.setDiagnosis(go.getValueText());
+    							break;
+    						}
+    					}
+    				}
+    			}
+    		}
+    		visits.add(pojo);
+    	}
+    	
+    	return visits;
     }
 }
