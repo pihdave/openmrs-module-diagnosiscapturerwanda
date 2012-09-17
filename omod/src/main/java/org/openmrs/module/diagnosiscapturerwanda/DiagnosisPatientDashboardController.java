@@ -100,7 +100,7 @@ public class DiagnosisPatientDashboardController {
 		//redirect to patient dashboard and show previous visits if 
 		if(visit == null)
 		{
-			int backEntryLimit = Integer.parseInt(Context.getAdministrationService().getGlobalProperty("diagnosisCaptureRwanda.backEntryLimit"));
+			int backEntryLimit = Integer.parseInt(Context.getAdministrationService().getGlobalProperty("registration.backEntryLimit"));
 			if(backEntryLimit > 0)
 			{
 				

@@ -119,13 +119,6 @@ CONCEPT_FINDINGS=36ac5020-30ab-476b-b94b-3e7b905e22c4
 		<description>This should be the url pointing to the search patient by name screen in the registration system or other module.  Start with module name, for example: module/rwandaprimarycare/findPatientByName.form</description>	
 	</globalProperty>
 	
-	<globalProperty>
-	    <property>diagnosisCaptureRwanda.backEntryLimit</property>
-	    <defaultValue>14</defaultValue>
-		<description>The number of days after a visit when it will show up on the patient dashboard to allow back entry</description>	
-	</globalProperty>
-
-
 	<advice>
 		<point>org.openmrs.api.EncounterService</point>
 		<class>org.openmrs.module.diagnosiscapturerwanda.queue.advice.QueueEncounterInterceptor</class>
