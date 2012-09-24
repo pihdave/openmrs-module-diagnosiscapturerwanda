@@ -50,7 +50,7 @@
 					var notFound = true;
 					for(var r in results) {
 						notFound = false;
-						if (results.length == 1 && results[r].identifier == lastSearch) {
+						if (results.length == 1) {
 							document.location = "${model.postURL}?patientId=" + results[r].patientId + "&phrase=" + lastSearch;
 						} 
 						else {
@@ -73,7 +73,11 @@
 				//searchHandler for the Search widget
 				function doPatientSearch(text, resultHandler, getMatchCount, opts) {
 					lastSearch = text;
-					DWRPatientService.findCountAndPatients(text, opts.start, opts.length, getMatchCount, resultHandler);
+					
+					if(text.length > 9)
+					{	
+						DWRPatientService.findCountAndPatients(text, opts.start, opts.length, getMatchCount, resultHandler);
+					}
 				}
 
 			</script>

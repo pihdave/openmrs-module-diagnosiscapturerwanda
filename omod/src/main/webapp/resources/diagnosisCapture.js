@@ -81,8 +81,8 @@ function filterByCategory(id, restrictBySymptom){
 			
 			 if (!restrictBySymptom){
 				 $j.each(json, function(item) {
-				 	 if (json[item].category == _symptom){
-				 		 ret+="<input type='button' class='symptom' onclick=\"javascript: setNewDiagnosis(" + json[item].id + ", \'" + json[item].name + "\');\"  value='" + json[item].name + "'/><br/>";
+					 if (json[item].category == _symptom){
+				 		 ret+="<input type='button' class='symptom' onclick=\"javascript: setNewDiagnosis(" + json[item].id + ", \'" + json[item].name + "\');\"  value=" + json[item].name + "'/><br/>";
 				 	 }
 			     });
 				 //	 ret+="</td><td>";

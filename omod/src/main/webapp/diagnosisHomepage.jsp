@@ -71,6 +71,13 @@
 	<br/>
 </c:if>
 
+<c:if test="${!empty noVisits}">
+	<div class="error" id="searchErrorRecent">
+		<spring:message code="diagnosiscapturerwanda.identifierError" />
+	</div>
+	<br/>
+</c:if>
+
 
 <table id="registrationTable">
 	<tr>

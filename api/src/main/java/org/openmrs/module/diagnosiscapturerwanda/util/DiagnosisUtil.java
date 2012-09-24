@@ -26,6 +26,7 @@ import java.util.StringTokenizer;
 
 import javax.servlet.http.HttpSession;
 
+import org.apache.commons.lang.WordUtils;
 import org.openmrs.Concept;
 import org.openmrs.ConceptName;
 import org.openmrs.ConceptNumeric;
@@ -316,62 +317,79 @@ public class DiagnosisUtil {
     /**
      * calculate BMI.  Ripped directly out of default openmrs portlet controller
      */
-	public static String bmiAsString(Patient p){
-		AdministrationService as = Context.getAdministrationService();
-		ConceptService cs = Context.getConceptService();
-		List<Obs> patientObs = Context.getObsService().getObservationsByPerson(p);
-		Obs latestWeight = null;
-		Obs latestHeight = null;
+	public static String bmiAsString(Patient p, Visit visit){
+		
 		String bmiAsString = "?";
-		try {
-			String weightString = as.getGlobalProperty("concept.weight");
-			ConceptNumeric weightConcept = null;
-			if (StringUtils.hasLength(weightString))
-				weightConcept = cs.getConceptNumeric(cs.getConcept(Integer.valueOf(weightString))
-				        .getConceptId());
-			String heightString = as.getGlobalProperty("concept.height");
-			ConceptNumeric heightConcept = null;
-			if (StringUtils.hasLength(heightString))
-				heightConcept = cs.getConceptNumeric(cs.getConcept(Integer.valueOf(heightString))
-				        .getConceptId());
-			for (Obs obs : patientObs) {
-				if (obs.getConcept().equals(weightConcept)) {
-					if (latestWeight == null
-					        || obs.getObsDatetime().compareTo(latestWeight.getObsDatetime()) > 0)
-						latestWeight = obs;
-				} else if (obs.getConcept().equals(heightConcept)) {
-					if (latestHeight == null
-					        || obs.getObsDatetime().compareTo(latestHeight.getObsDatetime()) > 0)
-						latestHeight = obs;
+		
+		if(visit != null)
+		{
+			Date[] visitDates = DiagnosisUtil.getStartAndEndOfDay(visit.getStartDatetime());
+			Date[] visitDatesStop = DiagnosisUtil.getStartAndEndOfDay(visit.getStopDatetime());
+			
+			AdministrationService as = Context.getAdministrationService();
+			ConceptService cs = Context.getConceptService();
+			List<Obs> patientObs = Context.getObsService().getObservationsByPerson(p);
+			Obs latestWeight = null;
+			Obs latestHeight = null;
+			
+			try {
+				String weightString = as.getGlobalProperty("concept.weight");
+				ConceptNumeric weightConcept = null;
+				if (StringUtils.hasLength(weightString))
+					weightConcept = cs.getConceptNumeric(cs.getConcept(Integer.valueOf(weightString))
+					        .getConceptId());
+				String heightString = as.getGlobalProperty("concept.height");
+				ConceptNumeric heightConcept = null;
+				if (StringUtils.hasLength(heightString))
+					heightConcept = cs.getConceptNumeric(cs.getConcept(Integer.valueOf(heightString))
+					        .getConceptId());
+				for (Obs obs : patientObs) {
+					if (obs.getConcept().equals(weightConcept)) {
+						if((obs.getObsDatetime().after(visitDates[0]) && obs.getObsDatetime().before(visitDatesStop[1])) || obs.getObsDatetime().compareTo(visitDates[0]) == 0 || obs.getObsDatetime().compareTo(visitDatesStop[0]) == 0)
+						{
+							latestWeight = obs;
+						}
+					} else if (obs.getConcept().equals(heightConcept)) {
+						if(p.getAge(visit.getStartDatetime()) > 15)
+						{
+							if (latestHeight == null
+							        || obs.getObsDatetime().compareTo(latestHeight.getObsDatetime()) > 0 && p.getAge(obs.getObsDatetime()) > 15)
+								latestHeight = obs;
+						}
+						else if((obs.getObsDatetime().after(visitDates[0]) && obs.getObsDatetime().before(visitDatesStop[1])) || obs.getObsDatetime().compareTo(visitDates[0]) == 0 || obs.getObsDatetime().compareTo(visitDatesStop[0]) == 0)
+						{
+							latestHeight = obs;
+						}
+					}
+				}
+				if (latestWeight != null && latestHeight != null) {
+					double weightInKg;
+					double heightInM;
+					if (weightConcept.getUnits().equals("kg"))
+						weightInKg = latestWeight.getValueNumeric();
+					else if (weightConcept.getUnits().equals("lb"))
+						weightInKg = latestWeight.getValueNumeric() * 0.45359237;
+					else
+						throw new IllegalArgumentException("Can't handle units of weight concept: "
+						        + weightConcept.getUnits());
+					if (heightConcept.getUnits().equals("cm"))
+						heightInM = latestHeight.getValueNumeric() / 100;
+					else if (heightConcept.getUnits().equals("m"))
+						heightInM = latestHeight.getValueNumeric();
+					else if (heightConcept.getUnits().equals("in"))
+						heightInM = latestHeight.getValueNumeric() * 0.0254;
+					else
+						throw new IllegalArgumentException("Can't handle units of height concept: "
+						        + heightConcept.getUnits());
+					double bmi = weightInKg / (heightInM * heightInM);
+					String temp = "" + bmi;
+					bmiAsString = temp.substring(0, temp.indexOf('.') + 2);
 				}
 			}
-			if (latestWeight != null && latestHeight != null) {
-				double weightInKg;
-				double heightInM;
-				if (weightConcept.getUnits().equals("kg"))
-					weightInKg = latestWeight.getValueNumeric();
-				else if (weightConcept.getUnits().equals("lb"))
-					weightInKg = latestWeight.getValueNumeric() * 0.45359237;
-				else
-					throw new IllegalArgumentException("Can't handle units of weight concept: "
-					        + weightConcept.getUnits());
-				if (heightConcept.getUnits().equals("cm"))
-					heightInM = latestHeight.getValueNumeric() / 100;
-				else if (heightConcept.getUnits().equals("m"))
-					heightInM = latestHeight.getValueNumeric();
-				else if (heightConcept.getUnits().equals("in"))
-					heightInM = latestHeight.getValueNumeric() * 0.0254;
-				else
-					throw new IllegalArgumentException("Can't handle units of height concept: "
-					        + heightConcept.getUnits());
-				double bmi = weightInKg / (heightInM * heightInM);
-				String temp = "" + bmi;
-				bmiAsString = temp.substring(0, temp.indexOf('.') + 2);
+			catch (Exception ex) {
+				ex.printStackTrace();
+				return "";
 			}
-		}
-		catch (Exception ex) {
-			ex.printStackTrace();
-			return "";
 		}
 		return bmiAsString;
 	}
@@ -528,13 +546,13 @@ public class DiagnosisUtil {
 					AutoCompleteObj o = new AutoCompleteObj();
 					o.setValue(c.getConcept().getConceptId());
 					
-					if(cn.getLocale().equals(currentLocale))
+					if(cn.getName().equals(c.getConcept().getDisplayString()))
 					{
-						o.setLabel(cn.getName());
+						o.setLabel(WordUtils.capitalizeFully(cn.getName()));
 					}
 					else
 					{
-						String label = cn.getName() + "<span class='otherHit'>  &rArr; " + c.getConcept().getName(currentLocale) + "</span>";
+						String label = WordUtils.capitalizeFully(WordUtils.capitalizeFully(cn.getName())) + "<span class='otherHit'>  &rArr; " + WordUtils.capitalizeFully(c.getConcept().getDisplayString()) + "</span>";
 						o.setLabel(label);
 					}
 					
@@ -571,13 +589,13 @@ public class DiagnosisUtil {
 					AutoCompleteObj o = new AutoCompleteObj();
 					o.setValue(c.getConceptId());
 					
-					if(cn.getLocale().equals(currentLocale))
+					if(cn.getName().equals(c.getDisplayString()))
 					{
-						o.setLabel(cn.getName());
+						o.setLabel(WordUtils.capitalizeFully(cn.getName()));
 					}
 					else
 					{
-						String label = cn.getName() + "<span class='otherHit'>  &rArr; " + c.getName(currentLocale) + "</span>";
+						String label = WordUtils.capitalizeFully(cn.getName()) + "<span class='otherHit'>  &rArr; " + WordUtils.capitalizeFully(c.getDisplayString()) + "</span>";
 						o.setLabel(label);
 					}
 					
@@ -665,7 +683,7 @@ public class DiagnosisUtil {
     					{
     						if(go.getConcept().equals(MetadataDictionary.CONCEPT_PRIMARY_CARE_DIAGNOSIS) && go.getValueCoded() != null)
     						{
-    							pojo.setDiagnosis(go.getValueCoded().getDisplayString());
+    							pojo.setDiagnosis(WordUtils.capitalizeFully(go.getValueCoded().getDisplayString()));
     							break;
     						}
     						if(go.getConcept().equals(MetadataDictionary.CONCEPT_DIAGNOSIS_NON_CODED) && go.getValueText() != null && !go.getValueText().equals(""))

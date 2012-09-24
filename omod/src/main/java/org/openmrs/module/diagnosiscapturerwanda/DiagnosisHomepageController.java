@@ -58,7 +58,8 @@ public class DiagnosisHomepageController {
 	//TODO:
 	@RequestMapping(value="/module/diagnosiscapturerwanda/diagnosisHomepage",method=RequestMethod.GET)
     public void processHomePageGet(HttpSession session, ModelMap map,
-                                @RequestParam(required=false, value="visitIds") String visitIds){
+                                @RequestParam(required=false, value="visitIds") String visitIds,
+                                @RequestParam(required=false, value="noVisits") String noVisits){
 		
 		if(visitIds != null)
 		{
@@ -69,6 +70,10 @@ public class DiagnosisHomepageController {
 				recentVisits.add(Context.getVisitService().getVisit(Integer.parseInt(id)));
 			}
 			map.put("recentVisits", recentVisits);
+		}
+		if(noVisits != null && noVisits.equals("true"))
+		{
+			map.put("noVisits", "true");
 		}
 		
 		map.put("locations", Context.getLocationService().getAllLocations(false));

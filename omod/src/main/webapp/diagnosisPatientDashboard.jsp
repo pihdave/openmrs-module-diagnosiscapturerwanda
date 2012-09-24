@@ -144,7 +144,7 @@
 											</c:forEach>
 											<c:if test="${!empty finding || !empty findingText }">
 												<tr>
-													<td><c:if test="${!empty finding}"><openmrs:format concept="${finding.valueCoded}"/></c:if>
+													<td><c:if test="${!empty finding}"><diagnosis:capitalize value='${finding.valueCoded.displayString}'/></c:if>
 													    <c:if test="${!empty findingText}"><i>${findingText.valueText}</i></c:if></td>
 													<td align="center">
 													<a href="#" onclick="deleteDiagnosis(${obs.id});"><img src='<%= request.getContextPath() %>/images/delete.gif' alt="delete" /></a>
@@ -243,7 +243,7 @@
 		</div>
 	</div>		
 	<br/>
-	<c:if test="${!empty todaysVisit }">
+	<c:if test="${!empty todaysVisit}">
 		<div id="todaysVisitReturn"><input type="button" onclick="javascript:document.location.href='diagnosisPatientDashboard.list?patientId=${todaysVisit.patient.id}&visitId=${todaysVisit.id}'" value='<spring:message code="diagnosiscapturerwanda.returnToTodaysVisit"/>'/></div>
 	</c:if>
 	<div class="pastVisit">

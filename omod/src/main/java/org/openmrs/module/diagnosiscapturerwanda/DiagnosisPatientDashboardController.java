@@ -97,6 +97,8 @@ public class DiagnosisPatientDashboardController {
 			}
 		}
 		
+		
+		
 		//redirect to patient dashboard and show previous visits if 
 		if(visit == null)
 		{
@@ -120,6 +122,10 @@ public class DiagnosisPatientDashboardController {
 				if(visitIds.length() > 0)
 				{
 					return "redirect:/module/diagnosiscapturerwanda/diagnosisHomepage.list?visitIds=" + visitIds.toString();
+				}
+				else
+				{
+					return "redirect:/module/diagnosiscapturerwanda/diagnosisHomepage.list?noVisits=true";
 				}
 			}
 		}
@@ -147,7 +153,7 @@ public class DiagnosisPatientDashboardController {
 		map.put("concept_diastolic", MetadataDictionary.CONCEPT_VITALS_DIASTOLIC_BLOOD_PRESSURE);
 			//calculated:
 		//  BMI could be improved to only include obs from this visit?  But it makes sense to check for previous heights for adults... etc...
-		map.put("currentBMI", DiagnosisUtil.bmiAsString(patient));
+		map.put("currentBMI", DiagnosisUtil.bmiAsString(patient, visit));
 		
 		//findings
 		map.put("concept_set_findings", MetadataDictionary.CONCEPT_SET_PRIMARY_CARE_FINDINGS_CONSTRUCT);
@@ -185,14 +191,16 @@ public class DiagnosisPatientDashboardController {
     
     private int calculateDaysDifference(Date visitDate)
 	{
-    	Date todaysDate = Calendar.getInstance().getTime();
-    	long milis1 = visitDate.getTime();
-		long milis2 = todaysDate.getTime();
+    	Date[] todaysDates = DiagnosisUtil.getStartAndEndOfDay(Calendar.getInstance().getTime());
+    	Date[] visitDates = DiagnosisUtil.getStartAndEndOfDay(visitDate);
+    	
+    	long milis1 = visitDates[0].getTime();
+		long milis2 = todaysDates[0].getTime();
 		
 		long diff = milis2 - milis1;
 		
 		long diffDays = diff / (24 * 60 * 60 * 1000);
-	
+		
 		return (int)diffDays;
 	}
 

@@ -1,6 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
 <%@ include file="/WEB-INF/template/include.jsp"%>
+<%@ taglib prefix="diagnosis" uri="/WEB-INF/view/module/diagnosiscapturerwanda/resources/diagnosis.tld" %>
 
 <script type="text/javascript">
 
@@ -73,7 +74,7 @@ function sumbitEditDiagnosis() {
 						<c:if test="${!empty diagnosis || !empty diagnosisText }">
 							<tr id="diagnosisRow_${enc.encounterId}">
 								<td align="center"><img src='<%= request.getContextPath() %>/images/checkmark.png' alt="X"/> </td>
-								<td><c:if test="${!empty diagnosis}"><openmrs:format concept="${diagnosis.valueCoded}"/></c:if>
+								<td><c:if test="${!empty diagnosis}"><diagnosis:capitalize value='${diagnosis.valueCoded.displayString}'/></c:if>
 									<c:if test="${!empty diagnosisText}"><i>${diagnosisText.valueText}</i></c:if>
 								</td>
 								<td><c:if test="${!empty confirmedSusptected}"><openmrs:format concept="${confirmedSusptected.valueCoded}" withConceptNameType="SHORT"/></c:if></td>
@@ -110,7 +111,7 @@ function sumbitEditDiagnosis() {
 						<c:if test="${!empty diagnosis || !empty diagnosisText }">
 							<tr id="diagnosisRow_${encTmp.encounterId}">
 								<td></td>
-								<td><c:if test="${!empty diagnosis}"><openmrs:format concept="${diagnosis.valueCoded}"/></c:if>
+								<td><c:if test="${!empty diagnosis}"><diagnosis:capitalize value='${diagnosis.valueCoded.displayString}'/></c:if>
 									<c:if test="${!empty diagnosisText}"><i>${diagnosisText.valueText}</i></c:if>
 								</td>
 								<td><c:if test="${!empty confirmedSusptected}"><openmrs:format concept="${confirmedSusptected.valueCoded}" withConceptNameType="SHORT"/></c:if></td>

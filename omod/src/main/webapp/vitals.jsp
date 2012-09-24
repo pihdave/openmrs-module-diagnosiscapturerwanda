@@ -25,17 +25,7 @@
                     <form:errors path="values['temperature']" cssClass="error"/>
                     <spring:message code="diagnosiscapturerwanda.temperatureUnits"/>
                 </td>
-            </tr>
-            <tr>
-                <td>
-                    <spring:message code="diagnosiscapturerwanda.weight"/>
-                </td>
-                <td>
-                    <form:input path="values['weight']" size="10"/>
-                    <form:errors path="values['weight']" cssClass="error"/>
-                    <spring:message code="diagnosiscapturerwanda.weightUnits"/>
-                </td>
-            </tr>
+            </tr> 
             <tr>
                 <td>
                     <spring:message code="diagnosiscapturerwanda.height"/>
@@ -44,6 +34,16 @@
                     <form:input path="values['height']" size="10"/>
                     <form:errors path="values['height']" cssClass="error"/>
                     <spring:message code="diagnosiscapturerwanda.heightUnits"/>
+                </td>
+            </tr>
+             <tr>
+                <td>
+                    <spring:message code="diagnosiscapturerwanda.weight"/>
+                </td>
+                <td>
+                    <form:input path="values['weight']" size="10"/>
+                    <form:errors path="values['weight']" cssClass="error"/>
+                    <spring:message code="diagnosiscapturerwanda.weightUnits"/>
                 </td>
             </tr>
 	        <tr>

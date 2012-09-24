@@ -1,4 +1,5 @@
 <%@ include file="/WEB-INF/template/include.jsp"%>
+<%@ taglib prefix="diagnosis" uri="/WEB-INF/view/module/diagnosiscapturerwanda/resources/diagnosis.tld" %>
 
 <openmrs:require privilege="View Patients" otherwise="/login.htm" redirect="/index.htm" />
 
