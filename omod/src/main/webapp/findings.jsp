@@ -138,5 +138,6 @@ jQuery(document).ready(function() {
 	</form>
 	<div><input type="button" class="genericButton" value='<spring:message code="general.cancel"/>' onclick="document.location.href='diagnosisPatientDashboard.form?patientId=${patient.patientId}&visitId=${visit.visitId}';"/></div>
 </div>
+</div>
 
 <%@ include file="/WEB-INF/template/footer.jsp"%>  

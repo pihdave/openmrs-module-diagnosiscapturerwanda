@@ -39,8 +39,8 @@ jQuery(document).ready(function() {
 			height: 280,
 			width: '50%',
 			zIndex: 100,
-			buttons: { '<spring:message code="diagnosiscapturerwanda.submit"/>': function() { submitDiagnosis(); },
-					   '<spring:message code="general.cancel"/>': function() { jQuery(this).dialog("close"); }
+			buttons: { '<spring:message code="diagnosiscapturerwanda.submit" />': function() { submitDiagnosis(); },
+					   '<spring:message code="general.cancel" />': function() { jQuery(this).dialog("close"); }
 			}
 		});	
 		
@@ -52,8 +52,8 @@ jQuery(document).ready(function() {
 			height: 280,
 			width: '50%',
 			zIndex: 100,
-			buttons: { '<spring:message code="diagnosiscapturerwanda.submit"/>': function() { sumbitOtherDiagnosis() },
-					   '<spring:message code="general.cancel"/>': function() { jQuery(this).dialog("close"); }
+			buttons: { '<spring:message code="diagnosiscapturerwanda.submit" />': function() { sumbitOtherDiagnosis() },
+					   '<spring:message code="general.cancel" />': function() { jQuery(this).dialog("close"); }
 			}
 		});	
 });
@@ -197,4 +197,5 @@ jQuery(document).ready(function() {
 	</div>
 </div>	
 
+</div>
 <%@ include file="/WEB-INF/template/footer.jsp"%>  

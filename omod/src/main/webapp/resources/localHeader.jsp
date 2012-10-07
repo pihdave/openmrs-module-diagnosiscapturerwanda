@@ -1,3 +1,5 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
 <%@ include file="/WEB-INF/template/include.jsp"%>
 <%@ taglib prefix="diagnosis" uri="/WEB-INF/view/module/diagnosiscapturerwanda/resources/diagnosis.tld" %>
 
@@ -118,7 +120,7 @@
 
 
 <div class="home">
-	<input type="button" onClick="document.location='${pageContext.request.contextPath}/module/diagnosiscapturerwanda/diagnosisHomepage.list'" value='<spring:message code="diagnosiscapturerwanda.title"/> <spring:message code="diagnosiscapturerwanda.home"/>'/>
+	<input type="button" onClick="document.location='${pageContext.request.contextPath}/module/diagnosiscapturerwanda/diagnosisHomepage.list'" value="<spring:message code="diagnosiscapturerwanda.home"/>"/>
 </div>
 
 

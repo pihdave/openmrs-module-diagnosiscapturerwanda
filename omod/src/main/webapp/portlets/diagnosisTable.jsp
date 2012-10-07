@@ -14,8 +14,8 @@ jQuery(document).ready(function() {
 			title: '<spring:message code="diagnosiscapturerwanda.editDiagnosis" javaScriptEscape="true"/>',
 			height: 280,
 			width: '50%',
-			buttons: { '<spring:message code="diagnosiscapturerwanda.submit"/>': function() { sumbitEditDiagnosis(); },
-					   '<spring:message code="general.cancel"/>': function() { jQuery(this).dialog("close"); }
+			buttons: { '<spring:message code="diagnosiscapturerwanda.submit" />': function() { sumbitEditDiagnosis(); },
+					   '<spring:message code="general.cancel" />': function() { jQuery(this).dialog("close"); }
 			}
 		});	
 });

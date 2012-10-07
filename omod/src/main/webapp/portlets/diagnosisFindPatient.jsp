@@ -1,3 +1,5 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
 <%@ include file="/WEB-INF/template/include.jsp" %>
 
 <c:if test="${model.authenticatedUser != null}">
@@ -30,11 +32,11 @@
 							{fieldName:"birthdateString", header:omsgs.birthdate}
 						],
 						{
-                            searchLabel: '<spring:message code="diagnosiscapturerwanda.patientIdentifier" javaScriptEscape="true"/> ',
+                            searchLabel: '<spring:message code="diagnosiscapturerwanda.patientIdentifier"/> ',
                             resultsHandler: doHandleResults,
-                            searchPlaceholder:'<spring:message code="diagnosiscapturerwanda.searchPlaceHolder" javaScriptEscape="true"/>'
+                            searchPlaceholder:'<spring:message code="diagnosiscapturerwanda.searchPlaceHolder"/>'
                             <c:if test="${not empty param.phrase}">
-                                , searchPhrase: '<spring:message text="${ param.phrase }" javaScriptEscape="true"/>'
+                                , searchPhrase: '<spring:message text="${ param.phrase }"/>'
                             </c:if>
                         });
 

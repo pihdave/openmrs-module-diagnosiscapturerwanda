@@ -33,7 +33,7 @@ function editDiagnosis(obsGroupId, primary, confirmed) {
  * deletes a diagnosis
  */
 function deleteDiagnosis(obsGroupId) {
-	var conf = confirm("<spring:message code="diagnosiscapturerwanda.areYouSureYouWantToDeleteThisDiagnosis"/>");
+	var conf = confirm("<spring:message code='diagnosiscapturerwanda.areYouSureYouWantToDeleteThisDiagnosis' javaScriptEscape='true'/>");
 	if (conf){
 		$j.ajax({
 			  type: "POST",
@@ -46,7 +46,7 @@ function deleteDiagnosis(obsGroupId) {
 				    	document.location.href=window.location.pathname + '?patientId=${visit.patient.patientId}&visitId=${visit.visitId}&visitToday=${visitToday}';
 						return;
 				    } else {
-						alert('<spring:message code="diagnosiscapturerwanda.deleteFailed" />');
+						alert('<spring:message code="diagnosiscapturerwanda.deleteFailed" javaScriptEscape="true"/>');
 						return;
 				 	}
 				  }
@@ -82,7 +82,7 @@ function filterByCategory(id, restrictBySymptom){
 			 if (!restrictBySymptom){
 				 $j.each(json, function(item) {
 					 if (json[item].category == _symptom){
-				 		 ret+="<input type='button' class='symptom' onclick=\"javascript: setNewDiagnosis(" + json[item].id + ", \'" + json[item].name + "\');\"  value=" + json[item].name + "'/><br/>";
+				 		 ret+="<input type='button' class='symptom' onclick=\"javascript: setNewDiagnosis(" + json[item].id + ", \'" + json[item].name + "\');\"  value='" + json[item].name + "'/><br/>";
 				 	 }
 			     });
 				 //	 ret+="</td><td>";
@@ -161,7 +161,7 @@ function checkForPrimaryDiagnosis(id, form){
 		  success: function(ret) {
 			    var json = $j.parseJSON(ret);
 			    if (json.result == 'true' ){
-			    	$j(id).html('<spring:message code="diagnosiscapturerwanda.onlyOnePrimaryDiagnosisError" />');
+			    	$j(id).html('<spring:message code="diagnosiscapturerwanda.onlyOnePrimaryDiagnosisError" javaScriptEscape="true"/>');
 					$j(id).show();
 			    } else {
 			    	$j(form).submit();
