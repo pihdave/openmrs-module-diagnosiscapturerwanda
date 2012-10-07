@@ -11,9 +11,14 @@
 <openmrs:htmlInclude file="/scripts/jquery/dataTables/css/dataTables_jui.css"/>
 <openmrs:htmlInclude file="/scripts/jquery/dataTables/js/jquery.dataTables.min.js"/>
 
-<style>
-	<%@ include file="resources/diagnosiscapturerwanda.css" %>
-</style>
+<openmrs:htmlInclude file="/moduleResources/diagnosiscapturerwanda/diagnosiscapturerwanda.css" />
+
+<script type="text/javascript">
+	var lastSearch;
+	$j(document).ready(function() {
+		
+	});
+</script>
     
 <!-- header -->    
 <div>
@@ -27,11 +32,13 @@
 
 <!-- capture user's current location -->
 <% if (workstationLocation == null) { %>
-	<div class="boxInner">
+	<br/>
+	<div class="boxHeader"><spring:message code="diagnosiscapturerwanda.location" /></div>
+	<div class="box">
 	<form method="POST">
-		<table>
+		<table class="locationTable">
 			<tr>
-				<td><spring:message code="diagnosiscapturerwanda.whereAreYouLoggedIn"/></td>
+				<td><strong><spring:message code="diagnosiscapturerwanda.whereAreYouLoggedIn"/></strong></td>
 				<td>
 					<select name="location">
 						<c:forEach items="${locations}" var="location">
@@ -41,9 +48,9 @@
 						</c:forEach>
 					</select>
 				</td>
-			</tr>
-			<tr>
-				<td colspan="2"><input type="submit" value="<spring:message code="diagnosiscapturerwanda.submit"/>"/></td>
+				<td>
+					<input type="submit" value="<spring:message code="diagnosiscapturerwanda.submit"/>"/>
+				</td>
 			</tr>
 		</table>
 	</form>
@@ -54,14 +61,57 @@
 <% if (workstationLocation != null) { %>
 <br/>
 
-<!-- here's the patient search widget -->
 
-<div>
-	<openmrs:portlet id="diagnosisCapturefindPatient" url="diagnosisFindPatient"  moduleId="diagnosiscapturerwanda" parameters="size=full|postURL=${pageContext.request.contextPath}/module/diagnosiscapturerwanda/diagnosisPatientDashboard.list|showIncludeVoided=false|viewType=shortEdit|hideAddNewPatient=true"/>
-</div>
-<br/>
+<!-- here's the patient search widget -->
+<openmrs:portlet id="diagnosisCapturefindPatient" url="diagnosisFindPatient"  moduleId="diagnosiscapturerwanda" parameters="size=full|postURL=${pageContext.request.contextPath}/module/diagnosiscapturerwanda/diagnosisPatientDashboard.list|showIncludeVoided=false|viewType=shortEdit|hideAddNewPatient=true"/>
+<c:if test="${!empty recentVisits}">
+	<div class="error" id="searchErrorRecent">
+		<spring:message code="diagnosiscapturerwanda.recentVisitError" />
+	</div>
+	<br/>
+</c:if>
+
+<c:if test="${!empty noVisits}">
+	<div class="error" id="searchErrorRecent">
+		<spring:message code="diagnosiscapturerwanda.identifierError" />
+	</div>
+	<br/>
+</c:if>
+
+
+<table id="registrationTable">
+	<tr>
+		<td>
+			<span id="registrationButton">
+				<openmrs:globalProperty var="registrationUrl" key="diagnosisCaptureRwanda.registrationSystemUrl" defaultValue=""/>
+				<c:if test="${!empty registrationUrl}">
+					<button class="blue" onclick="window.location = '${pageContext.request.contextPath}/${registrationUrl}'" type="button">
+						<span><spring:message code="diagnosiscapturerwanda.registrationSystem" /></span>
+					</button>
+				</c:if>
+			</span>
+		</td>
+		<td>	
+			<c:if test="${!empty recentVisits}">
+				<div id="recentVisitDiv">
+				<div class="boxHeader"><spring:message code="diagnosiscapturerwanda.previousVisit" /></div>
+				<div class="box">
+				<c:forEach items="${recentVisits}" var="visit">
+					<div class="previousVisit">
+						<input type="button" value='${visit.patient.givenName} ${visit.patient.familyName} ${visit.patient.age}<spring:message code="Person.age.years" /> - <openmrs:formatDate date="${visit.startDatetime}" type="medium" />' onclick="document.location.href='diagnosisPatientDashboard.form?patientId=${visit.patient.patientId}&visitId=${visit.id}';"/>		
+					</div>							
+				</c:forEach>
+				</div>
+				</div>
+			</c:if>
+		</td>
+</table>
+
+
+			
+
 <!--  here's the list of today's patients -->
-<div>
+<!-- <div>
 	<span><spring:message code='diagnosiscapturerwanda.nextPatientInQueue'/></span>
 </div><br/>
 <div class="boxInner" id="queueDiv">
@@ -139,7 +189,8 @@
 		 });
 	 }
 	 
-	 </script>
+	 </script> -->
 
-<% } %>    
+<% } %>   
+
 <%@ include file="/WEB-INF/template/footer.jsp"%>  

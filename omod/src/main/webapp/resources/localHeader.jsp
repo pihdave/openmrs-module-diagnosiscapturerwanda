@@ -1,16 +1,30 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
 <%@ include file="/WEB-INF/template/include.jsp"%>
+<%@ taglib prefix="diagnosis" uri="/WEB-INF/view/module/diagnosiscapturerwanda/resources/diagnosis.tld" %>
 
 <openmrs:require privilege="View Patients" otherwise="/login.htm" redirect="/index.htm" />
 
 <openmrs:globalProperty key="visits.enabled" var="visitsEnabled" />
 
 <%-- Header showing preferred name, id, and treatment status --%>
+<c:choose>
+	<c:when test="${visitToday }">
+		<div>
+	</c:when>
+	<c:otherwise>
+		<div class="past">
+	</c:otherwise>
+</c:choose>
+
 <c:if test="${empty patientReasonForExit}">
 	<div id="patientHeader" class="boxHeader">
 </c:if>
 <c:if test="${not empty patientReasonForExit}">
 	<div id="patientHeader" class="boxHeaderRed">
 </c:if>
+
+
 <div id="patientHeaderPatientName">${patient.personName}</div>
 <div id="patientHeaderPreferredIdentifier">
 	<c:if test="${fn:length(patient.activeIdentifiers) > 0}">
@@ -96,15 +110,19 @@
 			</td>
 		</c:if>
 	</tr>
+	<tr>
+		<td colspan="3">
+			<div id="visitInformation"><spring:message code="diagnosiscapturerwanda.visitDate"/> &nbsp; <openmrs:formatDate date="${visit.startDatetime}" type="medium" /></div>
+		</td>
+	</tr>
 </table>
 </div>
 
 
-<div>
-	<br/>
-	<button class="genericButton" onClick="document.location='${pageContext.request.contextPath}/module/diagnosiscapturerwanda/diagnosisHomepage.list'"><spring:message code="diagnosiscapturerwanda.title"/> <spring:message code="diagnosiscapturerwanda.home"/></button>
+<div class="home">
+	<input type="button" onClick="document.location='${pageContext.request.contextPath}/module/diagnosiscapturerwanda/diagnosisHomepage.list'" value="<spring:message code="diagnosiscapturerwanda.home"/>"/>
 </div>
-<br/>
+
 
 
 <openmrs:globalProperty var="programIdsToShow"

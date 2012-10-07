@@ -27,6 +27,7 @@ import org.openmrs.Encounter;
 import org.openmrs.EncounterType;
 import org.openmrs.Location;
 import org.openmrs.Obs;
+import org.openmrs.Patient;
 import org.openmrs.Visit;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.diagnosiscapturerwanda.util.DiagnosisUtil;
@@ -79,8 +80,27 @@ public class VitalsController {
      * Control the rendering of the vitals form
      */
 	@RequestMapping(value="/module/diagnosiscapturerwanda/vitals", method=RequestMethod.GET)
-    public void processVitalsPageGet(ModelMap map) {
+    public void processVitalsPageGet(@RequestParam(value="patientId") Integer patientId,
+                                     @RequestParam(value="visitId") Integer visitId,
+                                     @RequestParam(value="visitToday", required=false) String visitToday,
+                                     ModelMap map) {
+		
+		Patient patient = Context.getPatientService().getPatient(patientId);
+		if (patient != null) {
+			map.addAttribute("patient", patient);
+		}
+		
+		map.addAttribute("visitToday", visitToday);
+		
+		Visit visit = Context.getVisitService().getVisit(visitId);
+		if (visit == null)
+			throw new RuntimeException("You must pass in a valid visitId to this page.");
+		if (visit != null && !visit.getPatient().equals(patient))	
+			throw new RuntimeException("visit passed into DiagnosisPatientDashboardController doesn't belong to patient passed into this controller.");
+		map.addAttribute("visit", visit);
+		
         map.addAttribute("questions", getQuestions());
+        
     }
 
     /**
@@ -126,7 +146,7 @@ public class VitalsController {
         encounter.setVisit(visit);
         Context.getEncounterService().saveEncounter(encounter);
 
-        return "redirect:/module/diagnosiscapturerwanda/diagnosisPatientDashboard.list?patientId=" + visit.getPatient().getPatientId();
+        return "redirect:/module/diagnosiscapturerwanda/diagnosisPatientDashboard.list?patientId=" + visit.getPatient().getPatientId() + "&visitId=" + visit.getId();
     }
 
     public class VitalsCommand {

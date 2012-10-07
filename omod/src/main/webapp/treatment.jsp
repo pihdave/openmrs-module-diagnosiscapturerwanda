@@ -3,22 +3,20 @@
 <%@ include file="/WEB-INF/template/include.jsp"%>
 <%@ include file="/WEB-INF/template/header.jsp"%>
 <%@ include file="resources/localHeader.jsp" %>
-    
-<style>
-	<%@ include file="resources/diagnosiscapturerwanda.css" %>
-</style>
+<openmrs:htmlInclude file="/moduleResources/diagnosiscapturerwanda/diagnosiscapturerwanda.css" />
 
-<br/>
-<b class="boxHeader">
-    <spring:message code="diagnosiscapturerwanda.treatment"/>
-</b>
-<div class="boxInner">
-
-    <openmrs:globalProperty var="displayDrugSetIds" key="dashboard.regimen.displayDrugSetIds" defaultValue="ANTIRETROVIRAL DRUGS,TUBERCULOSIS TREATMENT DRUGS" />
-    <openmrs:portlet url="patientRegimen" id="patientDashboardRegimen" patientId="${param.patientId}" parameters="displayDrugSetIds=${displayDrugSetIds}" />
-
+<div class="summaryLink">
+<input type="button" class='genericButton' value='<spring:message code="diagnosiscapturerwanda.returnToPatientDashboard"/>' onclick="document.location.href='diagnosisPatientDashboard.form?patientId=${visit.patient.patientId}&visitId=${visit.visitId}';"/>
 </div>
-<br/>
-<div><input type="button" class='genericButton' value='<spring:message code="diagnosiscapturerwanda.returnToPatientDashboard"/>' onclick="document.location.href='diagnosisPatientDashboard.form?patientId=${visit.patient.patientId}&visitId=${visit.visitId}';"/></div>
+
+<div class="boxInner gradient">
+	<div class="boxHeader">
+    	<spring:message code="diagnosiscapturerwanda.treatment"/>
+	</div>
+	<div class="box">
+    	<openmrs:portlet url="patientRegimen" id="patientDashboardRegimen" patientId="${param.patientId}" parameters="returnUrl=/module/diagnosiscapturerwanda/treatment.form?visitId=${visit.visitId}&visitToday=${visitToday }" />
+	</div>
+</div>
+</div>
 
 <%@ include file="/WEB-INF/template/footer.jsp"%>  

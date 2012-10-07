@@ -37,11 +37,15 @@ public class TreatmentController {
 	@RequestMapping(value="/module/diagnosiscapturerwanda/treatment", method=RequestMethod.GET)
     public void processTreatmentPageGet(@RequestParam(value="patientId") Integer patientId,  
     		@RequestParam(value="visitId") Integer visitId,
+    		@RequestParam(value="visitToday", required=false) String visitToday,
     		HttpSession session, ModelMap map){
+		
 		Patient patient = Context.getPatientService().getPatient(patientId);
-		if (patient == null)
+		
+		if (patient != null)
 			map.put("patient", patient);
 		
+		map.put("visitToday", visitToday);
 		Visit visit = Context.getVisitService().getVisit(visitId);
 		if (visit == null)
 			throw new RuntimeException("You must pass in a valid visitId to this page.");
